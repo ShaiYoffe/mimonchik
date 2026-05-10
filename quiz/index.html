@@ -1454,21 +1454,40 @@ body {
   box-shadow: 3px 3px 0 #2D8B7E !important;
 }
 
-.page-card .btn {
+.page-card .btn,
+.page-card #loanAmountSubmit, .page-card #monthlyIncomeSubmit,
+.page-card #dobSubmit, .page-card #debtSubmit, .page-card #citySubmit,
+.page-card #purposeOtherSubmit, .page-card #cardOtherSubmit,
+.page-card #ssnSubmit, .page-card #ssnIssueDateSubmit, .page-card #emailSubmit,
+.page-card #illnessSubmit, .page-card #insurancePaySubmit,
+.page-card #insuranceTypesSubmit, .page-card #insuranceCompanySubmit,
+.page-card #incomeSourcesSubmit {
   background: #FFD93D !important;
   color: #1A3A35 !important;
   border: 3px solid #1A3A35 !important;
   border-radius: 16px !important;
   padding: 16px 26px !important;
+  height: auto !important;
   font: 800 16px/1 'Rubik', sans-serif !important;
   letter-spacing: -0.005em !important;
   box-shadow: 5px 5px 0 #1A3A35 !important;
   transition: all .15s cubic-bezier(.34, 1.56, .64, 1) !important;
+  margin-inline-end: 8px;
 }
-.page-card .btn:hover:not(:disabled) {
+.page-card .btn:hover:not(:disabled),
+.page-card #loanAmountSubmit:hover, .page-card #monthlyIncomeSubmit:hover,
+.page-card #dobSubmit:hover, .page-card #debtSubmit:hover,
+.page-card #citySubmit:hover, .page-card #purposeOtherSubmit:hover,
+.page-card #cardOtherSubmit:hover, .page-card #ssnSubmit:hover,
+.page-card #ssnIssueDateSubmit:hover, .page-card #emailSubmit:hover,
+.page-card #illnessSubmit:hover, .page-card #insurancePaySubmit:hover,
+.page-card #insuranceTypesSubmit:hover, .page-card #insuranceCompanySubmit:hover,
+.page-card #incomeSourcesSubmit:hover {
   transform: translate(-3px, -3px) rotate(-0.5deg) !important;
   box-shadow: 8px 8px 0 #1A3A35 !important;
   background: #F5C518 !important;
+  color: #1A3A35 !important;
+  border-color: #1A3A35 !important;
 }
 .page-card .btn:active:not(:disabled) {
   transform: translate(2px, 2px) !important;
