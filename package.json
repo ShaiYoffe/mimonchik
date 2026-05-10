@@ -1,0 +1,14 @@
+{
+  "name": "mimonchik",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "mimonchik.com / מימונצ'יק — playful lead funnel + serverless route_adv safety-net (Supabase-backed)",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.6"
+  }
+}

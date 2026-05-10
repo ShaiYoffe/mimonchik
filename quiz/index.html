@@ -1,0 +1,3086 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2D8B7E">
+<title>מימונצ&#039;יק — התאמת הצעת אשראי</title>
+<meta name="description" content="כמה פרטים אחרונים וסיימנו — התאמה מדויקת של הצעת אשראי עבורך.">
+<link rel="canonical" href="https://mimonchik.com/quiz/">
+<meta name="robots" content="noindex,follow">
+<link rel="icon" type="image/png" href="/assets/logo.png">
+<link rel="apple-touch-icon" href="/assets/logo.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  /* Ashraiplus brand palette — purple-led, light surfaces. Variable names kept
+     identical to the yfx baseline so all the existing rules below pick up the
+     new values automatically. */
+  --ink: #0B1230;
+  --ink-soft: #4A4A66;
+  --paper: #FFF8F0;
+  --paper-2: #FCEFDC;
+  --gold: #FF5E5B;        /* primary accent — i-tc coral */
+  --gold-deep: #0A1A4A;   /* deep navy for hover/borders */
+  --sage: #10B981;        /* success / check icon */
+  --muted: #8A8AA8;
+  --hairline: #E6E0D2;
+  --error: #E11D48;
+  --white: #FFFFFF;
+  --serif: 'Rubik', 'Heebo', sans-serif;
+  --sans:  'Rubik', 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --step:  cubic-bezier(.2,.8,.2,1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--sans);
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--paper);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+}
+
+.stage {
+  position: relative;
+  background: var(--paper);
+  padding: 44px 56px 52px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.aside {
+  position: relative;
+  /* Purple gradient sidebar — defines the ashraiplus brand on the page */
+  background: linear-gradient(160deg, #050D2E 0%, #0A1A4A 55%, #112466 100%);
+  color: var(--white);
+  padding: 44px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.aside::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 80% 10%, rgba(255,255,255,.16), transparent 55%),
+    radial-gradient(circle at 15% 92%, rgba(255,255,255,.08), transparent 55%);
+  pointer-events: none;
+}
+
+.brand {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.brand-logo {
+  height: 56px;
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 2px 10px rgba(0,0,0,.3));
+}
+
+/* Big step number */
+.step-big {
+  position: relative;
+  line-height: 1;
+}
+.step-big .n {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(96px, 14vw, 188px);
+  color: var(--gold);
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  display: block;
+  line-height: .88;
+  transition: opacity .4s var(--step), transform .4s var(--step);
+}
+.step-big .slash {
+  color: rgba(251,248,241,.28);
+  font-size: clamp(60px, 9vw, 100px);
+  font-family: var(--serif);
+  vertical-align: baseline;
+  font-weight: 300;
+  margin: 0 4px 0 8px;
+}
+.step-big .total {
+  color: rgba(251,248,241,.38);
+  font-size: clamp(60px, 9vw, 100px);
+  font-family: var(--serif);
+  vertical-align: baseline;
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+}
+
+.section-label {
+  position: relative;
+  margin-top: 22px;
+  font-size: 11px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.section-name {
+  position: relative;
+  margin-top: 8px;
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -.005em;
+  color: rgba(251,248,241,.92);
+  min-height: 32px;
+  transition: opacity .4s var(--step);
+}
+
+.progress-bar {
+  position: relative;
+  height: 2px;
+  background: rgba(251,248,241,.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 28px;
+}
+.progress-bar::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0; bottom: 0;
+  width: var(--p, 4%);
+  background: linear-gradient(90deg, var(--gold), var(--gold-deep));
+  transition: width .6s var(--step);
+}
+
+.aside-footer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(251,248,241,.4);
+  gap: 16px;
+}
+.aside-footer a { color: rgba(251,248,241,.75); text-decoration: none; border-bottom: 1px solid rgba(251,248,241,.2); padding-bottom: 1px; }
+.aside-footer a:hover { color: var(--gold); border-color: var(--gold); }
+
+/* Stage — right */
+.stage-top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  min-height: 28px;
+}
+
+.stage-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.form-wrap {
+  width: 100%;
+  max-width: 640px;
+}
+
+.form-step {
+  display: none;
+  animation: stepIn .7s var(--step) both;
+}
+.form-step.active-step { display: block; }
+
+@keyframes stepIn {
+  0%   { opacity: 0; transform: translateY(14px); filter: blur(4px); }
+  60%  { filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+.q-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(26px, 3vw, 40px);
+  line-height: 1.14;
+  letter-spacing: -0.005em;
+  margin-bottom: 32px;
+  max-width: 18ch;
+}
+
+.q-hint {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin-top: -22px;
+  margin-bottom: 28px;
+  max-width: 32ch;
+}
+
+/* Answer pills */
+.answers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.answer-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  color: var(--ink);
+  font: 500 15px/1 var(--sans);
+  border: 1px solid var(--hairline);
+  padding: 14px 22px;
+  cursor: pointer;
+  transition: all .25s var(--step);
+  letter-spacing: 0;
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  line-height: 1.2;
+}
+.answer-btn:hover {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  transform: translateY(-1px);
+}
+.answer-btn:active {
+  transform: translateY(0);
+}
+
+/* Card-with-logo answer grid (credit card type question) */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-top: 8px;
+  max-width: 720px;
+}
+.card-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 18px 12px 14px;
+  border-radius: 14px;
+  background: #fff;
+  min-height: 120px;
+  text-align: center;
+  line-height: 1.25;
+}
+.card-btn img {
+  height: 42px;
+  width: auto;
+  max-width: 90%;
+  object-fit: contain;
+  transition: filter .25s var(--step);
+}
+.card-btn span {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  transition: color .25s var(--step);
+}
+.card-btn:hover {
+  background: #fff;
+  border-color: var(--ink);
+  transform: translateY(-2px);
+}
+.card-btn:hover span { color: var(--ink); }
+
+/* BDI Credit-rating scale */
+.bdi-scale {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+  padding: 10px 4px 4px; /* breathing room so the dot's outer ring isn't clipped */
+  position: relative;
+  max-width: 760px;
+  overflow: visible;
+}
+.bdi-scale::before {
+  content: "";
+  position: absolute;
+  top: 24px; /* matches the new top padding so the track stays centred on the dots */
+  inset-inline: 10%;
+  height: 3px;
+  background: linear-gradient(to left, #16a34a, #65a30d, #ca8a04, #ea580c, #dc2626);
+  border-radius: 999px;
+  opacity: 0.55;
+  z-index: 0;
+}
+.bdi-scale .bdi-opt:nth-child(1) { --bdi-color: #16a34a; } /* מצויין · ירוק */
+.bdi-scale .bdi-opt:nth-child(2) { --bdi-color: #65a30d; } /* תקין · ירוק-זית */
+.bdi-scale .bdi-opt:nth-child(3) { --bdi-color: #ca8a04; } /* סביר · חרדל */
+.bdi-scale .bdi-opt:nth-child(4) { --bdi-color: #ea580c; } /* שלילי · כתום */
+.bdi-scale .bdi-opt:nth-child(5) { --bdi-color: #dc2626; } /* שלילי מאד · אדום */
+/* Each option is a clickable card so the click affordance is obvious */
+.bdi-scale .bdi-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1.5px solid var(--hairline);
+  border-radius: 14px;
+  padding: 14px 6px 10px;
+  margin: 0;
+  cursor: pointer;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  width: auto;
+  font-family: var(--sans);
+  overflow: visible;
+  transition: all .25s var(--step);
+  box-shadow: 0 2px 6px -2px rgba(26, 26, 46, .06), 0 1px 2px rgba(26, 26, 46, .04);
+}
+.bdi-scale .bdi-opt .bdi-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--bdi-color);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px var(--bdi-color);
+  box-sizing: border-box;
+  transition: all .25s var(--step);
+}
+.bdi-scale .bdi-opt .bdi-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--bdi-color);
+  letter-spacing: 0;
+  transition: all .25s var(--step);
+}
+.bdi-scale .bdi-opt .bdi-score {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bdi-color) 14%, transparent);
+  color: var(--bdi-color);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  margin-top: -4px;
+}
+.bdi-scale .bdi-opt .bdi-desc {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  font-weight: 400;
+  max-width: 18ch;
+}
+.bdi-scale .bdi-opt:hover {
+  background: #fff;
+  border-color: var(--bdi-color);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px -8px color-mix(in srgb, var(--bdi-color) 35%, transparent);
+}
+.bdi-scale .bdi-opt:hover .bdi-dot {
+  transform: scale(1.18);
+  box-shadow: 0 0 0 2px var(--bdi-color), 0 0 0 8px color-mix(in srgb, var(--bdi-color) 22%, transparent);
+}
+.bdi-scale .bdi-opt:active { transform: translateY(-1px); }
+
+/* Action prompt above the scale — makes the click affordance unmistakable */
+.bdi-scale-prompt {
+  display: block;
+  text-align: center;
+  margin: 14px 0 -4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  letter-spacing: 0.01em;
+}
+.bdi-scale-prompt::before { content: "👆 "; }
+
+@media (max-width: 700px) {
+  .bdi-scale { grid-template-columns: 1fr; gap: 10px; max-width: none; }
+  .bdi-scale::before { display: none; }
+  .bdi-scale .bdi-opt {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    text-align: start;
+    border: 1px solid var(--hairline);
+    padding: 12px 14px;
+    border-radius: 12px;
+    border-inline-start: 4px solid var(--bdi-color);
+  }
+  .bdi-scale .bdi-opt .bdi-dot { flex-shrink: 0; width: 22px; height: 22px; }
+  .bdi-scale .bdi-opt .bdi-label { font-size: 15px; }
+  .bdi-scale .bdi-opt .bdi-desc { max-width: none; font-size: 12px; color: var(--ink-soft); }
+  .bdi-scale .bdi-opt:hover { transform: none; border-color: var(--ink); border-inline-start-color: var(--bdi-color); }
+}
+
+/* Input fields */
+.input-field {
+  position: relative;
+  margin-bottom: 6px;
+  max-width: 420px;
+}
+.input-field input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  padding: 14px 2px 12px;
+  font: inherit;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--ink);
+  background: transparent;
+  outline: none;
+  transition: border-color .25s var(--step);
+  font-family: var(--sans);
+}
+.input-field input::placeholder { color: var(--muted); font-weight: 300; }
+.input-field input:focus { border-bottom-color: var(--gold); }
+
+/* Date-of-birth: 3 separate fields (day / month / year) */
+.dob-grid {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 6px;
+  max-width: 380px;
+  direction: ltr; /* day leftmost, year rightmost — matches DD/MM/YYYY example */
+}
+.dob-field {
+  flex: 1;
+  min-width: 0;
+}
+.dob-field--year { flex: 1.5; }
+.dob-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+  text-align: center;
+  font-family: var(--sans);
+}
+.dob-field input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  padding: 14px 2px 12px;
+  font: inherit;
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--ink);
+  background: transparent;
+  outline: none;
+  transition: border-color .25s var(--step);
+  font-family: var(--sans);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  direction: ltr;
+}
+.dob-field input::placeholder {
+  color: var(--muted);
+  font-weight: 300;
+  letter-spacing: 0.06em;
+}
+.dob-field input:focus { border-bottom-color: var(--gold); }
+.input-field::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: var(--gold);
+  transition: width .4s var(--step);
+  pointer-events: none;
+}
+.input-field:focus-within::after { width: 100%; }
+
+.error-message {
+  color: var(--error);
+  font-size: 13px;
+  margin: 8px 0 0;
+  min-height: 18px;
+}
+
+/* Slider */
+.slider-wrap { max-width: 520px; margin-top: 6px; }
+.slider-display {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+.slider-display .val {
+  font-family: var(--serif);
+  font-size: clamp(54px, 7vw, 84px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.slider-display .cur {
+  font-family: var(--serif);
+  font-size: clamp(30px, 4vw, 44px);
+  color: var(--muted);
+  font-weight: 400;
+}
+#loanSlider {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  margin: 8px 0 16px;
+  cursor: pointer;
+}
+#loanSlider::-webkit-slider-runnable-track {
+  height: 2px;
+  background: var(--hairline);
+  border: 0;
+}
+#loanSlider::-webkit-slider-thumb {
+  appearance: none; -webkit-appearance: none;
+  width: 24px; height: 24px;
+  background: var(--ink);
+  border: 3px solid var(--paper);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--ink);
+  margin-top: -11px;
+  cursor: grab;
+  transition: transform .2s var(--step), background .2s var(--step);
+}
+#loanSlider:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.15); background: var(--gold); }
+#loanSlider::-moz-range-track { height: 2px; background: var(--hairline); border: 0; }
+#loanSlider::-moz-range-thumb {
+  width: 18px; height: 18px;
+  background: var(--ink); border: 3px solid var(--paper);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--ink);
+  cursor: grab;
+}
+.slider-hint {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: .02em;
+}
+#loanAmountInput { display: none; }
+#loanAmountWrapper { display: contents; }
+
+/* Buttons (CTAs) */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 28px;
+  font: 500 15px/1 var(--sans);
+  letter-spacing: .02em;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 0;
+  cursor: pointer;
+  transition: all .3s var(--step);
+  position: relative;
+  overflow: hidden;
+}
+.btn::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform .4s var(--step);
+  z-index: 0;
+}
+.btn > * { position: relative; z-index: 1; }
+.btn:hover:not(:disabled) { border-color: var(--gold); color: var(--ink); }
+.btn:hover:not(:disabled)::before { transform: scaleX(1); transform-origin: left; }
+.btn:disabled { background: transparent; color: var(--muted); border-color: var(--hairline); cursor: not-allowed; }
+.btn .arr { font-family: var(--serif); font-size: 20px; line-height: 1; transform: translateY(-1px); }
+.btn.ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--hairline);
+}
+.btn.ghost::before { background: var(--paper-2); }
+.btn.ghost:hover { border-color: var(--ink); color: var(--ink); }
+
+.back-btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--ink-soft);
+  padding: 14px 22px;
+  font: 500 14px/1 var(--sans);
+  cursor: pointer;
+  border-radius: 999px;
+  transition: all .25s var(--step);
+}
+.back-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+/* Named submit buttons inherit .btn primary style */
+#loanAmountSubmit, #monthlyIncomeSubmit,
+#dobSubmit, #debtSubmit, #citySubmit, #purposeOtherSubmit, #cardOtherSubmit,
+#ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 28px;
+  font: 500 15px/1 var(--sans);
+  letter-spacing: .02em;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 0;
+  cursor: pointer;
+  transition: all .3s var(--step);
+  margin-top: 24px;
+  margin-inline-end: 8px;
+}
+#loanAmountSubmit:hover, #monthlyIncomeSubmit:hover,
+#dobSubmit:hover,
+#debtSubmit:hover, #citySubmit:hover, #purposeOtherSubmit:hover, #cardOtherSubmit:hover,
+#ssnSubmit:hover, #ssnIssueDateSubmit:hover, #emailSubmit:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+}
+
+.chat-bubble, .chat-bubble img { display: none; }
+
+/* ===== Post-submit: success message + insurance pitch ===== */
+.success-card {
+  text-align: center;
+  padding: 8px 0 4px;
+  margin-bottom: 18px;
+  animation: stepIn .8s var(--step) both;
+}
+.success-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+  border-radius: 999px;
+  background: #16a34a;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.25);
+}
+.success-icon--gold {
+  background: var(--gold);
+  box-shadow: 0 8px 24px rgba(202, 138, 4, 0.30);
+  font-family: var(--serif);
+  font-size: 36px;
+}
+.success-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(28px, 3.2vw, 38px);
+  line-height: 1.15;
+  margin: 0 0 12px;
+}
+.success-body {
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 48ch;
+  margin: 0 auto;
+}
+
+/* Insurance pitch — prominent block to nudge into the bonus flow */
+.insurance-pitch {
+  margin-top: 32px;
+  padding: 26px 28px;
+  border: 2px solid var(--gold);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(202, 138, 4, 0.08), rgba(202, 138, 4, 0.02));
+  position: relative;
+}
+.pitch-badge {
+  position: absolute;
+  top: -12px;
+  inset-inline-start: 24px;
+  background: var(--gold);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 5px 14px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+.insurance-pitch h3 {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.2;
+  margin: 0 0 10px;
+  color: var(--ink);
+}
+.insurance-pitch p {
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin: 0 0 18px;
+}
+.insurance-pitch p strong { color: var(--ink); font-weight: 600; }
+#insurancePitchYes {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  padding: 0 26px;
+  font: 600 15px/1 var(--sans);
+  border: 1px solid var(--gold);
+  background: var(--gold);
+  color: #fff;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all .25s var(--step);
+}
+#insurancePitchYes:hover { background: var(--ink); border-color: var(--ink); }
+#insurancePitchNo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  padding: 0 22px;
+  font: 500 14px/1 var(--sans);
+  border: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--ink-soft);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all .25s var(--step);
+}
+#insurancePitchNo:hover { border-color: var(--ink); color: var(--ink); }
+#successFinishBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 28px;
+  font: 500 15px/1 var(--sans);
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 0;
+  cursor: pointer;
+  transition: all .25s var(--step);
+  margin-top: 24px;
+}
+#successFinishBtn:hover { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+
+/* Multi-select grid (insurance types / companies) */
+.multi-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+  max-width: 760px;
+}
+.multi-btn {
+  appearance: none;
+  background: transparent;
+  color: var(--ink);
+  font: 500 14px/1.2 var(--sans);
+  border: 1px solid var(--hairline);
+  padding: 12px 18px;
+  cursor: pointer;
+  transition: all .2s var(--step);
+  border-radius: 999px;
+  text-align: center;
+}
+.multi-btn:hover { border-color: var(--ink); }
+.multi-btn.is-selected {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.multi-btn.is-selected:hover { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+
+@media (max-width: 700px) {
+  .insurance-pitch { padding: 22px 18px; }
+  .insurance-pitch h3 { font-size: 19px; }
+  .multi-btn { padding: 10px 14px; font-size: 13px; }
+  #insurancePitchYes, #insurancePitchNo { height: 48px; }
+}
+
+.form-secure-note {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/* Date input */
+input[type="date"].datetime-input-box,
+#ssnIssueDateInput {
+  font-family: var(--sans);
+  font-size: 18px;
+  padding: 14px 2px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--ink);
+  outline: none;
+  width: 100%;
+  max-width: 280px;
+  transition: border-color .25s var(--step);
+}
+input[type="date"].datetime-input-box:focus,
+#ssnIssueDateInput:focus { border-bottom-color: var(--gold); }
+.datetime-input-box {
+  width: 100%;
+  max-width: 420px;
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  padding: 14px 2px 12px;
+  font: 500 20px/1.2 var(--sans);
+  color: var(--ink);
+  background: transparent;
+  outline: none;
+}
+.datetime-input-box:focus { border-bottom-color: var(--gold); }
+.datetime-input-box::placeholder { color: var(--muted); font-weight: 300; }
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; }
+  /* Compact mobile header — half the previous footprint, gives the form room to breathe */
+  .aside {
+    padding: 12px 18px 10px;
+    height: auto;
+    position: static;
+    min-height: unset;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 14px;
+    row-gap: 6px;
+    align-items: center;
+  }
+  .brand { grid-column: 1; grid-row: 1; }
+  .brand-logo { height: 32px; }
+  .aside > div:nth-child(2) { grid-column: 2; grid-row: 1; text-align: end; }
+  .step-big { line-height: 1; }
+  .step-big .n { font-size: 26px; line-height: 1; }
+  .step-big .slash, .step-big .total { font-size: 18px; }
+  .section-label { display: none; }
+  .section-name { font-size: 12px; min-height: 0; margin-top: 2px; color: rgba(251,248,241,.85); }
+  .progress-bar { grid-column: 1 / -1; grid-row: 2; margin-top: 4px; height: 2px; }
+  .aside-footer { display: none; } /* hidden on mobile to keep the header thin */
+  .stage { padding: 20px 18px 32px; min-height: auto; }
+  .stage-wrap { align-items: flex-start; }
+  .q-title { font-size: 24px; max-width: none; margin-bottom: 22px; }
+  .answer-btn { padding: 12px 18px; font-size: 14px; }
+  .card-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .card-btn { min-height: 96px; padding: 12px 6px 10px; gap: 8px; border-radius: 12px; }
+  .card-btn img { height: 28px; max-width: 95%; }
+  .card-btn span { font-size: 11px; line-height: 1.25; }
+  .input-field input { font-size: 18px; }
+  .slider-display .val { font-size: 44px; }
+  .slider-display .cur { font-size: 26px; }
+  .btn, #loanAmountSubmit, #monthlyIncomeSubmit,
+  #dobSubmit, #debtSubmit, #citySubmit, #purposeOtherSubmit, #cardOtherSubmit,
+  #ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit {
+    height: 52px; padding: 0 22px;
+  }
+  .back-btn { padding: 12px 18px; font-size: 13px; }
+}
+
+::selection { background: var(--gold); color: var(--ink); }
+iframe[src*="googletagmanager"] { display: none !important; }
+
+/* ============================================================================
+   ashraiplus quiz — distinct layout: top bar with logo + circular step ring,
+   centred glassmorphism question card on a soft purple-haze background.
+   No sidebar (different from yfx), no chat-bubble (different from calmash).
+   This block overrides the inherited yfx layout above.
+   ============================================================================ */
+
+body {
+  /* Replace yfx's flat paper background with a soft purple haze */
+  background:
+    radial-gradient(ellipse 80% 50% at 78% -8%,  rgba(10, 26, 74, .14), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 12% 110%, rgba(10, 26, 74, .10), transparent 60%),
+    var(--paper);
+  background-attachment: fixed;
+}
+
+/* Disable the inherited grid */
+.shell { display: block; height: auto; min-height: 0; padding: 0; margin: 0; }
+
+/* ---------- Top bar (always sticks to the top of the viewport) ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  background: rgba(250, 250, 252, .82);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  border-bottom: 1px solid rgba(10, 26, 74, .08);
+}
+.topbar .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+.topbar .brand-mark {
+  width: 38px; height: 38px;
+  background: var(--gold-deep);
+  color: var(--gold);
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Heebo', sans-serif;
+  font-weight: 900;
+  font-size: 19px;
+  letter-spacing: -0.04em;
+  box-shadow: 3px 3px 0 var(--gold);
+  flex-shrink: 0;
+}
+.topbar .brand-text { line-height: 1; }
+.topbar .brand-name-q {
+  display: block;
+  font-family: 'Heebo', sans-serif;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.topbar .brand-sub-q {
+  display: block;
+  font-family: 'Assistant', 'Rubik', sans-serif;
+  font-weight: 500;
+  font-size: 9.5px;
+  color: var(--muted);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+@media (max-width: 540px) {
+  .topbar .brand-sub-q { display: none; }
+  .topbar .brand-name-q { font-size: 14.5px; }
+  .topbar .brand-mark { width: 34px; height: 34px; font-size: 17px; box-shadow: 2px 2px 0 var(--gold); }
+}
+
+/* ---------- Step ring (circular progress around the X/Y counter) ---------- */
+.step-meter {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.step-ring {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+.step-ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+.step-ring-bg {
+  fill: none;
+  stroke: rgba(10, 26, 74, .14);
+  stroke-width: 2.6;
+}
+.step-ring-fill {
+  fill: none;
+  stroke: var(--gold);             /* purple under ashraiplus palette */
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 100 100;
+  stroke-dashoffset: 96;           /* updated dynamically by JS via --p var */
+  stroke-dashoffset: calc(100 - var(--p, 4)) ;
+  transition: stroke-dashoffset .6s var(--step);
+  filter: drop-shadow(0 2px 6px rgba(10, 26, 74, .35));
+}
+.step-ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.step-ring-text .step-ring-slash { color: var(--muted); margin: 0 1px; font-weight: 400; }
+
+.step-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.step-eyebrow {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.step-section {
+  font-family: var(--sans);
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--gold-deep);
+  margin-top: 2px;
+  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Main page area + centred card ---------- */
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 36px 20px 48px;
+  position: relative;
+}
+
+.page-card {
+  position: relative;
+  background: rgba(255, 255, 255, .82);
+  border: 1px solid rgba(10, 26, 74, .12);
+  border-radius: 24px;
+  box-shadow:
+    0 30px 60px -20px rgba(10, 26, 74, .25),
+    0 12px 24px -8px rgba(26, 26, 46, .08);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  overflow: hidden;
+}
+.page-card-stripe {
+  height: 4px;
+  background: linear-gradient(90deg, var(--gold-deep) 0%, var(--gold) 50%, #FCEFDC 100%);
+  background-size: 200% 100%;
+  animation: shimmer 5s linear infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.page-card-inner {
+  padding: 28px 32px 36px;
+}
+.page-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  background: var(--paper-2);
+  padding: 5px 12px;
+  border-radius: 999px;
+  margin-bottom: 18px;
+}
+
+/* The horizontal progress bar moves under the page-tag, full-width thin line */
+.progress-bar {
+  position: relative;
+  height: 3px;
+  background: rgba(10, 26, 74, .08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 4px 0 22px;
+}
+.progress-bar::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0; bottom: 0;
+  /* --p is a unit-less number 0..100 supplied by JS; multiply by 1% for the bar */
+  width: calc(var(--p, 4) * 1%);
+  background: linear-gradient(90deg, var(--gold), var(--gold-deep));
+  transition: width .6s var(--step);
+  border-radius: inherit;
+}
+
+/* The legacy stage-wrap/form-wrap are now just transparent containers */
+.stage, .stage-top, .stage-wrap, .form-wrap {
+  all: unset;
+  display: block;
+}
+.stage-top { display: none; }
+
+/* ---------- Footer (replaces aside-footer) ---------- */
+.page-foot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 24px 36px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--muted);
+}
+.page-foot a {
+  color: var(--gold-deep);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(10, 26, 74, .25);
+  padding-bottom: 1px;
+}
+.page-foot a:hover { color: var(--gold); border-color: var(--gold); }
+
+/* ---------- Mobile tightening ---------- */
+@media (max-width: 700px) {
+  .topbar { padding: 10px 14px; gap: 10px; }
+  .topbar .brand-logo { height: 32px; }
+  .step-meter { gap: 10px; }
+  .step-ring { width: 48px; height: 48px; }
+  .step-ring-text { font-size: 12.5px; }
+  .step-section { font-size: 13px; max-width: 130px; }
+  .step-eyebrow { font-size: 9.5px; }
+  .page { padding: 22px 14px 32px; }
+  .page-card { border-radius: 20px; }
+  .page-card-inner { padding: 22px 20px 28px; }
+  .page-foot { padding: 14px 18px 28px; gap: 14px; font-size: 11px; }
+}
+
+/* Form-step content inside the card — strip yfx-specific paddings/margins */
+.page-card .form-step { animation: stepIn .55s var(--step) both; }
+.page-card .form-step .q-title {
+  font-family: var(--sans);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+/* ============================================================================
+   MIMONCHIK QUIZ — Sticker/scrapbook playful redesign
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Suez+One&family=Rubik:wght@400;500;600;700;800&display=swap');
+
+body {
+  background: #FFFCF5 !important;
+  background-image:
+    radial-gradient(circle at 20% 18%, #D1F5CC 0, transparent 1.5px),
+    radial-gradient(circle at 80% 60%, #FFE5D9 0, transparent 1.5px),
+    radial-gradient(circle at 50% 90%, #ECF9E9 0, transparent 1.5px) !important;
+  background-size: 60px 60px, 80px 80px, 50px 50px !important;
+  background-attachment: fixed !important;
+  color: #1A3A35;
+}
+
+.topbar {
+  background: #FFFCF5 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: 3px dashed #2D8B7E !important;
+  padding: 16px 22px !important;
+}
+.topbar .brand { gap: 0 !important; padding: 0 !important; background: transparent !important; border: 0 !important; }
+.topbar .brand-mark { display: none !important; }
+.topbar .brand-text {
+  display: block !important;
+  background: url('/assets/logo-wordmark.png') center/contain no-repeat;
+  width: 130px;
+  height: 42px;
+}
+.topbar .brand-name-q,
+.topbar .brand-sub-q { display: none !important; }
+
+.step-ring { display: none !important; }
+.step-meter {
+  background: #FFD93D;
+  border: 2.5px solid #1A3A35;
+  border-radius: 999px !important;
+  padding: 6px 14px !important;
+  gap: 10px !important;
+  box-shadow: 3px 3px 0 #1A3A35;
+  transform: rotate(-1deg);
+}
+.step-meter::before {
+  content: attr(data-step-counter);
+  font-family: 'Rubik', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: #1A3A35;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.step-meta { flex-direction: row !important; align-items: center; gap: 0 !important; }
+.step-eyebrow { display: none !important; }
+.step-section {
+  font-family: 'Rubik', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 12.5px !important;
+  color: #1A5E55 !important;
+  letter-spacing: -0.005em !important;
+  text-transform: none !important;
+  margin: 0 !important;
+  max-width: 200px !important;
+}
+
+.page { max-width: 720px !important; padding: 36px 22px 48px !important; }
+.page-card {
+  background: #fff !important;
+  border: 3px solid #1A3A35 !important;
+  border-radius: 28px !important;
+  box-shadow: 8px 8px 0 #1A3A35, 8px 8px 0 4px #FFD93D !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  position: relative;
+}
+.page-card::before {
+  content: "";
+  position: absolute;
+  top: -16px;
+  inset-inline-end: 30px;
+  width: 80px;
+  height: 22px;
+  background: #FFD93D;
+  border: 2px solid #1A3A35;
+  border-radius: 4px;
+  transform: rotate(-6deg);
+  z-index: 5;
+}
+.page-card-stripe {
+  height: 6px !important;
+  background: #2D8B7E !important;
+  background-size: 200% 100% !important;
+  animation: none !important;
+}
+.page-card-inner { padding: 32px 28px 32px !important; }
+
+.page-tag {
+  background: #A8E5A1 !important;
+  color: #1A3A35 !important;
+  border: 2px solid #1A3A35 !important;
+  border-radius: 999px !important;
+  padding: 5px 12px !important;
+  font-family: 'Rubik', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 11.5px !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  margin-bottom: 18px !important;
+}
+
+.page-card .progress-bar {
+  height: 6px !important;
+  background: #ECF9E9 !important;
+  border: 1.5px solid #1A3A35 !important;
+  border-radius: 999px !important;
+  margin: 4px 0 24px !important;
+  overflow: hidden;
+  position: relative;
+}
+.page-card .progress-bar::after {
+  background: #2D8B7E !important;
+  border-radius: 999px !important;
+  height: 100% !important;
+}
+
+.page-card .form-step .q-title {
+  font-family: 'Suez One', 'Rubik', sans-serif !important;
+  font-weight: 400 !important;
+  font-size: clamp(22px, 3.6vw, 30px) !important;
+  line-height: 1.18 !important;
+  letter-spacing: -0.01em !important;
+  color: #1A3A35 !important;
+  margin-bottom: 14px !important;
+}
+.page-card .q-hint {
+  background: #ECF9E9 !important;
+  border: 2px solid #1A3A35 !important;
+  border-radius: 16px !important;
+  padding: 14px 16px !important;
+  margin: 6px 0 22px !important;
+  font-size: 13.5px !important;
+  color: #4F635F !important;
+  max-width: none !important;
+  box-shadow: 3px 3px 0 #1A3A35;
+}
+.page-card .q-hint strong { color: #1A5E55 !important; font-weight: 700 !important; }
+
+.answers { gap: 10px !important; }
+.page-card .answer-btn {
+  background: #fff !important;
+  color: #1A3A35 !important;
+  border: 2.5px solid #1A3A35 !important;
+  border-radius: 999px !important;
+  padding: 13px 22px !important;
+  font: 600 15px/1.2 'Rubik', sans-serif !important;
+  letter-spacing: -0.005em !important;
+  box-shadow: 3px 3px 0 #1A3A35 !important;
+  transition: all .15s cubic-bezier(.34, 1.56, .64, 1) !important;
+}
+.page-card .answer-btn:hover {
+  background: #FFD93D !important;
+  color: #1A3A35 !important;
+  transform: translate(-2px, -2px) rotate(-0.5deg) !important;
+  box-shadow: 5px 5px 0 #1A3A35 !important;
+}
+.page-card .answer-btn:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0 #1A3A35 !important;
+}
+
+.card-grid { gap: 12px !important; }
+.page-card .card-btn {
+  background: #fff !important;
+  border: 2.5px solid #1A3A35 !important;
+  border-radius: 18px !important;
+  padding: 16px 12px 12px !important;
+  min-height: 116px !important;
+  box-shadow: 3px 3px 0 #1A3A35 !important;
+  transition: all .15s cubic-bezier(.34, 1.56, .64, 1) !important;
+}
+.page-card .card-btn:hover {
+  background: #ECF9E9 !important;
+  transform: translate(-2px, -2px) rotate(-0.5deg) !important;
+  box-shadow: 5px 5px 0 #1A3A35 !important;
+}
+.page-card .card-btn span { font-size: 13px !important; font-weight: 700 !important; color: #1A3A35 !important; }
+
+.page-card .bdi-scale .bdi-opt {
+  background: #fff !important;
+  border: 2.5px solid #1A3A35 !important;
+  border-radius: 16px !important;
+  box-shadow: 3px 3px 0 var(--bdi-color) !important;
+}
+.page-card .bdi-scale .bdi-opt:hover {
+  transform: translate(-2px, -2px) rotate(-0.4deg) !important;
+  box-shadow: 5px 5px 0 var(--bdi-color) !important;
+}
+.bdi-scale-prompt { color: #4F635F !important; font-weight: 600 !important; }
+
+.page-card .input-field input {
+  border: 2px solid #1A3A35 !important;
+  background: #FFFCF5 !important;
+  border-radius: 14px !important;
+  padding: 14px 16px !important;
+  font-size: 17px !important;
+  font-family: 'Rubik', sans-serif !important;
+  font-weight: 600 !important;
+  color: #1A3A35 !important;
+  transition: all .2s cubic-bezier(.22, 1, .36, 1);
+}
+.page-card .input-field input:focus {
+  background: #fff !important;
+  box-shadow: 4px 4px 0 #2D8B7E !important;
+  transform: translate(-1px, -1px);
+}
+.page-card .dob-field input {
+  border: 2px solid #1A3A35 !important;
+  background: #FFFCF5 !important;
+  border-radius: 14px !important;
+  text-align: center;
+  font-size: 19px !important;
+  font-family: 'Rubik', sans-serif !important;
+  font-weight: 700 !important;
+}
+.page-card .dob-field input:focus {
+  background: #fff !important;
+  box-shadow: 3px 3px 0 #2D8B7E !important;
+}
+
+.page-card .btn {
+  background: #FFD93D !important;
+  color: #1A3A35 !important;
+  border: 3px solid #1A3A35 !important;
+  border-radius: 16px !important;
+  padding: 16px 26px !important;
+  font: 800 16px/1 'Rubik', sans-serif !important;
+  letter-spacing: -0.005em !important;
+  box-shadow: 5px 5px 0 #1A3A35 !important;
+  transition: all .15s cubic-bezier(.34, 1.56, .64, 1) !important;
+}
+.page-card .btn:hover:not(:disabled) {
+  transform: translate(-3px, -3px) rotate(-0.5deg) !important;
+  box-shadow: 8px 8px 0 #1A3A35 !important;
+  background: #F5C518 !important;
+}
+.page-card .btn:active:not(:disabled) {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0 #1A3A35 !important;
+}
+.page-card .btn:disabled {
+  background: #EDE5D2 !important;
+  color: #8FA39F !important;
+  border-color: #D9CFB6 !important;
+  box-shadow: 4px 4px 0 #D9CFB6 !important;
+}
+.page-card .btn.ghost {
+  background: #fff !important;
+  color: #1A3A35 !important;
+  border: 2.5px solid #1A3A35 !important;
+  box-shadow: 4px 4px 0 #1A3A35 !important;
+}
+.page-card .btn.ghost:hover {
+  background: #A8E5A1 !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0 #1A3A35 !important;
+}
+.page-card .btn.ghost::before { display: none !important; }
+
+.page-card .back-btn {
+  background: #fff !important;
+  border: 2px solid #1A3A35 !important;
+  border-radius: 999px !important;
+  color: #4F635F !important;
+  padding: 7px 14px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  font-family: 'Rubik', sans-serif !important;
+  letter-spacing: -0.005em !important;
+  box-shadow: 2px 2px 0 #1A3A35 !important;
+}
+.page-card .back-btn:hover {
+  background: #A8E5A1 !important;
+  color: #1A3A35 !important;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #1A3A35 !important;
+}
+
+.page-card #loanSlider {
+  background: #ECF9E9 !important;
+  border: 2px solid #1A3A35 !important;
+  height: 8px !important;
+  border-radius: 999px !important;
+}
+.page-card #loanSlider::-webkit-slider-thumb {
+  background: #FFD93D !important;
+  border: 3px solid #1A3A35 !important;
+  border-radius: 999px !important;
+  box-shadow: 2px 2px 0 #1A3A35 !important;
+  width: 28px !important;
+  height: 28px !important;
+}
+.page-card #loanSlider::-moz-range-thumb {
+  background: #FFD93D !important;
+  border: 3px solid #1A3A35 !important;
+  border-radius: 999px !important;
+}
+.page-card .slider-display .cur {
+  color: #1A5E55 !important;
+  font-family: 'Suez One', sans-serif !important;
+  font-weight: 400 !important;
+}
+
+.page-foot {
+  color: #8FA39F !important;
+  font-size: 12px !important;
+  border-top: 3px dashed #2D8B7E !important;
+  padding: 18px 22px 26px !important;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+}
+.page-foot a {
+  color: #1A5E55 !important;
+  border-bottom: 2px solid #EDE5D2 !important;
+  font-weight: 700 !important;
+}
+.page-foot a:hover { border-color: #2D8B7E !important; color: #2D8B7E !important; }
+
+.form-secure-note {
+  color: #4F635F !important;
+  background: #ECF9E9 !important;
+  border: 2px solid #1A3A35 !important;
+  border-radius: 14px !important;
+  padding: 10px 14px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  box-shadow: 3px 3px 0 #1A3A35;
+}
+
+@media (max-width: 700px) {
+  .page-card { box-shadow: 5px 5px 0 #1A3A35, 5px 5px 0 4px #FFD93D !important; }
+  .page-card .answer-btn { padding: 12px 18px !important; font-size: 14px !important; }
+  .topbar { padding: 14px 18px !important; }
+  .topbar .brand-text { width: 105px; height: 36px; }
+}
+
+</style>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-N3SFVS3W');</script>
+<!-- End Google Tag Manager -->
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N3SFVS3W"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<!-- ashraiplus quiz layout: top bar (logo + step ring + progress dots) + centred glass card for the question -->
+<header class="topbar">
+  <a href="/" class="brand" aria-label="מימונצ&#039;יק — דף הבית">
+    <span class="brand-mark" aria-hidden="true">מ</span>
+    <span class="brand-text">
+      <span class="brand-name-q">מימונצ&#039;יק</span>
+      <span class="brand-sub-q">Mimonchik</span>
+    </span>
+  </a>
+  <div class="step-meter" aria-hidden="true">
+    <div class="step-ring">
+      <svg viewBox="0 0 36 36" class="step-ring-svg">
+        <!-- pathLength normalises the path to 100 units so stroke-dasharray / dashoffset map cleanly to a 0–100 percentage -->
+        <path class="step-ring-bg"   pathLength="100" d="M18 2.5 a 15.5 15.5 0 1 1 0 31 a 15.5 15.5 0 1 1 0 -31"/>
+        <path class="step-ring-fill" id="stepRingFill" pathLength="100" d="M18 2.5 a 15.5 15.5 0 1 1 0 31 a 15.5 15.5 0 1 1 0 -31"/>
+      </svg>
+      <div class="step-ring-text">
+        <span id="stepN">01</span>
+        <span class="step-ring-slash">/</span>
+        <span id="stepTotal">24</span>
+      </div>
+    </div>
+    <div class="step-meta">
+      <span class="step-eyebrow">שלב נוכחי</span>
+      <span class="step-section" id="sectionName">פרופיל פיננסי</span>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <div class="page-card">
+    <div class="page-card-stripe" aria-hidden="true"></div>
+    <div class="page-card-inner">
+      <span class="page-tag">התאמת הצעת אשראי</span>
+      <!-- legacy progress bar — JS still updates it; rendered as a thin line under the card stripe -->
+      <div class="progress-bar" aria-hidden="true"></div>
+
+    <div class="stage-wrap">
+      <div class="form-wrap" id="multiStepForm">
+
+        <!-- Step 1: BDI Credit Rating -->
+        <div class="form-step active-step" data-step="1" id="fld_196663" data-section="היסטוריית אשראי">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מהו דירוג האשראי שלך להערכתך? (BDI)</h2>
+          <p class="q-hint">דירוג BDI הוא הציון הפיננסי האישי שלך — מבוסס על היסטוריית התשלומים, תיקי הוצל״פ, עיקולים וצ׳קים שחזרו. <strong>גם דירוג שלילי לא פוסל אותך מקבלת הלוואה</strong> — אנחנו מתאימים פתרונות גם למצבים מורכבים. חשוב לענות בכנות כדי שנוכל למצוא עבורך את ההצעה המתאימה ביותר.</p>
+          <span class="bdi-scale-prompt">בחר את ההערכה הקרובה ביותר למצבך</span>
+          <div class="bdi-scale">
+            <button class="answer-btn bdi-opt" data-answer="מצויין (800–1,000)">
+              <span class="bdi-dot"></span>
+              <span class="bdi-label">מצויין</span>
+              <span class="bdi-score">800–1,000</span>
+              <span class="bdi-desc">התנהלות פיננסית ללא דופי</span>
+            </button>
+            <button class="answer-btn bdi-opt" data-answer="תקין (720–799)">
+              <span class="bdi-dot"></span>
+              <span class="bdi-label">תקין</span>
+              <span class="bdi-score">720–799</span>
+              <span class="bdi-desc">התנהלות תקינה ואחראית מאוד, ללא הליכים פעילים</span>
+            </button>
+            <button class="answer-btn bdi-opt" data-answer="סביר (640–719)">
+              <span class="bdi-dot"></span>
+              <span class="bdi-label">סביר</span>
+              <span class="bdi-score">640–719</span>
+              <span class="bdi-desc">ריבוי הלוואות, פיגורים שטופלו או הסדר חוב שהוסדר</span>
+            </button>
+            <button class="answer-btn bdi-opt" data-answer="שלילי (580–639)">
+              <span class="bdi-dot"></span>
+              <span class="bdi-label">שלילי</span>
+              <span class="bdi-score">580–639</span>
+              <span class="bdi-desc">תיק הוצל״פ פעיל, עיקולים, צ׳קים שחזרו או פיגורים משמעותיים</span>
+            </button>
+            <button class="answer-btn bdi-opt" data-answer="שלילי מאד (579 ומטה)">
+              <span class="bdi-dot"></span>
+              <span class="bdi-label">שלילי מאד</span>
+              <span class="bdi-score">579 ומטה</span>
+              <span class="bdi-desc">ריבוי תיקי הוצל״פ, עיקולים, הגבלה בחשבון, חדלות פירעון או פיגורים כרוניים</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="form-step" data-step="2" id="fld_296630" data-section="פרופיל פיננסי">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">איזה כרטיס אשראי יש לך?</h2>
+          <p class="q-hint">סוג הכרטיס שלך משפיע על המסלולים שנוכל להציע — בחר את הכרטיס בו אתה משתמש לרוב.</p>
+          <div class="answers card-grid" id="cardAnswers">
+            <button class="answer-btn card-btn" data-answer="ויזה">
+              <img src="/assets/card-logos/visa.png" alt="ויזה">
+              <span>ויזה</span>
+            </button>
+            <button class="answer-btn card-btn" data-answer="מאסטרקארד">
+              <img src="/assets/card-logos/mastercard.svg" alt="מאסטרקארד">
+              <span>מאסטרקארד</span>
+            </button>
+            <button class="answer-btn card-btn" data-answer="ישראכרט">
+              <img src="/assets/card-logos/isracard.png" alt="ישראכרט">
+              <span>ישראכרט</span>
+            </button>
+            <button class="answer-btn card-btn" data-answer="אמריקן אקספרס">
+              <img src="/assets/card-logos/amex.png" alt="אמריקן אקספרס">
+              <span>אמריקן אקספרס</span>
+            </button>
+            <button class="answer-btn card-btn" data-answer="דיינרס">
+              <img src="/assets/card-logos/diners.svg" alt="דיינרס">
+              <span>דיינרס</span>
+            </button>
+            <button class="answer-btn card-btn" data-answer="דיירקט">
+              <img src="/assets/card-logos/direct-debit.png" alt="דיירקט">
+              <span>דיירקט</span>
+            </button>
+            <button class="answer-btn card-btn" id="cardOtherBtn" type="button">
+              <img src="/assets/card-logos/other-card.png" alt="אחר">
+              <span>אחר</span>
+            </button>
+            <button class="answer-btn card-btn" data-answer="אין לי כרטיס אשראי">
+              <img src="/assets/card-logos/no-card.png" alt="אין לי כרטיס אשראי">
+              <span>אין לי כרטיס אשראי</span>
+            </button>
+          </div>
+          <div class="input-field" id="cardOtherWrap" style="display: none;">
+            <input type="text" id="cardOtherInput" placeholder="איזה כרטיס יש לך?" />
+          </div>
+          <div class="error-message" id="cardOtherError"></div>
+          <div class="row" id="cardOtherRow" style="display: none;">
+            <button id="cardOtherSubmit">המשך <span class="arr">←</span></button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="form-step" data-step="3" id="fld_179977" data-section="נכסים ובטחונות">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם יש בבעלותך נכס נדל״ני?</h2>
+          <p class="q-hint">לדוגמא: דירה / בית פרטי / נכס מסחרי / מגרש וכו׳ — בעלות על נכס מאפשרת לנו להציע לך תנאים טובים יותר.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="form-step" data-step="4" id="fld_183161" data-section="תעסוקה והכנסה">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מה הסטטוס התעסוקתי שלך?</h2>
+          <p class="q-hint">אנחנו עובדים עם שכירים, עצמאים ופנסיונרים כאחד — לכל סטטוס יש מסלולים מותאמים.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="שכיר">שכיר</button>
+            <button class="answer-btn" data-answer="עוסק פטור">עוסק פטור</button>
+            <button class="answer-btn" data-answer="עוסק מורשה">עוסק מורשה</button>
+            <button class="answer-btn" data-answer="חברה בע״מ">חברה בע״מ</button>
+            <button class="answer-btn" data-answer="פנסיונר/ית">פנסיונר/ית</button>
+            <button class="answer-btn" data-answer="לא עובד/ת">לא עובד/ת</button>
+          </div>
+        </div>
+
+        <!-- Step 5: Date of Birth -->
+        <div class="form-step" data-step="5" id="fld_283259" data-section="פרטים אישיים">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מה תאריך הלידה שלך?</h2>
+          <p class="q-hint">לדוגמא: 1965 / 03 / 15</p>
+          <div class="dob-grid">
+            <div class="dob-field">
+              <label for="dobDay">יום</label>
+              <input type="text" id="dobDay" inputmode="numeric" maxlength="2" placeholder="DD" autocomplete="bday-day" pattern="[0-9]*" />
+            </div>
+            <div class="dob-field">
+              <label for="dobMonth">חודש</label>
+              <input type="text" id="dobMonth" inputmode="numeric" maxlength="2" placeholder="MM" autocomplete="bday-month" pattern="[0-9]*" />
+            </div>
+            <div class="dob-field dob-field--year">
+              <label for="dobYear">שנה</label>
+              <input type="text" id="dobYear" inputmode="numeric" maxlength="4" placeholder="YYYY" autocomplete="bday-year" pattern="[0-9]*" />
+            </div>
+          </div>
+          <div class="error-message" id="dobError"></div>
+          <div class="row"><button id="dobSubmit">המשך <span class="arr">←</span></button></div>
+        </div>
+
+        <!-- Step 6: Slider -->
+        <div class="form-step" data-step="6" id="fld_179825" data-section="גובה ההלוואה">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">באיזה סכום הלוואה מדובר?</h2>
+          <p class="q-hint">הזז את הסליידר לסכום שאתה מחפש — נחפש לך את ההצעות שמתאימות בדיוק לסכום הזה.</p>
+          <div class="slider-wrap">
+            <div class="slider-display">
+              <span class="val" id="loanAmountDisplay">50,000</span>
+              <span class="cur">₪</span>
+            </div>
+            <input type="range" id="loanSlider" min="5000" max="3000000" step="5000" value="50000">
+            <div id="loanAmountWrapper"><input type="text" id="loanAmountInput" value="50,000" readonly><span id="loanAmountCurrency">₪</span></div>
+            <div class="slider-hint">
+              <span>5,000 ₪</span>
+              <span>3,000,000 ₪</span>
+            </div>
+          </div>
+          <div class="row">
+            <button id="loanAmountSubmit">המשך <span class="arr">←</span></button>
+          </div>
+        </div>
+
+        <!-- Step 7: Total Debt -->
+        <div class="form-step" data-step="7" id="fld_200095" data-section="היסטוריית אשראי">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מה גובה החובות הכולל שלך? (הלוואות, משכנתא, חובות פרטיים וכדומה)</h2>
+          <p class="q-hint">תמונה מלאה של ההתחייבויות עוזרת לנו לבנות עבורך הצעה ריאלית ובת-ביצוע.</p>
+          <div class="input-field">
+            <input type="text" id="debtInput" placeholder="לדוגמא: 50,000" inputmode="numeric" />
+          </div>
+          <div class="error-message" id="debtError"></div>
+          <div class="row"><button id="debtSubmit">המשך <span class="arr">←</span></button></div>
+        </div>
+
+        <!-- Step 8 (conditional: debt > 100,000 + BDI ∈ סביר/שלילי/שלילי מאד) -->
+        <div class="form-step conditional-step" data-step="8" id="fld_210801" data-section="היסטוריית אשראי" style="display: none;">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם סורבת לקבלת הלוואה לאחרונה?</h2>
+          <p class="q-hint">סירוב בעבר לא פוסל אותך — יש לנו פתרונות גם למצבים שבנקים סירבו אליהם.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <!-- Step 9 (conditional: debt > 100,000 + BDI ∈ סביר/שלילי/שלילי מאד) -->
+        <div class="form-step conditional-step" data-step="9" id="fld_375712" data-section="היסטוריית אשראי" style="display: none;">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">היית רוצה לקבל שיחת ייעוץ עם עו״ד מומחה להסדר חובות וחדלות פירעון?</h2>
+          <p class="q-hint">שיחה ראשונית ללא עלות וללא התחייבות — בדיקה מקצועית בלבד של אופציות פתרון.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן אשמח לשוחח עם משרד עו״ד בכיר">כן אשמח לשוחח עם משרד עו״ד בכיר</button>
+            <button class="answer-btn" data-answer="לא מעוניינ/ת">לא מעוניינ/ת</button>
+          </div>
+        </div>
+
+        <!-- Step 10 -->
+        <div class="form-step" data-step="10" id="fld_240263" data-section="נכסים ובטחונות">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם יש בבעלותך רכב שנתון 2012 ואילך?</h2>
+          <p class="q-hint">רכב יכול לשמש כביטחון להלוואה — מה שעוזר להוזיל את הריבית ולשפר את התנאים.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן" data-has-car="true">כן</button>
+            <button class="answer-btn" data-answer="לא" data-has-car="false">לא</button>
+          </div>
+        </div>
+
+        <!-- Step 11 (conditional) -->
+        <div class="form-step conditional-step" data-step="11" id="fld_261441" data-section="נכסים ובטחונות" style="display: none;">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם יש שיעבוד או הלוואה על הרכב?</h2>
+          <p class="q-hint">המידע משפיע על האפשרות לקחת הלוואה כנגד הרכב.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <!-- Step 12 -->
+        <div class="form-step" data-step="12" id="fld_282715" data-section="נכסים ובטחונות">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם אתה משלם על ביטוח פרטי כל חודש?</h2>
+          <p class="q-hint">תמונה פיננסית מלאה עוזרת לנו להתאים את ההצעה לתקציב החודשי שלך.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <!-- Step 13 (conditional via BDI: shown only if BDI ∈ סביר/שלילי/שלילי מאד) -->
+        <div class="form-step conditional-step" data-step="13" id="fld_247918" data-section="פרופיל פיננסי">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם קיימים על שמך תיקים פתוחים בהוצל״פ?</h2>
+          <p class="q-hint">אנחנו עובדים גם עם תיקי הוצל״פ פעילים — חשוב לענות בכנות כדי שנמצא לך את הפתרון הנכון.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <!-- Step 14: City -->
+        <div class="form-step" data-step="14" id="fld_179821" data-section="פרטים אישיים">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מה עיר המגורים שלך?</h2>
+          <p class="q-hint">מסייע לנו להפנות אותך לסניפים ולחברות אשראי הפעילות באזור מגוריך.</p>
+          <div class="input-field" style="max-width: 320px;">
+            <input type="text" id="cityInput" placeholder="לדוגמא: תל אביב" autocomplete="address-level2" />
+          </div>
+          <div class="error-message" id="cityError"></div>
+          <div class="row"><button id="citySubmit">המשך <span class="arr">←</span></button></div>
+        </div>
+
+        <!-- Step 15 -->
+        <div class="form-step" data-step="15" id="fld_209867" data-section="זיהוי">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מה מספר תעודת הזהות שלך?</h2>
+          <p class="q-hint">המידע מאובטח 🔒 ומשמש אך ורק לבדיקת זכאות מול הבנקים וחברות האשראי.</p>
+          <div class="input-field" style="max-width: 280px;">
+            <input type="text" id="ssnInput" placeholder="לדוגמא: 301596899" inputmode="numeric" />
+          </div>
+          <div class="error-message" id="ssnError"></div>
+          <div class="row"><button id="ssnSubmit">המשך <span class="arr">←</span></button></div>
+        </div>
+
+        <!-- Step 16 -->
+        <div class="form-step" data-step="16" id="fld_354417" data-section="פרטי בנק ואשראי">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">באיזה בנק מתנהלת הפעילות העיקרית שלך?</h2>
+          <p class="q-hint">הבנק שלך משפיע על תנאי ההלוואה — לחלק מהבנקים יש מסלולים מועדפים ללקוחות קיימים.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="בנק הפועלים">בנק הפועלים</button>
+            <button class="answer-btn" data-answer="בנק לאומי">בנק לאומי</button>
+            <button class="answer-btn" data-answer="בנק מזרחי טפחות">בנק מזרחי טפחות</button>
+            <button class="answer-btn" data-answer="בנק דיסקונט">בנק דיסקונט</button>
+            <button class="answer-btn" data-answer="הבנק הבינלאומי">הבנק הבינלאומי</button>
+            <button class="answer-btn" data-answer="בנק יהב">בנק יהב</button>
+            <button class="answer-btn" data-answer="בנק ירושלים">בנק ירושלים</button>
+            <button class="answer-btn" data-answer="בנק הדואר">בנק הדואר</button>
+            <button class="answer-btn" data-answer="בנק אוצר החייל">בנק אוצר החייל</button>
+            <button class="answer-btn" data-answer="בנק אחר">בנק אחר</button>
+          </div>
+        </div>
+
+        <!-- Step 17 -->
+        <div class="form-step" data-step="17" id="fld_196665" data-section="מטרת ההלוואה">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מהי מטרת ההלוואה?</h2>
+          <p class="q-hint">המטרה עוזרת לנו לחפש את חברת האשראי שמתמחה בדיוק במה שאתה צריך — וכך לקבל הצעה משתלמת יותר.</p>
+          <div class="answers" id="purposeAnswers">
+            <button class="answer-btn" data-answer="קניית רכב">קניית רכב</button>
+            <button class="answer-btn" data-answer="הלוואה לחתונה">הלוואה לחתונה</button>
+            <button class="answer-btn" data-answer="הלוואה לשיפוץ">הלוואה לשיפוץ</button>
+            <button class="answer-btn" data-answer="הלוואה לסגירת חובות">הלוואה לסגירת חובות</button>
+            <button class="answer-btn" data-answer="הלוואה לעסק">הלוואה לעסק</button>
+            <button class="answer-btn" data-answer="משכנתא לרכישת דירה">משכנתא לרכישת דירה</button>
+            <button class="answer-btn" data-answer="חופשה">חופשה</button>
+            <button class="answer-btn" data-answer="אירוע">אירוע</button>
+            <button class="answer-btn" id="purposeOtherBtn" type="button">מטרה אחרת</button>
+          </div>
+          <div class="input-field" id="purposeOtherWrap" style="display: none;">
+            <input type="text" id="purposeOtherInput" placeholder="מה המטרה?" />
+          </div>
+          <div class="error-message" id="purposeOtherError"></div>
+          <div class="row" id="purposeOtherRow" style="display: none;">
+            <button id="purposeOtherSubmit">המשך <span class="arr">←</span></button>
+          </div>
+        </div>
+
+        <!-- Step 18 (conditional via BDI: shown only if BDI ∈ סביר/שלילי/שלילי מאד) -->
+        <div class="form-step conditional-step" data-step="18" id="fld_179979" data-section="היסטוריית אשראי">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם אתם נמצאים בהליך פשיטת רגל או חדלות פירעון?</h2>
+          <p class="q-hint">יש פתרונות מותאמים גם בהליכי חדלות פירעון — חשוב לענות בכנות כדי שנמצא את הדרך הנכונה עבורך.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <!-- Step 19 (conditional via BDI: shown only if BDI ∈ סביר/שלילי/שלילי מאד) -->
+        <div class="form-step conditional-step" data-step="19" id="fld_248542" data-section="היסטוריית אשראי">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם חזרו לך צ׳קים או הו״ק ב-3 שנים האחרונות?</h2>
+          <p class="q-hint">תמונה מלאה של ההיסטוריה האשראית עוזרת לנו להתאים את ההצעה למצבך.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <!-- Step 20 (conditional via BDI: shown only if BDI ∈ שלילי/שלילי מאד) -->
+        <div class="form-step conditional-step" data-step="20" id="fld_375783" data-section="היסטוריית אשראי">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם יש הגבלה על חשבון הבנק שלך?</h2>
+          <p class="q-hint">חשבון מוגבל אינו פוסל אותך מקבלת הלוואה — יש פתרונות מותאמים גם למצב הזה. חשוב לענות בכנות.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <!-- Step 21 (conditional via BDI: shown only if BDI ∈ שלילי/שלילי מאד) -->
+        <div class="form-step conditional-step" data-step="21" id="fld_260354" data-section="היסטוריית אשראי">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">כדי למקסם את בקשתך לקבלת הלוואה, האם תהיה מעוניין בתיקון דירוג האשראי (BDI)?</h2>
+          <p class="q-hint">תיקון הדירוג יכול להגדיל משמעותית את סיכויי האישור ולהוזיל את הריבית. השירות מקצועי וללא התחייבות.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן, מעוניין בתיקון דירוג">כן, מעוניין בתיקון דירוג</button>
+            <button class="answer-btn" data-answer="לא, רק הלוואה בשלב זה">לא, רק הלוואה בשלב זה</button>
+          </div>
+        </div>
+
+        <!-- Step 22 -->
+        <div class="form-step" data-step="22" id="fld_232629" data-section="נכסים ובטחונות">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">יש ברשותך פנסיה / קופת גמל / קרן השתלמות עם צבירה של 100,000 ₪ לפחות?</h2>
+          <p class="q-hint">צבירה פנסיונית יכולה לשמש כביטחון להלוואה — וכך להוריד משמעותית את הריבית.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <!-- Step 23 -->
+        <div class="form-step" data-step="23" id="fld_335575" data-section="תעסוקה והכנסה">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מהו גובה ההכנסה שלך כל חודש?</h2>
+          <p class="q-hint">ההכנסה משפיעה על גובה ההלוואה והחזרים החודשיים שתוכל לעמוד בהם בנוחות.</p>
+          <div class="input-field">
+            <input type="text" id="monthlyIncomeInput" placeholder="לדוגמא: 10,000" inputmode="numeric" />
+          </div>
+          <div class="error-message" id="monthlyIncomeError"></div>
+          <div class="row"><button id="monthlyIncomeSubmit">המשך <span class="arr">←</span></button></div>
+        </div>
+
+        <!-- Step 24 -->
+        <div class="form-step" data-step="24" id="fld_179820" data-section="סיום">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">כמעט סיימנו — מה האימייל שלך?</h2>
+          <p class="q-hint">ההצעה האישית שלך תישלח לכתובת זו תוך זמן קצר. אנחנו מתחייבים לא לשלוח דואר זבל.</p>
+          <div class="input-field">
+            <input type="email" id="emailInput" placeholder="example@example.com" autocomplete="email" />
+          </div>
+          <div class="error-message" id="emailError"></div>
+          <div class="row"><button id="emailSubmit">שליחה וסיום <span class="arr">←</span></button></div>
+        </div>
+
+        <!-- Post-submit: Success message (always shown after email submit) -->
+        <div class="form-step post-submit-step no-back" id="successStep" data-section="הפרטים התקבלו">
+          <div class="success-card">
+            <div class="success-icon" aria-hidden="true">✓</div>
+            <h2 class="success-title">הפרטים שלך התקבלו בהצלחה!</h2>
+            <p class="success-body">ההצעה האישית שלך תישלח אליך תוך זמן קצר. נציג שלנו יחזור אליך בהקדם להשלמת הבקשה.</p>
+          </div>
+
+          <!-- Insurance pitch (only for users who answered "כן" on fld_282715) -->
+          <div class="insurance-pitch" id="insurancePitch" style="display: none;">
+            <div class="pitch-badge">בונוס בלעדי</div>
+            <h3>בעוד שתחכה להצעה — שווה לך לבדוק גם את הביטוחים</h3>
+            <p>ראינו שאתה משלם על ביטוחים פרטיים. <strong>בדיקה חינמית של תיק הביטוח שלך</strong> יכולה לחסוך לך מאות שקלים בחודש. שירות מקצועי, ללא עלות וללא התחייבות — שווה כמה שאלות קצרות?</p>
+            <div class="row">
+              <button id="insurancePitchYes">כן, אשמח לבדוק</button>
+              <button id="insurancePitchNo" class="ghost">לא תודה, סיום</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Post-submit: Serious illness yes/no (entered when user clicks "כן, אשמח לבדוק" on the pitch — fld_223544 is recorded automatically as "כן" without showing a redundant question) -->
+        <div class="form-step post-submit-step" id="fld_374354" data-section="בדיקת ביטוח">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם חלילה ישנן מחלות קשות?</h2>
+          <p class="q-hint">המידע מאובטח 🔒 ועוזר לנו להתאים לך את הכיסוי הביטוחי הנכון.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן" data-illness-yes="true">כן</button>
+            <button class="answer-btn" data-answer="לא" data-illness-yes="false">לא</button>
+          </div>
+        </div>
+
+        <!-- Post-submit: Which illness (conditional on fld_374354 = כן) -->
+        <div class="form-step post-submit-step conditional-step" id="fld_246786" data-section="בדיקת ביטוח" style="display: none;">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">איזו מחלה?</h2>
+          <p class="q-hint">פרט בקצרה — המידע יסייע לנו להתאים את הכיסוי המתאים.</p>
+          <div class="input-field">
+            <input type="text" id="illnessInput" placeholder="לדוגמא: סוכרת, יתר לחץ דם" />
+          </div>
+          <div class="error-message" id="illnessError"></div>
+          <div class="row"><button id="illnessSubmit">המשך <span class="arr">←</span></button></div>
+        </div>
+
+        <!-- Post-submit: Monthly insurance payment -->
+        <div class="form-step post-submit-step" id="fld_179823" data-section="בדיקת ביטוח">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">כמה אתה משלם בחודש על ביטוח פרטי?</h2>
+          <p class="q-hint">סה״כ כל הביטוחים הפרטיים שלך — נשתמש בזה כדי לחשב את החיסכון הפוטנציאלי.</p>
+          <div class="input-field">
+            <input type="text" id="insurancePayInput" placeholder="לדוגמא: 600" inputmode="numeric" />
+          </div>
+          <div class="error-message" id="insurancePayError"></div>
+          <div class="row"><button id="insurancePaySubmit">המשך <span class="arr">←</span></button></div>
+        </div>
+
+        <!-- Post-submit: Insurance types (multi-select) -->
+        <div class="form-step post-submit-step" id="fld_179822" data-section="בדיקת ביטוח">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">אילו סוגי ביטוחים יש לך?</h2>
+          <p class="q-hint">ניתן לבחור יותר מאפשרות אחת.</p>
+          <div class="multi-grid" id="insuranceTypesGrid">
+            <button class="multi-btn" data-value="ביטוח חיים">ביטוח חיים</button>
+            <button class="multi-btn" data-value="ביטוח בריאות">ביטוח בריאות</button>
+            <button class="multi-btn" data-value="ביטוח רכב">ביטוח רכב</button>
+            <button class="multi-btn" data-value="ביטוח דירה ומבנה">ביטוח דירה ומבנה</button>
+            <button class="multi-btn" data-value="ביטוח עסק">ביטוח עסק</button>
+            <button class="multi-btn" data-value="ביטוח משכנתא">ביטוח משכנתא</button>
+            <button class="multi-btn" data-value="ביטוח סיעוד">ביטוח סיעוד</button>
+            <button class="multi-btn" data-value="ביטוח תאונות אישיות">ביטוח תאונות אישיות</button>
+            <button class="multi-btn" data-value="ביטוח שיניים">ביטוח שיניים</button>
+            <button class="multi-btn" data-value="ביטוח נסיעות">ביטוח נסיעות</button>
+            <button class="multi-btn" data-value="אחר">אחר</button>
+          </div>
+          <div class="error-message" id="insuranceTypesError"></div>
+          <div class="row"><button id="insuranceTypesSubmit">המשך <span class="arr">←</span></button></div>
+        </div>
+
+        <!-- Post-submit: Insurance company (multi-select) -->
+        <div class="form-step post-submit-step" id="fld_223541" data-section="בדיקת ביטוח">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">באיזו חברת ביטוח אתה מבוטח?</h2>
+          <p class="q-hint">ניתן לבחור יותר מאפשרות אחת — בחר את כל החברות הרלוונטיות.</p>
+          <div class="multi-grid" id="insuranceCompaniesGrid">
+            <button class="multi-btn" data-value="הראל">הראל</button>
+            <button class="multi-btn" data-value="כלל ביטוח">כלל ביטוח</button>
+            <button class="multi-btn" data-value="מנורה מבטחים">מנורה מבטחים</button>
+            <button class="multi-btn" data-value="מגדל">מגדל</button>
+            <button class="multi-btn" data-value="הפניקס">הפניקס</button>
+            <button class="multi-btn" data-value="איילון">איילון</button>
+            <button class="multi-btn" data-value="ביטוח חקלאי">ביטוח חקלאי</button>
+            <button class="multi-btn" data-value="שלמה ביטוח">שלמה ביטוח</button>
+            <button class="multi-btn" data-value="שירביט">שירביט</button>
+            <button class="multi-btn" data-value="AIG ישראל">AIG ישראל</button>
+            <button class="multi-btn" data-value="הכשרה ביטוח">הכשרה ביטוח</button>
+            <button class="multi-btn" data-value="ביטוח ישיר">ביטוח ישיר</button>
+            <button class="multi-btn" data-value="WeSure">WeSure</button>
+            <button class="multi-btn" data-value="אחר">אחר</button>
+          </div>
+          <div class="error-message" id="insuranceCompanyError"></div>
+          <div class="row"><button id="insuranceCompanySubmit">המשך <span class="arr">←</span></button></div>
+        </div>
+
+        <!-- Post-submit: ID issue date (final insurance step) -->
+        <div class="form-step post-submit-step" id="fld_209868" data-section="בדיקת ביטוח">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מה תאריך הנפקת תעודת הזהות שלך?</h2>
+          <p class="q-hint">התאריך מופיע על תעודת הזהות שלך — נדרש לאימות זהות מול גורמי הביטוח.</p>
+          <div class="input-field" style="max-width: 280px;">
+            <input type="date" id="ssnIssueDateInput" />
+          </div>
+          <div class="error-message" id="ssnIssueDateError"></div>
+          <div class="row"><button id="ssnIssueDateSubmit">המשך <span class="arr">←</span></button></div>
+        </div>
+
+        <!-- ===== Post-submit: Tax-refund pitch (shown to everyone) ===== -->
+        <div class="form-step post-submit-step" id="fld_283971" data-section="החזר מס">
+          <div class="success-card">
+            <div class="success-icon success-icon--gold" aria-hidden="true">₪</div>
+            <h2 class="success-title">המערכת זיהתה שישנו סיכוי גבוה לקבלת החזר מס מהמדינה!</h2>
+            <p class="success-body">רוב הישראלים מפספסים החזרי מס שמגיעים להם — לפעמים אלפי שקלים. בדיקת זכאות מקצועית, חינמית וללא התחייבות.</p>
+          </div>
+          <div class="insurance-pitch">
+            <div class="pitch-badge">בונוס נוסף</div>
+            <h3>האם תרצה שגוף מקצועי יחזור אליך לבדיקת זכאות להחזר מס?</h3>
+            <p>שיחה ראשונית בלבד — מומחים יבדקו עבורך את הזכאות, יסבירו איך לקבל את הכסף שמגיע לך, ויעשו עבורך את כל התהליך מול רשויות המס.</p>
+            <div class="answers">
+              <button class="answer-btn" data-answer="כן" data-tax-yes="true">כן, אשמח לבדוק זכאות</button>
+              <button class="answer-btn" data-answer="לא" data-tax-yes="false">לא תודה, סיום</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== Tax qualification flow (only when fld_283971 = כן) ===== -->
+
+        <div class="form-step post-submit-step" id="tax" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם היית בחל"ת (חופשה ללא תשלום) ב-6 השנים האחרונות?</h2>
+          <p class="q-hint">חל"ת בעבר עשוי לזכות אותך בהחזר מס משמעותי.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="sellhouse" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם מכרת נכס ושילמת מס שבח ב-6 השנים האחרונות?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_262202" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מה המצב המשפחתי שלך?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="נשוי/אה">נשוי/אה</button>
+            <button class="answer-btn" data-answer="רווק/ה">רווק/ה</button>
+            <button class="answer-btn" data-answer="גרוש/ה">גרוש/ה</button>
+            <button class="answer-btn" data-answer="אלמן/ה">אלמן/ה</button>
+            <button class="answer-btn" data-answer="ידוע/ה בציבור">ידוע/ה בציבור</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_262203" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">כמה ילדים יש לך?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="0">0</button>
+            <button class="answer-btn" data-answer="1">1</button>
+            <button class="answer-btn" data-answer="2">2</button>
+            <button class="answer-btn" data-answer="3">3</button>
+            <button class="answer-btn" data-answer="4">4</button>
+            <button class="answer-btn" data-answer="5+">5 ומעלה</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_262195" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם נולד לך ילד ב-6 השנים האחרונות?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_262198" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם משכת כספים מקרן פנסיה / גמל / השתלמות ושילמת מס?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_262194" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם שילמת מס הכנסה ב-6 השנים האחרונות?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_262197" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם ספגת הפסדים בשוק ההון ב-6 השנים האחרונות?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_264803" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם יש לך ביטוח משכנתא?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_264802" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם יש לך ביטוח חיים?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_200204" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם החלפת עבודה ב-6 השנים האחרונות?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_262196" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם מכרת נכס ושילמת מס על הרווח ב-6 השנים האחרונות?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_179836" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם הינך תורם למוסדות ללא כוונת רווח?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_179834" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם אתה הורה לילד עם לקויות למידה?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_369524" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם יש לך ילדים בחינוך מיוחד?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_369531" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם יש לך השכלה אקדמית (תואר / תעודה)?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_369530" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם שירתת בצבא / שירות לאומי?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_369528" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם אתה משלם מזונות?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_369525" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם יש לך נכות (עצמית או במשפחה)?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_369526" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם הינך עולה חדש?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_369527" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם אתה גר ביישוב ספר?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_375784" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם יש לך מקורות הכנסה נוספים?</h2>
+          <p class="q-hint">לדוגמא: שכ"ד, השכרת נכס, עבודה צדדית וכו׳</p>
+          <div class="answers" id="incomeSourcesAnswers">
+            <button class="answer-btn" data-answer="כן" id="incomeSourcesYesBtn" type="button">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+          <div class="input-field" id="incomeSourcesWrap" style="display: none;">
+            <input type="text" id="incomeSourcesInput" placeholder="פרט: לדוגמא, השכרת דירה" />
+          </div>
+          <div class="error-message" id="incomeSourcesError"></div>
+          <div class="row" id="incomeSourcesRow" style="display: none;">
+            <button id="incomeSourcesSubmit">המשך <span class="arr">←</span></button>
+          </div>
+        </div>
+
+        <div class="form-step post-submit-step" id="fld_219696" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם הייתה לך פעילות בניירות ערך / בורסה ב-6 השנים האחרונות?</h2>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
+        <p class="form-secure-note">טופס פרטי ומאובטח 🔒</p>
+      </div>
+    </div>
+
+    </div><!-- /.page-card-inner -->
+  </div><!-- /.page-card -->
+</main>
+
+<footer class="page-foot">
+  <span>מאובטח · SSL</span>
+  <a href="/privacy-policy/" rel="noopener">מדיניות פרטיות</a>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+function isValidIsraeliID(id) {
+  var idStr = String(id).trim();
+  if (idStr.length > 9 || idStr.length < 5 || isNaN(idStr)) return false;
+  idStr = idStr.length < 9 ? ("00000000" + idStr).slice(-9) : idStr;
+  return Array.from(idStr, Number).reduce((counter, digit, i) => {
+    const step = digit * ((i % 2) + 1);
+    return counter + (step > 9 ? step - 9 : step);
+  }, 0) % 10 === 0;
+}
+function getParameterByName(name) {
+  name = name.replace(/[\[\]]/g, "\\$&");
+  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(window.location.href);
+  return results ? decodeURIComponent(results[2].replace(/\+/g, " ")) : "";
+}
+
+var byId = getParameterByName("response");
+var startTime = new Date();
+var formCompleted = false;
+
+// Initialize storedData so code paths that reference it don't throw
+window.storedData = window.storedData || {};
+
+if (byId) {
+  fetch('/api/schedule-route', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ lead_id: byId })
+  }).catch(function(){});
+}
+
+// ==== Cross-sell flow helpers (insurance lm_form=49491, tax-refund lm_form=49500) ====
+// Mirrors the existing loan flow: each cross-sell flow CREATES a new Leadim lead the moment the
+// user clicks "yes" on its pitch, then UPDATES the same lead per-answer. The same /api/schedule-route
+// + check-pending Supabase safety-net handles abandoned leads (cron fires route_adv after 180s).
+// On flow completion the client fires route_adv directly + calls /api/mark-completed to cancel the cron.
+
+var CROSS_LEAD_UPDATE_URL = 'https://proxy.leadim.xyz/apiproxy/5517/api/lead_update.ashx';
+var CROSS_LEAD_CREATE_URL = 'https://proxy.leadim.xyz/APIProxy/global/submit.cors.v2.ashx';
+var CROSS_LEAD_AUTH       = 'U-D9C699243FA04F94.B2A1BCAD1B2E2B89';
+
+// Returns the lead ID that subsequent sendSingleData calls should update — depends on which flow
+// the user is currently in. Defaults to the loan lead from the URL ?response= param.
+function getActiveLeadId() {
+  if (window.storedData.activeFlow === 'insurance') return window.storedData.insuranceLeadId || byId;
+  if (window.storedData.activeFlow === 'tax')       return window.storedData.taxLeadId       || byId;
+  return byId;
+}
+
+// Create a brand-new Leadim lead in the given form, register it in the Supabase safety-net, and
+// callback with the new lead_id (or null on failure).
+function createCrossSellLead(lmForm, lmKey, payload, callback) {
+  var qs = Object.keys(payload).map(function (k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(payload[k] == null ? '' : payload[k]);
+  }).join('&');
+  var url = CROSS_LEAD_CREATE_URL + '?lm_form=' + lmForm + '&lm_key=' + lmKey + (qs ? '&' + qs : '');
+  jQuery.ajax({
+    url: url,
+    method: 'POST',
+    success: function (responseText) {
+      var leadId = null;
+      try {
+        var resp = (typeof responseText === 'string') ? JSON.parse(responseText) : responseText;
+        if (resp && typeof resp.result !== 'undefined') leadId = String(resp.result);
+      } catch (e) {}
+      if (leadId) {
+        // Register in the same Supabase safety-net the loan flow uses — cron will fire
+        // route_adv on this lead after 180s if the flow isn't marked completed.
+        fetch('/api/schedule-route', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lead_id: leadId })
+        }).catch(function () {});
+      }
+      if (callback) callback(leadId);
+    },
+    error: function () { if (callback) callback(null); }
+  });
+}
+
+// Update a single field on a specific cross-sell lead. Pass options.routeAdv=true to fire the
+// routing rule in the same call (used on the final step of each flow, mirroring email submit on loan).
+function sendCrossSellUpdate(leadId, fieldId, value, callback, options) {
+  options = options || {};
+  if (!leadId) { if (callback) callback(); return; }
+  var fd = new FormData();
+  fd.append('by_id', leadId);
+  fd.append(fieldId, value);
+  if (options.routeAdv) fd.append('route_adv', 'true');
+  jQuery.ajax({
+    url: CROSS_LEAD_UPDATE_URL,
+    method: 'POST',
+    data: fd,
+    contentType: false,
+    processData: false,
+    headers: { 'X-LEAD-IM-AUTH': CROSS_LEAD_AUTH },
+    success: callback,
+    error: function () { if (callback) callback(); }
+  });
+}
+
+// Tell the Supabase safety-net that this lead has finished — prevents the cron from double-firing
+// route_adv after we've already fired it directly.
+function markFlowCompleted(leadId) {
+  if (!leadId) return;
+  fetch('/api/mark-completed', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ lead_id: leadId })
+  }).catch(function () {});
+}
+
+// Identity payload used for both insurance and tax-refund lead creations — same name/phone/age/etc.
+function buildCrossSellIdentityPayload(extras) {
+  var nameVal  = getParameterByName('name')  || window.storedData.name  || '';
+  var phoneVal = getParameterByName('phone') || window.storedData.phone || '';
+  var p = {
+    name:        nameVal,
+    phone:       phoneVal,
+    fld_179817:  nameVal,
+    fld_179818:  phoneVal,
+    fld_179819:  window.storedData.fld_179819 || '',
+    fld_209867:  window.storedData.fld_209867 || ''
+  };
+  if (window.storedData.fld_283259) p.fld_283259 = window.storedData.fld_283259;
+  if (extras) {
+    Object.keys(extras).forEach(function (k) { p[k] = extras[k]; });
+  }
+  return p;
+}
+
+// Entry point for the insurance flow — invoked by #insurancePitchYes click.
+function enterInsuranceFlow(button, currentStep) {
+  if (window.storedData.insuranceLeadId) {
+    // Already created (e.g. user navigated back and re-entered) — just continue
+    window.storedData.activeFlow = 'insurance';
+    fadeToSpecificStep(currentStep, '#fld_374354');
+    return;
+  }
+  if (button) button.prop('disabled', true).text('שולח…');
+  // Insurance form 49491 maps email→fld_93084 in the spec? No — spec uses age/city/id/type/payment.
+  // Build identity payload + insurance-specific shared keys.
+  var payload = buildCrossSellIdentityPayload({
+    age:        window.storedData.fld_179819 || '',
+    city:       window.storedData.fld_179821 || '',
+    id:         window.storedData.fld_209867 || '',
+    fld_223544: 'כן'
+  });
+  createCrossSellLead('49491', '483163189b', payload, function (leadId) {
+    if (leadId) {
+      window.storedData.insuranceLeadId = leadId;
+      window.storedData.activeFlow      = 'insurance';
+      window.storedData.fld_223544      = 'כן';
+    }
+    if (button) button.prop('disabled', false).text('כן, אשמח לבדוק');
+    fadeToSpecificStep(currentStep, '#fld_374354');
+  });
+}
+
+// Entry point for the tax-refund flow — invoked from the answer-btn handler when fld_283971's "yes" button is clicked.
+function enterTaxFlow(button, currentStep) {
+  if (window.storedData.taxLeadId) {
+    window.storedData.activeFlow = 'tax';
+    fadeToNextStep(currentStep);
+    return;
+  }
+  if (button) button.prop('disabled', true);
+  var payload = buildCrossSellIdentityPayload({
+    fld_93084:  window.storedData.fld_179820 || '',     // email
+    fld_93140:  window.storedData.fld_179821 || '',     // city
+    fld_283971: 'כן'
+  });
+  if (window.storedData.fld_335575) payload.fld_262192 = window.storedData.fld_335575; // income → tax form's income field
+  createCrossSellLead('49500', '3ab37a64cb', payload, function (leadId) {
+    if (leadId) {
+      window.storedData.taxLeadId  = leadId;
+      window.storedData.activeFlow = 'tax';
+      window.storedData.fld_283971 = 'כן';
+    }
+    if (button) button.prop('disabled', false);
+    fadeToNextStep(currentStep);
+  });
+}
+
+// Fire route_adv on the active flow's lead (if any), mark it completed in Supabase, then redirect.
+function finalizeAndRedirect() {
+  formCompleted = true;
+  var leadId = (window.storedData.activeFlow === 'tax')       ? window.storedData.taxLeadId
+            : (window.storedData.activeFlow === 'insurance') ? window.storedData.insuranceLeadId
+            : null;
+  if (leadId) {
+    sendCrossSellUpdate(leadId, 'completed', 'true', function () {
+      markFlowCompleted(leadId);
+      setTimeout(function () { window.location.href = '/thanks/'; }, 500);
+    }, { routeAdv: true });
+  } else {
+    setTimeout(function () { window.location.href = '/thanks/'; }, 100);
+  }
+}
+
+// ---- Navigation history (for back button) ----
+var stepHistory = [];
+
+// ---- UI helpers (progress + step meter label) ----
+function updateAsideFrom(currentStep) {
+  var section = currentStep.attr("data-section") || "";
+  jQuery("#sectionName").text(section);
+  // Post-submit steps (success + insurance flow) don't participate in the main step counter
+  if (currentStep.hasClass("post-submit-step")) {
+    jQuery(".step-meter").hide();
+    document.documentElement.style.setProperty("--p", "100");
+    return;
+  }
+  jQuery(".step-meter").show();
+  var stepN = currentStep.attr("data-step");
+  var total = jQuery(".form-step:not(.post-submit-step)").length;
+  jQuery("#stepN").text(String(stepN).padStart(2, "0"));
+  jQuery("#stepTotal").text(String(total).padStart(2, "0"));
+  // Update i-tc magazine-style numeric step counter (CSS ::before uses data-step-counter)
+  jQuery(".step-meter").attr("data-step-counter", String(stepN).padStart(2, "0") + " / " + String(total).padStart(2, "0"));
+  var pct = (parseInt(stepN, 10) / total) * 100;
+  // --p is a unit-less number 0..100 — used by both the top step ring (stroke-dashoffset)
+  // and the thin progress bar inside the card (width: calc(var(--p) * 1%))
+  document.documentElement.style.setProperty("--p", String(pct));
+}
+
+function fadeToNextStep(currentStep, skipHistory) {
+  if (!skipHistory) stepHistory.push(currentStep.attr("id"));
+  currentStep.fadeOut(200, function () {
+    currentStep.removeClass("active-step");
+    const nextStep = currentStep.nextAll(".form-step:not(.conditional-step)").first();
+    const target = nextStep.length === 0 ? jQuery("#fld_179820") : nextStep;
+    target.fadeIn(200).addClass("active-step");
+    updateAsideFrom(target);
+    try { target[0].scrollIntoView({ behavior: "smooth", block: "start" }); } catch(e){}
+  });
+}
+
+function fadeToSpecificStep(currentStep, targetStepId, skipHistory) {
+  if (!skipHistory) stepHistory.push(currentStep.attr("id"));
+  currentStep.fadeOut(200, function () {
+    currentStep.removeClass("active-step");
+    var target = jQuery(targetStepId);
+    target.fadeIn(200).addClass("active-step");
+    updateAsideFrom(target);
+    try { target[0].scrollIntoView({ behavior: "smooth", block: "start" }); } catch(e){}
+  });
+}
+
+function formatAndSanitizeMoneyInput(inputElement) {
+  let raw = inputElement.val().replace(/,/g, '').replace(/[^\d]/g, '');
+  const val = Number(raw);
+  if (!isNaN(val) && raw !== '') {
+    inputElement.val(val.toLocaleString());
+    return val;
+  }
+  inputElement.val('');
+  return null;
+}
+
+function sendSingleData(fieldId, value, currentStep, successCallback) {
+  // Track every answer locally so flow finalisers can read them back
+  window.storedData[fieldId] = value;
+  // Route the update to whichever lead the user is currently filling out:
+  // loan flow → byId (from URL); insurance/tax flow → the lead we created on pitch click.
+  var leadId = getActiveLeadId();
+  if (!leadId) { if (successCallback) successCallback(); return; }
+  var formData = new FormData();
+  formData.append("by_id", leadId);
+  formData.append(fieldId, value);
+  // fld_260326 is a loan-form-specific tracking field — only send it on the loan flow
+  if (window.storedData.activeFlow !== 'insurance' && window.storedData.activeFlow !== 'tax') {
+    formData.append("fld_260326", "כן");
+  }
+  jQuery.ajax({
+    url: "https://proxy.leadim.xyz/apiproxy/5517/api/lead_update.ashx",
+    method: "POST",
+    data: formData,
+    contentType: false,
+    processData: false,
+    headers: { "X-LEAD-IM-AUTH": "U-D9C699243FA04F94.B2A1BCAD1B2E2B89" },
+    success: successCallback,
+    error: function () { if (successCallback) successCallback(); }
+  });
+}
+
+jQuery(document).ready(function () {
+  // First-load aside state
+  updateAsideFrom(jQuery(".form-step.active-step").first());
+
+  // ==== Cross-sell abandonment ====
+  // Each cross-sell flow now follows the same pattern as the loan flow: a Leadim lead is created
+  // on entry (insurancePitchYes / fld_283971 yes), each answer updates that lead, and on completion
+  // we fire route_adv directly + call /api/mark-completed. The Supabase safety-net cron
+  // (check-pending) automatically fires route_adv on any lead older than 180s that wasn't marked
+  // completed — so abandonment is handled server-side and we don't need a client-side timer here.
+
+  // Money input live-format
+  jQuery("#monthlyIncomeInput, #debtInput").on("input", function () {
+    formatAndSanitizeMoneyInput(jQuery(this));
+  });
+
+  // Date-of-birth: numeric-only filtering + auto-advance between fields
+  jQuery("#dobDay").on("input", function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 2);
+    if (this.value.length === 2) jQuery("#dobMonth").focus();
+  });
+  jQuery("#dobMonth").on("input", function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 2);
+    if (this.value.length === 2) jQuery("#dobYear").focus();
+  });
+  jQuery("#dobYear").on("input", function () {
+    this.value = this.value.replace(/\D/g, '').slice(0, 4);
+  });
+  // Backspace on empty field jumps to previous one (so users don't get stuck)
+  jQuery("#dobMonth, #dobYear").on("keydown", function (e) {
+    if (e.key === "Backspace" && this.value.length === 0) {
+      var prev = this.id === "dobYear" ? "#dobMonth" : "#dobDay";
+      jQuery(prev).focus();
+    }
+  });
+
+  // Loan slider live display
+  const slider = jQuery("#loanSlider");
+  const loanDisplay = jQuery("#loanAmountDisplay");
+  const loanAmountInput = jQuery("#loanAmountInput");
+  if (slider.length) {
+    slider.on("input", () => {
+      const val = Number(slider.val());
+      if (!isNaN(val)) {
+        loanDisplay.text(val.toLocaleString());
+        loanAmountInput.val(val.toLocaleString());
+      }
+    });
+  }
+
+  jQuery("#loanAmountSubmit").click(function () {
+    var currentStep = jQuery(this).closest(".form-step");
+    const amount = jQuery("#loanSlider").val();
+    sendSingleData("fld_179825", amount + " ₪", currentStep, function () { fadeToNextStep(currentStep); });
+  });
+
+  jQuery(".answer-btn").click(function () {
+    var self = jQuery(this);
+    var currentStep = self.closest(".form-step");
+    var stepId = currentStep.attr("id");
+    var answer = self.data("answer");
+    var hasCar = self.data("has-car");
+    if (self.attr("id") === "loanAmountSubmit") return;
+
+    if (self.attr("id") === "purposeOtherBtn") {
+      jQuery("#purposeAnswers").hide();
+      jQuery("#purposeOtherWrap, #purposeOtherRow").show();
+      jQuery("#purposeOtherInput").focus();
+      return;
+    }
+
+    if (self.attr("id") === "cardOtherBtn") {
+      jQuery("#cardOtherWrap, #cardOtherRow").show();
+      jQuery("#cardOtherInput").focus();
+      try { document.getElementById("cardOtherWrap").scrollIntoView({ behavior: "smooth", block: "center" }); } catch(e){}
+      return;
+    }
+
+    if (self.attr("id") === "incomeSourcesYesBtn") {
+      jQuery("#incomeSourcesAnswers").hide();
+      jQuery("#incomeSourcesWrap, #incomeSourcesRow").show();
+      jQuery("#incomeSourcesInput").focus();
+      return;
+    }
+
+    // Tax-refund pitch — clicking "כן" creates a brand-new tax lead (form 49500) and switches
+    // activeFlow so subsequent answers update THAT lead. Skip the default sendSingleData path.
+    if (stepId === "fld_283971" && self.data("tax-yes") === true) {
+      enterTaxFlow(self, currentStep);
+      return;
+    }
+    // "לא" on the tax pitch — record decline on the loan lead, no new lead created, redirect.
+    if (stepId === "fld_283971" && self.data("tax-yes") === false) {
+      sendSingleData(stepId, answer, currentStep, function () {
+        finalizeAndRedirect();
+      });
+      return;
+    }
+
+    // Last tax question — fire route_adv directly on the tax lead in a single update call,
+    // mark completed, then redirect. Avoids double-submitting the same field via sendSingleData.
+    if (stepId === "fld_219696") {
+      var taxLeadId = window.storedData.taxLeadId;
+      if (taxLeadId) {
+        sendCrossSellUpdate(taxLeadId, stepId, answer, function () {
+          markFlowCompleted(taxLeadId);
+          formCompleted = true;
+          setTimeout(function () { window.location.href = '/thanks/'; }, 500);
+        }, { routeAdv: true });
+      } else {
+        sendSingleData(stepId, answer, currentStep, finalizeAndRedirect);
+      }
+      return;
+    }
+
+    // BDI answer drives whether negative-credit follow-ups are shown
+    if (stepId === "fld_196663") {
+      window.storedData.bdi = answer;
+      var bdiGood = /^(מצויין|תקין)/.test(answer || "");
+      var bdiBadOrWorse = /^שלילי/.test(answer || ""); // שלילי or שלילי מאד
+      // hide הוצל״פ / פשיטת רגל / צ׳קים when BDI is good; show otherwise
+      jQuery("#fld_247918, #fld_179979, #fld_248542").toggleClass("conditional-step", bdiGood);
+      // hide ביטוח פרטי when BDI is שלילי / שלילי מאד (financial pressure → not a useful question)
+      jQuery("#fld_282715").toggleClass("conditional-step", bdiBadOrWorse);
+      // show bank-restriction + BDI-repair offer ONLY when BDI is שלילי / שלילי מאד
+      jQuery("#fld_375783, #fld_260354").toggleClass("conditional-step", !bdiBadOrWorse);
+    }
+
+    // Track whether user pays for private insurance — drives the post-submit pitch
+    if (stepId === "fld_282715") {
+      window.storedData.hasInsurance = (answer === "כן");
+    }
+
+    sendSingleData(stepId, answer, currentStep, function () {
+      if (stepId === "fld_240263") {
+        if (hasCar === true) fadeToSpecificStep(currentStep, "#fld_261441");
+        else                 fadeToNextStep(currentStep);
+      } else if (stepId === "fld_210801") {
+        fadeToSpecificStep(currentStep, "#fld_375712");
+      } else if (stepId === "fld_374354") {
+        // Illness yes → ask which illness; no → skip to monthly payment
+        if (self.data("illness-yes") === true) fadeToSpecificStep(currentStep, "#fld_246786");
+        else                                   fadeToSpecificStep(currentStep, "#fld_179823");
+      } else {
+        fadeToNextStep(currentStep);
+      }
+    });
+  });
+
+  // Inject back button into every step except the first.
+  // Skip steps marked .no-back (e.g. the success message — going back from there to the email
+  // step would let the user re-submit). Skip rows that are hidden by default (e.g. cardOtherRow
+  // / purposeOtherRow) — those rows only show after a specific path is taken.
+  jQuery(".form-step").each(function (idx) {
+    if (idx === 0) return;
+    var $step = jQuery(this);
+    if ($step.hasClass("no-back")) return;
+    if ($step.find(".back-btn").length > 0) return;
+    var $row = $step.find(".row:not([style*='display: none'])").first();
+    if ($row.length === 0) {
+      $row = jQuery('<div class="row"></div>');
+      $step.append($row);
+    }
+    $row.prepend('<button class="back-btn" type="button">חזור</button>');
+  });
+
+  jQuery(document).on("click", ".back-btn", function (e) {
+    e.preventDefault();
+    if (stepHistory.length === 0) return;
+    var prevId = stepHistory.pop();
+    var currentStep = jQuery(this).closest(".form-step");
+    fadeToSpecificStep(currentStep, "#" + prevId, true);
+  });
+
+  jQuery("#monthlyIncomeSubmit").click(function () {
+    var currentStep = jQuery(this).closest(".form-step");
+    const income = formatAndSanitizeMoneyInput(jQuery("#monthlyIncomeInput"));
+    if (!income || income < 0) { jQuery("#monthlyIncomeError").text("יש להזין סכום תקין"); return; }
+    jQuery("#monthlyIncomeError").text("");
+    sendSingleData("fld_335575", income.toLocaleString() + " ₪", currentStep, function () { fadeToNextStep(currentStep); });
+  });
+
+  jQuery("#debtSubmit").click(function () {
+    var currentStep = jQuery(this).closest(".form-step");
+    const debt = formatAndSanitizeMoneyInput(jQuery("#debtInput"));
+    if (debt === null || debt < 0) { jQuery("#debtError").text("יש להזין סכום תקין"); return; }
+    jQuery("#debtError").text("");
+    sendSingleData("fld_200095", debt.toLocaleString() + " ₪", currentStep, function () {
+      var bdi = window.storedData.bdi || "";
+      var bdiNegative = bdi && !/^(מצויין|תקין)/.test(bdi);
+      if (debt > 100000 && bdiNegative) fadeToSpecificStep(currentStep, "#fld_210801");
+      else                              fadeToNextStep(currentStep);
+    });
+  });
+
+  jQuery("#citySubmit").click(function () {
+    var currentStep = jQuery(this).closest(".form-step");
+    var city = jQuery("#cityInput").val().trim();
+    if (!city) { jQuery("#cityError").text("נא להזין שם עיר"); return; }
+    jQuery("#cityError").text("");
+    sendSingleData("fld_179821", city, currentStep, function () { fadeToNextStep(currentStep); });
+  });
+
+  jQuery("#purposeOtherSubmit").click(function () {
+    var currentStep = jQuery(this).closest(".form-step");
+    var val = jQuery("#purposeOtherInput").val().trim();
+    if (!val) { jQuery("#purposeOtherError").text("נא לציין את מטרת ההלוואה"); return; }
+    jQuery("#purposeOtherError").text("");
+    sendSingleData("fld_196665", val, currentStep, function () { fadeToNextStep(currentStep); });
+  });
+
+  jQuery("#cardOtherSubmit").click(function () {
+    var currentStep = jQuery(this).closest(".form-step");
+    var val = jQuery("#cardOtherInput").val().trim();
+    if (!val) { jQuery("#cardOtherError").text("נא לציין איזה כרטיס יש לך"); return; }
+    jQuery("#cardOtherError").text("");
+    sendSingleData("fld_296630", val, currentStep, function () { fadeToNextStep(currentStep); });
+  });
+
+  jQuery("#dobSubmit").click(function () {
+    var day = parseInt(jQuery("#dobDay").val(), 10);
+    var month = parseInt(jQuery("#dobMonth").val(), 10);
+    var year = parseInt(jQuery("#dobYear").val(), 10);
+    var errorBox = jQuery("#dobError");
+    if (!day || !month || !year) { errorBox.text("נא למלא יום, חודש ושנה"); return; }
+    if (day < 1 || day > 31)     { errorBox.text("יום לא תקין (1–31)"); return; }
+    if (month < 1 || month > 12) { errorBox.text("חודש לא תקין (1–12)"); return; }
+    var thisYear = new Date().getFullYear();
+    if (year < 1900 || year > thisYear) { errorBox.text("שנה לא תקינה"); return; }
+    // Verify the date is real (e.g. 30/02 is invalid)
+    var dobDate = new Date(year, month - 1, day);
+    if (dobDate.getDate() !== day || dobDate.getMonth() !== month - 1 || dobDate.getFullYear() !== year) {
+      errorBox.text("תאריך לא תקין"); return;
+    }
+    var now = new Date();
+    var age = now.getFullYear() - dobDate.getFullYear();
+    var m = now.getMonth() - dobDate.getMonth();
+    if (m < 0 || (m === 0 && now.getDate() < dobDate.getDate())) age--;
+    if (age < 18 || age > 120) { errorBox.text("יש להיות בגיל 18 ומעלה"); return; }
+    errorBox.text("");
+    var isoDate = year + "-" + String(month).padStart(2, '0') + "-" + String(day).padStart(2, '0');
+    window.storedData.dob = isoDate;
+    window.storedData.age = age;
+    var currentStep = jQuery(this).closest(".form-step");
+    sendSingleData("fld_283259", isoDate, currentStep, function () {
+      sendSingleData("fld_179819", String(age), currentStep, function () {
+        fadeToNextStep(currentStep);
+      });
+    });
+  });
+
+  jQuery("#ssnSubmit").click(function () {
+    var ssn = jQuery("#ssnInput").val().trim();
+    if (!isValidIsraeliID(ssn)) { jQuery("#ssnError").text("ת\"ז לא תקינה"); return; }
+    jQuery("#ssnError").text("");
+    window.storedData.ssn = ssn;
+    sendSingleData("fld_209867", ssn, jQuery(this).closest(".form-step"), () => fadeToNextStep(jQuery(this).closest(".form-step")));
+  });
+
+
+  jQuery("#emailSubmit").click(function () {
+    var email = jQuery("#emailInput").val().trim();
+    var currentStep = jQuery(this).closest(".form-step");
+    var stepId = currentStep.attr("id");
+    var errorBox = jQuery("#emailError");
+    errorBox.text("");
+    if (!email.includes("@") || !email.includes(".")) {
+      errorBox.text("אנא הכנס כתובת דוא\"ל תקינה");
+      return;
+    }
+    formCompleted = true;
+    if (byId) {
+      fetch('/api/mark-completed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lead_id: byId })
+      }).catch(function(){});
+    }
+    var formData = new FormData();
+    formData.append("by_id", byId);
+    formData.append(stepId, email);
+    formData.append("route_adv", true);
+    if (window.dataLayer) {
+      window.dataLayer.push({ event: "lead", email: email });
+    }
+    jQuery.ajax({
+      url: "https://proxy.leadim.xyz/apiproxy/5517/api/lead_update.ashx",
+      method: "POST",
+      data: formData,
+      contentType: false,
+      processData: false,
+      headers: { "X-LEAD-IM-AUTH": "U-D9C699243FA04F94.B2A1BCAD1B2E2B89" },
+      success: function () {
+        // Insurance-yes users: land on the success step (which hosts the insurance pitch).
+        // Everyone else: skip the generic success card and go straight to the tax-refund pitch
+        // — the tax pitch step already has its own confirmation card, so no extra screen is needed.
+        if (window.storedData && window.storedData.hasInsurance) {
+          fadeToSpecificStep(currentStep, "#successStep");
+          setTimeout(function () { jQuery("#insurancePitch").show(); }, 350);
+        } else {
+          fadeToSpecificStep(currentStep, "#fld_283971");
+        }
+      },
+      error: function () {
+        errorBox.text("אירעה שגיאה בשליחה");
+      }
+    });
+  });
+
+  // Success step: pitch buttons + finish redirect.
+  // "כן" creates a new insurance lead (form 49491) immediately and switches activeFlow so all
+  // subsequent answers update THAT lead. The Supabase safety-net (180s) covers abandonment.
+  jQuery("#insurancePitchYes").click(function () {
+    var currentStep = jQuery(this).closest(".form-step");
+    enterInsuranceFlow(jQuery(this), currentStep);
+  });
+  // "לא" does NOT create an insurance lead — record the decline on the loan lead (a tracking
+  // signal) and continue to the tax pitch.
+  jQuery("#insurancePitchNo").click(function () {
+    var currentStep = jQuery(this).closest(".form-step");
+    sendSingleData("fld_223544", "לא", currentStep, function () {
+      fadeToSpecificStep(currentStep, "#fld_283971");
+    });
+  });
+  // Insurance flow: illness name submit
+  jQuery("#illnessSubmit").click(function () {
+    var val = jQuery("#illnessInput").val().trim();
+    var errorBox = jQuery("#illnessError");
+    if (!val) { errorBox.text("נא לפרט"); return; }
+    errorBox.text("");
+    var currentStep = jQuery(this).closest(".form-step");
+    sendSingleData("fld_246786", val, currentStep, function () { fadeToNextStep(currentStep); });
+  });
+
+  // Insurance flow: monthly insurance payment
+  jQuery("#insurancePayInput").on("input", function () { formatAndSanitizeMoneyInput(jQuery(this)); });
+  jQuery("#insurancePaySubmit").click(function () {
+    var currentStep = jQuery(this).closest(".form-step");
+    var amount = formatAndSanitizeMoneyInput(jQuery("#insurancePayInput"));
+    if (amount === null || amount < 0) { jQuery("#insurancePayError").text("יש להזין סכום תקין"); return; }
+    jQuery("#insurancePayError").text("");
+    sendSingleData("fld_179823", amount.toLocaleString() + " ₪", currentStep, function () { fadeToNextStep(currentStep); });
+  });
+
+  // Multi-select: toggle "is-selected" on each click
+  jQuery(document).on("click", ".multi-btn", function (e) {
+    e.preventDefault();
+    jQuery(this).toggleClass("is-selected");
+  });
+
+  function readMultiSelect($grid) {
+    var values = [];
+    $grid.find(".multi-btn.is-selected").each(function () {
+      values.push(jQuery(this).data("value"));
+    });
+    return values.join(", ");
+  }
+
+  // Insurance flow: types (multi-select)
+  jQuery("#insuranceTypesSubmit").click(function () {
+    var currentStep = jQuery(this).closest(".form-step");
+    var val = readMultiSelect(jQuery("#insuranceTypesGrid"));
+    if (!val) { jQuery("#insuranceTypesError").text("נא לבחור לפחות אפשרות אחת"); return; }
+    jQuery("#insuranceTypesError").text("");
+    sendSingleData("fld_179822", val, currentStep, function () { fadeToNextStep(currentStep); });
+  });
+
+  // Insurance flow: company (multi-select) → continue to ID issue date
+  jQuery("#insuranceCompanySubmit").click(function () {
+    var currentStep = jQuery(this).closest(".form-step");
+    var val = readMultiSelect(jQuery("#insuranceCompaniesGrid"));
+    if (!val) { jQuery("#insuranceCompanyError").text("נא לבחור לפחות אפשרות אחת"); return; }
+    jQuery("#insuranceCompanyError").text("");
+    sendSingleData("fld_223541", val, currentStep, function () { fadeToNextStep(currentStep); });
+  });
+
+  // Tax flow: "מקורות הכנסה נוספים" — yes path collects detail text
+  jQuery("#incomeSourcesSubmit").click(function () {
+    var currentStep = jQuery(this).closest(".form-step");
+    var val = jQuery("#incomeSourcesInput").val().trim();
+    if (!val) { jQuery("#incomeSourcesError").text("נא לפרט את מקורות ההכנסה"); return; }
+    jQuery("#incomeSourcesError").text("");
+    sendSingleData("fld_375784", "כן: " + val, currentStep, function () { fadeToNextStep(currentStep); });
+  });
+
+  // Insurance flow: ID issue date — last step of the insurance flow.
+  // Fire route_adv on the insurance lead (single combined call), mark completed in Supabase,
+  // then exit the insurance flow back to default so the tax pitch starts cleanly.
+  jQuery("#ssnIssueDateSubmit").click(function () {
+    var date = jQuery("#ssnIssueDateInput").val();
+    var errorBox = jQuery("#ssnIssueDateError");
+    if (!date) { errorBox.text("נא לבחור תאריך"); return; }
+    errorBox.text("");
+    var currentStep = jQuery(this).closest(".form-step");
+    var insLeadId = window.storedData.insuranceLeadId;
+    window.storedData.fld_209868 = date;
+    var goNext = function () {
+      window.storedData.activeFlow = 'loan'; // back to default until/unless tax flow starts
+      fadeToSpecificStep(currentStep, "#fld_283971");
+    };
+    if (insLeadId) {
+      sendCrossSellUpdate(insLeadId, "fld_209868", date, function () {
+        markFlowCompleted(insLeadId);
+        goNext();
+      }, { routeAdv: true });
+    } else {
+      goNext();
+    }
+  });
+});
+</script>
+<script src="/assets/cookie-banner.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2D8B7E">
+<title>מימונצ'יק — הלוואה מיידית לכל מטרה 💸</title>
+<meta name="description" content="הלוואה אישית עד ‎3,000,000 ₪ במהירות שיא. תהליך פשוט, ידידותי, וללא כאב ראש. השאר פרטים — פחות מדקה.">
+<link rel="canonical" href="https://mimonchik.com/">
+<link rel="icon" type="image/png" href="/assets/logo.png">
+<link rel="apple-touch-icon" href="/assets/logo.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Suez+One&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  /* Mimonchik — Playful Mascot Palette */
+  --mint:        #A8E5A1;
+  --mint-light:  #D1F5CC;
+  --mint-50:     #ECF9E9;
+
+  --teal:        #2D8B7E;
+  --teal-deep:   #1A5E55;
+  --teal-100:    #C8E5E1;
+
+  --sunshine:    #FFD93D;
+  --sunshine-dk: #F5C518;
+
+  --coral-soft:  #FF9A8B;
+  --peach:       #FFE5D9;
+
+  --cream:       #FFFCF5;
+  --cream-2:     #FFF7E5;
+  --paper:       #FFFFFF;
+
+  --ink:         #1A3A35;
+  --ink-soft:    #4F635F;
+  --ink-mute:    #8FA39F;
+  --hairline:    #EDE5D2;
+  --hairline-2:  #D9CFB6;
+
+  --error:    #E11D48;
+  --success:  #2D8B7E;
+
+  --radius-soft: 18px;
+  --radius:      24px;
+  --radius-big:  32px;
+
+  --ease: cubic-bezier(.34, 1.56, .64, 1);  /* slight overshoot — playful */
+  --ease-flat: cubic-bezier(.22, 1, .36, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; }
+body {
+  font-family: 'Rubik', system-ui, sans-serif;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--cream);
+  background-image:
+    radial-gradient(circle at 20% 18%, var(--mint-light) 0, transparent 1.5px),
+    radial-gradient(circle at 80% 60%, var(--peach) 0, transparent 1.5px),
+    radial-gradient(circle at 50% 90%, var(--mint-50) 0, transparent 1.5px);
+  background-size: 60px 60px, 80px 80px, 50px 50px;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* —————————————————————————— Top sticker strip —————————————————————————— */
+.sticker-strip {
+  background: var(--teal);
+  color: #fff;
+  padding: 11px 16px;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 600;
+  position: relative;
+  letter-spacing: -0.005em;
+}
+.sticker-strip::after {
+  content: "";
+  position: absolute;
+  bottom: -8px; left: 0; right: 0;
+  height: 8px;
+  background: var(--teal);
+  -webkit-mask:
+    radial-gradient(circle 8px at 8px 0, transparent 98%, #000 100%) repeat-x;
+          mask:
+    radial-gradient(circle 8px at 8px 0, transparent 98%, #000 100%) repeat-x;
+  -webkit-mask-size: 16px 8px;
+          mask-size: 16px 8px;
+}
+.sticker-strip .emoji { margin: 0 5px; }
+
+/* —————————————————————————— Header —————————————————————————— */
+.site-header {
+  padding: 28px 0 0;
+}
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  line-height: 0;
+}
+.brand-logo {
+  height: 56px;
+  width: auto;
+  display: block;
+  transition: transform .4s var(--ease);
+}
+.brand:hover .brand-logo { transform: rotate(-3deg) scale(1.05); }
+
+.header-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teal-deep);
+  background: var(--mint-50);
+  border: 2px solid var(--mint);
+  border-radius: 999px;
+  padding: 8px 16px;
+  box-shadow: 3px 3px 0 var(--teal-deep);
+}
+.header-tag .pulse {
+  width: 8px; height: 8px;
+  background: var(--teal);
+  border-radius: 999px;
+  box-shadow: 0 0 0 0 rgba(45, 139, 126, .55);
+  animation: pulse 2s var(--ease-flat) infinite;
+}
+@keyframes pulse {
+  70%  { box-shadow: 0 0 0 9px rgba(45, 139, 126, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(45, 139, 126, 0); }
+}
+
+/* —————————————————————————— Hero —————————————————————————— */
+.hero {
+  position: relative;
+  padding: 36px 0 0;
+}
+.hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 28px 64px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  align-items: center;
+}
+
+.hero-text {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--teal-deep);
+  background: var(--sunshine);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 7px 14px;
+  margin-bottom: 22px;
+  box-shadow: 3px 3px 0 var(--ink);
+  transform: rotate(-1deg);
+}
+
+h1.hero-title {
+  font-family: 'Suez One', 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: clamp(40px, 5.6vw, 72px);
+  line-height: 1.0;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin-bottom: 22px;
+}
+h1.hero-title em {
+  font-style: normal;
+  background: var(--sunshine);
+  padding: 0 8px;
+  display: inline-block;
+  border-radius: 8px;
+  transform: rotate(-1.5deg);
+  box-shadow: 4px 4px 0 var(--ink);
+  margin: 0 4px;
+}
+h1.hero-title .grin {
+  display: inline-block;
+  font-family: 'Rubik', sans-serif;
+  font-size: 0.7em;
+  margin-inline-start: 4px;
+}
+
+.hero-sub {
+  font-size: 18.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 520px;
+  margin-bottom: 32px;
+  font-weight: 500;
+}
+
+/* sticker bullets */
+.sticker-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+.sticker-bullet {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 10px 18px 10px 14px;
+  box-shadow: 3px 3px 0 var(--ink);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ink);
+  transition: transform .25s var(--ease);
+  align-self: flex-start;
+  max-width: 100%;
+}
+.sticker-bullet:nth-child(1) { transform: rotate(-0.6deg); }
+.sticker-bullet:nth-child(2) { transform: rotate(0.4deg); }
+.sticker-bullet:nth-child(3) { transform: rotate(-0.3deg); }
+.sticker-bullet:hover { transform: rotate(0deg) translateY(-2px); }
+.sticker-bullet .emoji {
+  width: 32px; height: 32px;
+  background: var(--mint-50);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.sticker-bullet strong { color: var(--teal-deep); font-weight: 800; }
+
+/* mascot column with form ON IT */
+.hero-visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mascot-bg {
+  position: absolute;
+  width: 110%;
+  aspect-ratio: 1;
+  background: var(--mint-50);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  z-index: 0;
+  top: -8%;
+  right: -8%;
+  filter: blur(2px);
+  opacity: .8;
+}
+
+.mascot-img {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  background: url('/assets/logo.png') center/contain no-repeat;
+  z-index: 1;
+  top: -90px;
+  inset-inline-start: -40px;
+  animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(6px 8px 0 var(--ink));
+}
+@keyframes float {
+  0%, 100% { transform: rotate(-4deg) translateY(0); }
+  50%      { transform: rotate(-2deg) translateY(-8px); }
+}
+
+/* —————————————————————————— Form sticker card —————————————————————————— */
+.form-card {
+  position: relative;
+  z-index: 2;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-big);
+  padding: 36px 30px 30px;
+  box-shadow: 8px 8px 0 var(--ink), 8px 8px 0 4px var(--sunshine);
+  width: 100%;
+  max-width: 440px;
+  transform: rotate(0.8deg);
+  margin-top: 60px;
+}
+.form-card-tape {
+  position: absolute;
+  top: -18px;
+  inset-inline-end: 30px;
+  width: 80px;
+  height: 24px;
+  background: var(--sunshine);
+  border: 2px solid var(--ink);
+  transform: rotate(-8deg);
+  border-radius: 4px;
+  z-index: 3;
+}
+
+.form-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 700;
+  font-size: 11.5px;
+  color: var(--teal-deep);
+  background: var(--mint);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 5px 11px;
+  letter-spacing: .02em;
+  margin-bottom: 14px;
+}
+.form-title {
+  font-family: 'Suez One', 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 28px;
+  letter-spacing: -0.015em;
+  line-height: 1.12;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.form-sub {
+  font-size: 14.5px;
+  color: var(--ink-mute);
+  margin-bottom: 22px;
+  font-weight: 500;
+}
+
+.field { margin-bottom: 14px; }
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--teal-deep);
+  margin-bottom: 6px;
+}
+.field input[type="text"],
+.field input[type="tel"] {
+  width: 100%;
+  padding: 14px 18px;
+  font: 600 16px/1.4 'Rubik', sans-serif;
+  color: var(--ink);
+  background: var(--cream);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  outline: none;
+  transition: all .2s var(--ease-flat);
+}
+.field input::placeholder { color: var(--ink-mute); font-weight: 500; }
+.field input:focus {
+  background: var(--paper);
+  box-shadow: 4px 4px 0 var(--teal);
+  transform: translate(-1px, -1px);
+}
+.field-error {
+  font-size: 12.5px;
+  color: var(--error);
+  margin-top: 5px;
+  display: none;
+  font-weight: 600;
+}
+.field-error.show { display: block; }
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 12px 0 4px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  cursor: pointer;
+}
+.consent input[type="checkbox"] {
+  width: 18px; height: 18px;
+  margin-top: 2px;
+  accent-color: var(--teal);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.consent a { color: var(--teal-deep); font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 2px; }
+.consent-required {
+  color: var(--error);
+  font-size: 12px;
+  margin: 4px 0 0 26px;
+  display: none;
+  font-weight: 600;
+}
+.consent-required.show { display: block; }
+
+/* CTA — sunshine yellow with hard ink offset shadow */
+.cta-btn {
+  width: 100%;
+  margin-top: 18px;
+  padding: 17px 26px;
+  font: 800 17px/1 'Rubik', sans-serif;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  background: var(--sunshine);
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  cursor: pointer;
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: all .15s var(--ease);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: 'Rubik', sans-serif;
+}
+.cta-btn:hover:not(:disabled) {
+  transform: translate(-3px, -3px) rotate(-0.5deg);
+  box-shadow: 8px 8px 0 var(--ink);
+  background: var(--sunshine-dk);
+}
+.cta-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.cta-btn:disabled {
+  background: var(--hairline);
+  color: var(--ink-mute);
+  border-color: var(--hairline-2);
+  box-shadow: 5px 5px 0 var(--hairline-2);
+  cursor: not-allowed;
+}
+.cta-btn .arr { font-size: 22px; line-height: 1; }
+
+.secure-line {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: var(--ink-mute);
+  font-weight: 600;
+}
+
+/* —————————————————————————— Sticker badges row —————————————————————————— */
+.badges-row {
+  background: var(--mint-50);
+  padding: 36px 0 40px;
+  margin-top: 24px;
+  position: relative;
+  border-top: 3px dashed var(--teal);
+}
+.badges-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 28px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.badge {
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: 22px;
+  padding: 22px 16px;
+  text-align: center;
+  box-shadow: 4px 4px 0 var(--ink);
+  transition: transform .25s var(--ease);
+}
+.badge:nth-child(1) { transform: rotate(-1deg); }
+.badge:nth-child(2) { transform: rotate(0.6deg); }
+.badge:nth-child(3) { transform: rotate(-0.4deg); }
+.badge:nth-child(4) { transform: rotate(1deg); }
+.badge:hover { transform: rotate(0deg) translateY(-3px); box-shadow: 6px 6px 0 var(--ink); }
+.badge .b-emoji {
+  width: 52px; height: 52px;
+  background: var(--mint);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin-bottom: 12px;
+}
+.badge .b-t {
+  font-family: 'Rubik', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+  display: block;
+  margin-bottom: 2px;
+}
+.badge .b-d {
+  font-size: 12.5px;
+  color: var(--ink-mute);
+  display: block;
+  font-weight: 500;
+}
+
+/* —————————————————————————— Footer —————————————————————————— */
+.foot {
+  padding: 26px 28px;
+  background: var(--cream);
+}
+.foot-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12.5px;
+  color: var(--ink-mute);
+  font-weight: 500;
+}
+.foot-inner a {
+  color: var(--teal-deep);
+  text-decoration: none;
+  font-weight: 700;
+  border-bottom: 1.5px solid var(--hairline);
+  padding-bottom: 1px;
+  transition: border-color .15s;
+}
+.foot-inner a:hover { border-color: var(--teal); }
+
+/* —————————————————————————— Mobile —————————————————————————— */
+@media (max-width: 980px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 30px; padding: 24px 22px 50px; }
+  .hero-visual { min-height: 320px; margin-top: 30px; }
+  .form-card { transform: rotate(0deg); margin-top: 40px; }
+  .mascot-img { width: 180px; height: 180px; top: -100px; right: 50%; transform: translateX(50%); inset-inline-start: auto; }
+  .mascot-bg { width: 130%; right: -15%; top: -50px; }
+  h1.hero-title { font-size: clamp(34px, 8vw, 52px); }
+  .badges-inner { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+}
+@media (max-width: 540px) {
+  .header-inner { padding: 0 20px; }
+  .brand-logo { height: 46px; }
+  .header-tag { font-size: 11.5px; padding: 6px 12px; box-shadow: 2px 2px 0 var(--teal-deep); }
+  .form-card { padding: 28px 22px 24px; box-shadow: 5px 5px 0 var(--ink), 5px 5px 0 4px var(--sunshine); }
+  .form-card-tape { width: 60px; height: 18px; top: -12px; }
+  .form-title { font-size: 24px; }
+  .sticker-bullet { font-size: 14px; padding: 9px 16px 9px 12px; }
+  .badge { padding: 18px 12px; }
+  .badge .b-emoji { width: 44px; height: 44px; font-size: 22px; }
+  .badge .b-t { font-size: 14px; }
+  .badge .b-d { font-size: 11.5px; }
+  .cta-btn { padding: 15px 22px; box-shadow: 4px 4px 0 var(--ink); }
+}
+
+::selection { background: var(--sunshine); color: var(--ink); }
+</style>
+
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-N3SFVS3W');</script>
+<!-- End Google Tag Manager -->
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-N3SFVS3W"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<div class="sticker-strip">
+  <span class="emoji">💸</span>
+  בדיקת זכאות פעילה — תשובה תוך דקות
+  <span class="emoji">⚡</span>
+</div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="מימונצ'יק — דף הבית">
+      <img src="/assets/logo-wordmark.png" alt="מימונצ'יק" class="brand-logo">
+    </a>
+    <span class="header-tag">
+      <span class="pulse"></span>
+      תהליך מאובטח
+    </span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <span class="hero-tag">💚 הכי ידידותי בתחום</span>
+      <h1 class="hero-title">
+        הלוואה <em>בלי כאב ראש.</em><br>
+        עד 3 מיליון ₪
+        <span class="grin">😊</span>
+      </h1>
+      <p class="hero-sub">
+        מילוי קצרצר, שאלון של דקה, וההצעה הכי טובה אצלך — מבין עשרות גופי מימון מובילים. בלי בירוקרטיה, בלי הפתעות, בלי בלגן.
+      </p>
+
+      <div class="sticker-bullets">
+        <div class="sticker-bullet">
+          <span class="emoji">⚡</span>
+          תשובה <strong>תוך 24 שעות</strong>
+        </div>
+        <div class="sticker-bullet">
+          <span class="emoji">🔒</span>
+          תהליך <strong>דיסקרטי ובטוח</strong>
+        </div>
+        <div class="sticker-bullet">
+          <span class="emoji">🎯</span>
+          גם <strong>לאשראי בעייתי</strong> — אנחנו מתאימים פתרון
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="mascot-bg" aria-hidden="true"></div>
+      <div class="mascot-img" aria-hidden="true"></div>
+      <aside class="form-card" aria-labelledby="formTitle">
+        <span class="form-card-tape" aria-hidden="true"></span>
+        <span class="form-tag">⚡ בדיקת זכאות מהירה</span>
+        <h2 class="form-title" id="formTitle">השאר פרטים — נחזור!</h2>
+        <p class="form-sub">פחות מדקה · ללא עלות · ללא התחייבות</p>
+
+        <div class="field">
+          <label for="nameInput">איך קוראים לך?</label>
+          <input type="text" id="nameInput" autocomplete="name" placeholder="לדוגמא: ישראל ישראלי" required>
+          <div class="field-error" id="nameError">נא להזין שם מלא</div>
+        </div>
+
+        <div class="field">
+          <label for="phoneInput">מספר טלפון</label>
+          <input type="tel" id="phoneInput" inputmode="numeric" autocomplete="tel" placeholder="לדוגמא: 0501234567" maxlength="10" dir="rtl" required>
+          <div class="field-error" id="phoneError">נא להזין מספר טלפון תקין</div>
+        </div>
+
+        <label class="consent">
+          <input type="checkbox" id="consentBox" value="כן">
+          <span>אני מסכימ/ה ל<a href="/privacy-policy/" target="_blank">תנאי השימוש ומדיניות הפרטיות</a> באתר</span>
+        </label>
+        <div class="consent-required" id="consentError">חובה לאשר את תנאי השימוש כדי להמשיך</div>
+
+        <label class="consent" style="margin-top: 4px;">
+          <input type="checkbox" id="marketingBox" value="כן">
+          <span>אני מסכים/ה לקבל פרסומים שיווקיים ממימונצ'יק</span>
+        </label>
+
+        <button class="cta-btn" id="submitBtn" disabled>
+          קדימה!
+          <span class="arr">←</span>
+        </button>
+
+        <p class="secure-line">🔒 הפרטים שלך מוצפנים ובטוחים</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<div class="badges-row">
+  <div class="badges-inner">
+    <div class="badge">
+      <span class="b-emoji" aria-hidden="true">⚡</span>
+      <span class="b-t">תוך 24 שעות</span>
+      <span class="b-d">תשובה ראשונית</span>
+    </div>
+    <div class="badge">
+      <span class="b-emoji" aria-hidden="true">🔒</span>
+      <span class="b-t">SSL מוצפן</span>
+      <span class="b-d">רמת אבטחה בנקאית</span>
+    </div>
+    <div class="badge">
+      <span class="b-emoji" aria-hidden="true">🏦</span>
+      <span class="b-t">12+ גופים</span>
+      <span class="b-d">השוואה אוטומטית</span>
+    </div>
+    <div class="badge">
+      <span class="b-emoji" aria-hidden="true">🇮🇱</span>
+      <span class="b-t">ישראלי</span>
+      <span class="b-d">שירות בעברית</span>
+    </div>
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <span>© מימונצ'יק — כל הזכויות שמורות</span>
+    <a href="/privacy-policy/" rel="noopener">תנאי שימוש ומדיניות פרטיות</a>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+(function ($) {
+  var $name = $('#nameInput');
+  var $phone = $('#phoneInput');
+  var $consent = $('#consentBox');
+  var $marketing = $('#marketingBox');
+  var $submit = $('#submitBtn');
+  var $nameErr = $('#nameError');
+  var $phoneErr = $('#phoneError');
+  var $consentErr = $('#consentError');
+
+  function validPhone(v) {
+    var digits = String(v).replace(/\D/g, '');
+    return /^0\d{8,9}$/.test(digits);
+  }
+  function validName(v) { return String(v).trim().length >= 2; }
+  function update() {
+    var ok = validName($name.val()) && validPhone($phone.val()) && $consent.is(':checked');
+    $submit.prop('disabled', !ok);
+  }
+  $name.on('input', function () { $nameErr.removeClass('show'); update(); });
+  $phone.on('input', function () { $phoneErr.removeClass('show'); update(); });
+  $consent.on('change', function () { $consentErr.removeClass('show'); update(); });
+
+  function getUTMParams() {
+    var qs = new URLSearchParams(window.location.search);
+    var p = {};
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid'].forEach(function (k) {
+      var v = qs.get(k);
+      if (v) p[k] = v;
+    });
+    return p;
+  }
+
+  $submit.on('click', function (e) {
+    e.preventDefault();
+    var name  = $name.val().trim();
+    var phone = $phone.val().trim();
+    var nameOk = validName(name), phoneOk = validPhone(phone), consentOk = $consent.is(':checked');
+    if (!nameOk)    $nameErr.addClass('show');
+    if (!phoneOk)   $phoneErr.addClass('show');
+    if (!consentOk) $consentErr.addClass('show');
+    if (!nameOk || !phoneOk || !consentOk) return;
+
+    $submit.prop('disabled', true).text('שולח…');
+
+    var formData = {
+      name: name,
+      phone: phone,
+      source: window.location.hostname,
+      fld_228371: $consent.is(':checked')   ? 'כן' : '',
+      fld_331359: $marketing.is(':checked') ? 'כן' : ''
+    };
+    Object.assign(formData, getUTMParams());
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'lead', name: name, phone: phone });
+
+    var qs = Object.keys(formData)
+      .map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(formData[k]); })
+      .join('&');
+    var webhookUrl = 'https://proxy.leadim.xyz/APIProxy/global/submit.cors.v2.ashx?lm_form=49502&lm_key=61cae16fb0&' + qs;
+
+    $.ajax({
+      url: webhookUrl,
+      type: 'POST',
+      success: function (responseText) {
+        try {
+          var resp = (typeof responseText === 'string') ? JSON.parse(responseText) : responseText;
+          if (resp && typeof resp.result !== 'undefined') {
+            window.location.href = '/quiz/?response=' + resp.result
+              + '&name=' + encodeURIComponent(name)
+              + '&phone=' + encodeURIComponent(phone);
+            return;
+          }
+        } catch (e) {}
+        $submit.prop('disabled', false).html('קדימה! <span class="arr">←</span>');
+        alert('שגיאה בשליחה — נסה שוב');
+      },
+      error: function () {
+        $submit.prop('disabled', false).html('קדימה! <span class="arr">←</span>');
+        alert('שליחה לשרת נכשלה — אנא נסה שוב');
+      }
+    });
+  });
+})(jQuery);
+</script>
+<script src="/assets/cookie-banner.js" defer></script>
+</body>
+</html>
