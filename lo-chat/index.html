@@ -803,19 +803,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <!-- LEGAL DISCLOSURE (Google Ads — Personal Loans compliance) -->
 <style>
-  .ymedia-disclosure { max-width: 720px; margin: 24px auto 18px; padding: 0 16px; font-family: -apple-system, BlinkMacSystemFont, 'Heebo', 'Assistant', 'Segoe UI', sans-serif; direction: rtl; text-align: start; }
-  .ymedia-disclosure summary { cursor: pointer; list-style: none; font-size: 12px; color: #555; padding: 6px 14px; background: rgba(0,0,0,.05); border: 0; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; font-weight: 500; transition: all .15s ease; letter-spacing: 0; }
+  .ymedia-disclosure { display: inline-block; position: relative; vertical-align: middle; margin: 0 8px; font-family: -apple-system, BlinkMacSystemFont, 'Heebo', 'Assistant', 'Segoe UI', sans-serif; direction: rtl; text-align: start; }
+  .ymedia-disclosure summary { cursor: pointer; list-style: none; font-size: 12px; color: inherit; opacity: .75; padding: 4px 10px; background: rgba(0,0,0,.06); border: 0; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; font-weight: 600; transition: all .15s ease; letter-spacing: 0; line-height: 1.4; white-space: nowrap; }
   .ymedia-disclosure summary::-webkit-details-marker { display: none; }
   .ymedia-disclosure summary::after { content: "▾"; font-size: 9px; opacity: .7; transition: transform .15s; margin-inline-start: 2px; }
   .ymedia-disclosure[open] summary::after { transform: rotate(180deg); }
-  .ymedia-disclosure summary:hover { background: rgba(0,0,0,.1); color: #111; }
-  .ymedia-disclosure-body { margin-top: 8px; padding: 14px 16px; background: #fff; border-radius: 10px; font-size: 12.5px; color: #4a4a4a; line-height: 1.65; box-shadow: 0 1px 3px rgba(0,0,0,.08); border: 1px solid rgba(0,0,0,.06); }
+  .ymedia-disclosure summary:hover { background: rgba(0,0,0,.12); opacity: 1; }
+  .ymedia-disclosure-body { position: absolute; bottom: calc(100% + 8px); inset-inline-end: 0; width: min(420px, 92vw); padding: 14px 16px; background: #fff; border-radius: 10px; font-size: 12.5px; color: #4a4a4a; line-height: 1.65; box-shadow: 0 10px 30px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.08); border: 1px solid rgba(0,0,0,.08); z-index: 9999; text-align: start; max-height: 70vh; overflow-y: auto; }
   .ymedia-disclosure-body p { margin: 6px 0; }
   .ymedia-disclosure-body p:first-child { margin-top: 0; }
   .ymedia-disclosure-body p:last-child { margin-bottom: 0; }
   .ymedia-disclosure-body strong { color: #111; font-weight: 700; }
   .ymedia-disclosure-body a { color: #2563eb; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+  /* Fallback container when JS doesn't move it into a footer */
+  body > .ymedia-disclosure-wrap { display: block; text-align: center; max-width: 720px; margin: 18px auto; padding: 0 16px; }
+  @media (max-width: 540px) {
+    .ymedia-disclosure-body { inset-inline-end: 50%; transform: translateX(50%); }
+  }
 </style>
+<div class="ymedia-disclosure-wrap">
 <details class="ymedia-disclosure">
   <summary>גילוי נאות + תנאי הלוואה</summary>
   <div class="ymedia-disclosure-body">
@@ -833,6 +839,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p><strong>מפעיל האתר:</strong> ‎יופה מדיה בע"מ (ח.פ. 516404308) · ‎דרך מנחם בגין 156, תל אביב.</p>
   </div>
 </details>
+</div>
+<script>
+(function () {
+  var disc = document.querySelector('.ymedia-disclosure');
+  if (!disc) return;
+  var candidates = ['footer .foot-inner', '.foot-inner', '.foot footer', 'footer.foot', 'footer.page-foot', '.page-foot', '.site-info', '.site-footer', 'footer .container', '#colophon .site-info', '#colophon', 'footer'];
+  var target = null;
+  for (var i = 0; i < candidates.length; i++) {
+    var el = document.querySelector(candidates[i]);
+    if (el && !el.contains(disc) && el.offsetParent !== null) { target = el; break; }
+  }
+  if (target) {
+    target.appendChild(disc);
+    var wrap = document.querySelector('.ymedia-disclosure-wrap');
+    if (wrap) wrap.remove();
+  }
+})();
+</script>
 <!-- /LEGAL DISCLOSURE -->
 
 </body>
