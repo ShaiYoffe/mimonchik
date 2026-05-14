@@ -1,10 +1,10 @@
 // /api/lead-backup — Captures form submissions to Supabase BEFORE Leadim,
-// so leads survive Leadim outages.
+// so leads survive Leadim outages. v3 — accepts lead_state from client.
 //
 // Security layers:
 //   1. Origin allow-list   → only requests from our domains accepted
 //   2. Honeypot field      → silent bot filter
-//   3. Rate limit          → max 30 req/min per IP (in-memory LRU)
+//   3. Rate limit          → max 60 req/min per IP (in-memory LRU)
 //   4. Server-side only    → BACKUP_SUPABASE_KEY is service_role,
 //                            never exposed to the browser.
 //
@@ -29,19 +29,21 @@ const ALLOWED_HOSTS = [
   'ashraiplus.com', 'www.ashraiplus.com',
   'calmash.pro', 'www.calmash.pro',
   'i-tc.info', 'www.i-tc.info',
-  'yfx.co.il', 'www.yfx.co.il'
+  'yfx.co.il', 'www.yfx.co.il',
+  'colmatra.com', 'www.colmatra.com',
+  'miomnet.com', 'www.miomnet.com'
 ];
 
-// In-memory rate-limit. Resets per cold start. Good enough for spam mitigation.
-const RATE_BUCKET = new Map(); // ip → { count, resetAt }
-const RATE_LIMIT = 30;          // requests
+// Higher rate-limit to accommodate progressive saves (multiple per session)
+const RATE_BUCKET = new Map();
+const RATE_LIMIT = 60;
 const RATE_WINDOW_MS = 60 * 1000;
+
+const VALID_STATES = ['pending','partial','submitted','success','failed'];
 
 function isAllowedOrigin(host) {
   if (!host) return false;
-  // Allow our domains
   if (ALLOWED_HOSTS.indexOf(host) !== -1) return true;
-  // Allow Vercel preview deployments
   if (/\.vercel\.app$/.test(host)) return true;
   return false;
 }
@@ -65,20 +67,14 @@ function rateLimitCheck(ip) {
 }
 
 function parseHost(req) {
-  // Prefer Origin → Referer → Host
   const o = req.headers.origin;
-  if (o) {
-    try { return new URL(o).host; } catch (e) {}
-  }
+  if (o) { try { return new URL(o).host; } catch (e) {} }
   const r = req.headers.referer;
-  if (r) {
-    try { return new URL(r).host; } catch (e) {}
-  }
+  if (r) { try { return new URL(r).host; } catch (e) {} }
   return req.headers.host || '';
 }
 
 export default async function handler(req, res) {
-  // CORS preflight (we accept cross-origin from our allow-list)
   const reqOrigin = req.headers.origin || '';
   let allowOrigin = '';
   try {
@@ -91,51 +87,37 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Access-Control-Max-Age', '86400');
   }
-  if (req.method === 'OPTIONS') {
-    res.status(204).end(); return;
-  }
+  if (req.method === 'OPTIONS') { res.status(204).end(); return; }
+  if (req.method !== 'POST')    { res.status(405).json({ error: 'method_not_allowed' }); return; }
 
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'method_not_allowed' }); return;
-  }
-
-  // 1. Origin check
   const host = parseHost(req);
-  if (!isAllowedOrigin(host)) {
-    res.status(403).json({ error: 'forbidden' }); return;
-  }
+  if (!isAllowedOrigin(host)) { res.status(403).json({ error: 'forbidden' }); return; }
 
-  // 2. Rate limit
   const ip = getClientIp(req);
-  if (!rateLimitCheck(ip)) {
-    res.status(429).json({ error: 'rate_limited' }); return;
-  }
+  if (!rateLimitCheck(ip)) { res.status(429).json({ error: 'rate_limited' }); return; }
 
-  // 3. Parse body
   let body = req.body;
   if (typeof body === 'string') {
     try { body = JSON.parse(body); } catch (e) { body = {}; }
   }
-  if (!body || typeof body !== 'object') {
-    res.status(400).json({ error: 'bad_body' }); return;
-  }
+  if (!body || typeof body !== 'object') { res.status(400).json({ error: 'bad_body' }); return; }
 
-  // 4. Honeypot — if filled, silently accept (return 200) but don't store
+  // Honeypot
   if (body.website || body.hp || body._gotcha) {
     res.status(200).json({ ok: true }); return;
   }
 
-  // 5. Validate required fields
+  // Validate
   const name  = String(body.name  || '').trim().slice(0, 80);
   const phone = String(body.phone || '').replace(/\D/g, '').slice(0, 15);
-  if (!name || name.length < 2) {
-    res.status(400).json({ error: 'name_required' }); return;
-  }
-  if (!/^0\d{8,9}$/.test(phone)) {
-    res.status(400).json({ error: 'phone_invalid' }); return;
-  }
+  if (!name || name.length < 2)        { res.status(400).json({ error: 'name_required' }); return; }
+  if (!/^0\d{8,9}$/.test(phone))       { res.status(400).json({ error: 'phone_invalid' }); return; }
 
-  // 6. Build payload
+  // lead_state from body (default 'submitted' for backward compat)
+  const lead_state = VALID_STATES.includes(String(body.lead_state || ''))
+    ? String(body.lead_state)
+    : 'submitted';
+
   const payload = {
     source_domain: host,
     source_page:   String(body.source_page || '').slice(0, 200) || null,
@@ -153,10 +135,9 @@ export default async function handler(req, res) {
     fbclid:       body.fbclid       ? String(body.fbclid).slice(0, 200)       : null,
     user_agent:   (req.headers['user-agent'] || '').slice(0, 400),
     ip_addr:      ip.slice(0, 64),
-    leadim_status: 'pending'
+    leadim_status: lead_state
   };
 
-  // 7. Write to Supabase (calmash.pro project)
   const SB_URL = process.env.BACKUP_SUPABASE_URL || process.env.SUPABASE_URL;
   const SB_KEY = process.env.BACKUP_SUPABASE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!SB_URL || !SB_KEY) {
@@ -180,7 +161,7 @@ export default async function handler(req, res) {
     }
     const rows = await r.json();
     const id = rows && rows[0] && rows[0].id ? rows[0].id : null;
-    res.status(200).json({ ok: true, id });
+    res.status(200).json({ ok: true, id, state: lead_state });
   } catch (e) {
     res.status(502).json({ error: 'network', detail: String(e).slice(0, 200) });
   }
