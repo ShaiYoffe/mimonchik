@@ -113,15 +113,25 @@ export default async function handler(req, res) {
   if (!name || name.length < 2)        { res.status(400).json({ error: 'name_required' }); return; }
   if (!/^0\d{8,9}$/.test(phone))       { res.status(400).json({ error: 'phone_invalid' }); return; }
 
-  // lead_state from body (default 'submitted' for backward compat)
-  const lead_state = VALID_STATES.includes(String(body.lead_state || ''))
+  // lead_state from body — map to allowed leadim_status values.
+  // The form_backups CHECK constraint only allows 'pending'/'success'/'failed',
+  // so we encode partial/submitted as form_id suffixes and keep status='pending'.
+  const raw_state = VALID_STATES.includes(String(body.lead_state || ''))
     ? String(body.lead_state)
     : 'submitted';
+  let leadim_status, formIdSuffix = '';
+  if (raw_state === 'success')      leadim_status = 'success';
+  else if (raw_state === 'failed')  leadim_status = 'failed';
+  else                              leadim_status = 'pending';  // partial / submitted / pending → pending
+  if (raw_state === 'partial' || raw_state === 'submitted') formIdSuffix = '_' + raw_state;
+
+  const baseFormId = String(body.form_id || '').slice(0, 24); // leave room for suffix
+  const form_id = (baseFormId + formIdSuffix).slice(0, 32) || null;
 
   const payload = {
     source_domain: host,
     source_page:   String(body.source_page || '').slice(0, 200) || null,
-    form_id:       String(body.form_id     || '').slice(0, 32)  || null,
+    form_id:       form_id,
     name,
     phone,
     consent:    !!body.consent,
@@ -135,7 +145,7 @@ export default async function handler(req, res) {
     fbclid:       body.fbclid       ? String(body.fbclid).slice(0, 200)       : null,
     user_agent:   (req.headers['user-agent'] || '').slice(0, 400),
     ip_addr:      ip.slice(0, 64),
-    leadim_status: lead_state
+    leadim_status: leadim_status
   };
 
   const SB_URL = process.env.BACKUP_SUPABASE_URL || process.env.SUPABASE_URL;
@@ -161,7 +171,7 @@ export default async function handler(req, res) {
     }
     const rows = await r.json();
     const id = rows && rows[0] && rows[0].id ? rows[0].id : null;
-    res.status(200).json({ ok: true, id, state: lead_state });
+    res.status(200).json({ ok: true, id, state: raw_state, form_id });
   } catch (e) {
     res.status(502).json({ error: 'network', detail: String(e).slice(0, 200) });
   }
