@@ -31,7 +31,14 @@ const ALLOWED_HOSTS = [
   'i-tc.info', 'www.i-tc.info',
   'yfx.co.il', 'www.yfx.co.il',
   'colmatra.com', 'www.colmatra.com',
-  'miomnet.com', 'www.miomnet.com'
+  'miomnet.com', 'www.miomnet.com',
+  'mimonow.com', 'www.mimonow.com',
+  'weloan.app', 'www.weloan.app',
+  'mimon.net', 'www.mimon.net',
+  // Money-locating category (dormant funds / איתור כספים)
+  'etorim.com', 'www.etorim.com',
+  'lofraier.com', 'www.lofraier.com',
+  'ozarot.com', 'www.ozarot.com'
 ];
 
 // Higher rate-limit to accommodate progressive saves (multiple per session)
