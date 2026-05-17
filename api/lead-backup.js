@@ -38,7 +38,9 @@ const ALLOWED_HOSTS = [
   // Money-locating category (dormant funds / איתור כספים)
   'etorim.com', 'www.etorim.com',
   'lofraier.com', 'www.lofraier.com',
-  'ozarot.com', 'www.ozarot.com'
+  'ozarot.com', 'www.ozarot.com',
+  // Dormant-funds category — site #4
+  'harkesef.org.il', 'www.harkesef.org.il'
 ];
 
 // Higher rate-limit to accommodate progressive saves (multiple per session)
