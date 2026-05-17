@@ -3129,6 +3129,23 @@ jQuery(document).ready(function () {
     var currentStep = $btn.closest(".form-step");
     $btn.addClass("is-busy");
     $btn.siblings(".insurer-btn").addClass("is-busy");
+    // Restore insurance flow context — handles the case where the user previously
+    // opted out (skip button set activeFlow='loan'), then pressed back and is now
+    // picking a company. Without this, sendSingleData would route the answer to
+    // the loan lead instead of the insurance lead.
+    window.storedData.activeFlow = 'insurance';
+    // If the user previously opted out, the insurance lead was marked completed
+    // in Supabase. Reopen it so RouteGuard will still rescue it if they abandon
+    // again. Re-enable the skip button too in case they change their mind again.
+    if (window.storedData.insuranceOptedOut && window.storedData.insuranceLeadId) {
+      fetch('/api/schedule-route', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lead_id: window.storedData.insuranceLeadId, reopen: true })
+      }).catch(function () {});
+      jQuery("#insurerSkipBtn").prop("disabled", false);
+      window.storedData.insuranceOptedOut = false;
+    }
     sendSingleData("fld_351761", val, currentStep, function () {
       fadeToSpecificStep(currentStep, "#fld_374354");
     });
@@ -3144,6 +3161,9 @@ jQuery(document).ready(function () {
       var insLeadId = window.storedData.insuranceLeadId;
       if (insLeadId) markFlowCompleted(insLeadId);
       window.storedData.activeFlow = 'loan';
+      // Remembered so .insurer-btn knows to reopen the insurance lead if the
+      // user presses back + picks a company.
+      window.storedData.insuranceOptedOut = true;
       fadeToSpecificStep(currentStep, "#fld_283971");
     });
   });
