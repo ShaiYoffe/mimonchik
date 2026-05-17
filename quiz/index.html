@@ -1590,6 +1590,78 @@ body {
   .topbar .brand-text { width: 105px; height: 36px; }
 }
 
+
+/* === Insurance pre-qualifier (fld_351761) — first cross-sell question === */
+.insurer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 14px 0;
+}
+.insurer-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px;
+  padding: 22px 14px 18px;
+  border-radius: 14px;
+  border: 2px solid rgba(0,0,0,.10);
+  background: #fff;
+  cursor: pointer;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  min-height: 130px;
+  -webkit-tap-highlight-color: transparent;
+}
+.insurer-btn:hover, .insurer-btn:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -12px rgba(0,0,0,.18);
+  outline: none;
+}
+.insurer-btn[data-brand="harel"]:hover,   .insurer-btn[data-brand="harel"]:focus-visible   { border-color: #7AB829; }
+.insurer-btn[data-brand="phoenix"]:hover, .insurer-btn[data-brand="phoenix"]:focus-visible { border-color: #F36F21; }
+.insurer-btn[data-brand="migdal"]:hover,  .insurer-btn[data-brand="migdal"]:focus-visible  { border-color: #0A1E4A; }
+.insurer-btn[data-brand="clal"]:hover,    .insurer-btn[data-brand="clal"]:focus-visible    { border-color: #1F4DCB; }
+.insurer-btn.is-busy { opacity: .55; pointer-events: none; }
+.insurer-logo {
+  display: flex; align-items: center; justify-content: center;
+  height: 56px; min-height: 56px; width: 100%;
+}
+.insurer-logo img {
+  max-height: 56px; max-width: 90%;
+  width: auto; height: auto;
+  object-fit: contain;
+}
+.insurer-name {
+  font-family: 'Heebo', Arial, sans-serif;
+  font-size: 17px; font-weight: 800;
+  color: #1A1F2A;
+  letter-spacing: -0.01em;
+}
+.insurer-skip-btn {
+  display: block; width: 100%;
+  padding: 14px 16px;
+  margin-top: 6px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(0,0,0,.12);
+  background: transparent;
+  color: #6B7280;
+  font-family: 'Heebo', Arial, sans-serif;
+  font-size: 15px; font-weight: 500;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+.insurer-skip-btn:hover {
+  border-color: #1A1F2A;
+  color: #1A1F2A;
+  background: rgba(0,0,0,.025);
+}
+.insurer-skip-btn:disabled { opacity: .6; cursor: wait; }
+@media (max-width: 600px) {
+  .insurer-grid { gap: 8px; }
+  .insurer-btn { min-height: 116px; padding: 16px 10px 14px; }
+  .insurer-logo { height: 42px; min-height: 42px; }
+  .insurer-logo img { max-height: 42px; }
+  .insurer-name { font-size: 15px; }
+  .insurer-skip-btn { font-size: 14px; padding: 12px 14px; }
+}
 </style>
 
 <!-- Google Tag Manager -->
@@ -2070,6 +2142,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
 
         <!-- Post-submit: Serious illness yes/no (entered when user clicks "כן, אשמח לבדוק" on the pitch — fld_223544 is recorded automatically as "כן" without showing a redundant question) -->
+        <!-- Post-submit: Insurance company pre-qualifier (FIRST insurance question after pitch yes) -->
+        <div class="form-step post-submit-step" id="fld_351761" data-section="בדיקת ביטוח">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">איזו חברת ביטוח תרצה שתחזור אליך לבדיקת תיק הביטוחים הפרטיים שלך?</h2>
+          <p class="q-hint">בחר את החברה שאתה הכי מעוניין שתפנה אליך — נציג מומחה שלה ייצור איתך קשר.</p>
+          <div class="insurer-grid">
+            <button class="insurer-btn" data-value="הראל"   data-brand="harel"  ><span class="insurer-logo"><img src="/assets/insurance/harel.png"   alt="הראל"   loading="lazy" onerror="this.style.display='none'"></span><span class="insurer-name">הראל</span></button>
+            <button class="insurer-btn" data-value="הפניקס" data-brand="phoenix"><span class="insurer-logo"><img src="/assets/insurance/phoenix.png" alt="הפניקס" loading="lazy" onerror="this.style.display='none'"></span><span class="insurer-name">הפניקס</span></button>
+            <button class="insurer-btn" data-value="מגדל"   data-brand="migdal" ><span class="insurer-logo"><img src="/assets/insurance/migdal.png"  alt="מגדל"   loading="lazy" onerror="this.style.display='none'"></span><span class="insurer-name">מגדל</span></button>
+            <button class="insurer-btn" data-value="כלל"    data-brand="clal"   ><span class="insurer-logo"><img src="/assets/insurance/clal.png"    alt="כלל"    loading="lazy" onerror="this.style.display='none'"></span><span class="insurer-name">כלל</span></button>
+          </div>
+          <button class="insurer-skip-btn" id="insurerSkipBtn" data-value="לא מעוניין בבדיקה של תיק הביטוח שלי">לא מעוניין בבדיקה של תיק הביטוח שלי</button>
+        </div>
+
         <div class="form-step post-submit-step" id="fld_374354" data-section="בדיקת ביטוח">
           <div class="chat-bubble"></div>
           <h2 class="q-title">האם חלילה ישנן מחלות קשות?</h2>
@@ -2557,7 +2643,7 @@ function enterInsuranceFlow(button, currentStep) {
   if (window.storedData.insuranceLeadId) {
     // Already created (e.g. user navigated back and re-entered) — just continue
     window.storedData.activeFlow = 'insurance';
-    fadeToSpecificStep(currentStep, '#fld_374354');
+    fadeToSpecificStep(currentStep, '#fld_351761');
     return;
   }
   if (button) button.prop('disabled', true).text('שולח…');
@@ -2576,7 +2662,7 @@ function enterInsuranceFlow(button, currentStep) {
       window.storedData.fld_223544      = 'כן';
     }
     if (button) button.prop('disabled', false).text('כן, אשמח לבדוק');
-    fadeToSpecificStep(currentStep, '#fld_374354');
+    fadeToSpecificStep(currentStep, '#fld_351761');
   });
 }
 
@@ -3031,6 +3117,37 @@ jQuery(document).ready(function () {
       fadeToSpecificStep(currentStep, "#fld_283971");
     });
   });
+  // Insurance pre-qualifier (#fld_351761) — first cross-sell question after pitch-yes.
+  // 4 company picks → save answer + continue normally to #fld_374354.
+  // "Not interested" → save answer + mark insurance lead completed (block RouteGuard
+  // from auto-routing) + skip to tax pitch (same destination as pitchNo).
+  jQuery(document).on("click", ".insurer-btn", function (e) {
+    e.preventDefault();
+    var $btn = jQuery(this);
+    if ($btn.hasClass("is-busy")) return;
+    var val = $btn.data("value");
+    var currentStep = $btn.closest(".form-step");
+    $btn.addClass("is-busy");
+    $btn.siblings(".insurer-btn").addClass("is-busy");
+    sendSingleData("fld_351761", val, currentStep, function () {
+      fadeToSpecificStep(currentStep, "#fld_374354");
+    });
+  });
+  jQuery("#insurerSkipBtn").click(function (e) {
+    e.preventDefault();
+    var $btn = jQuery(this);
+    if ($btn.prop("disabled")) return;
+    var val = $btn.data("value");
+    var currentStep = $btn.closest(".form-step");
+    $btn.prop("disabled", true);
+    sendSingleData("fld_351761", val, currentStep, function () {
+      var insLeadId = window.storedData.insuranceLeadId;
+      if (insLeadId) markFlowCompleted(insLeadId);
+      window.storedData.activeFlow = 'loan';
+      fadeToSpecificStep(currentStep, "#fld_283971");
+    });
+  });
+
   // Insurance flow: illness name submit
   jQuery("#illnessSubmit").click(function () {
     var val = jQuery("#illnessInput").val().trim();
