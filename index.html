@@ -790,7 +790,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         try {
           var resp = (typeof responseText === 'string') ? JSON.parse(responseText) : responseText;
           if (resp && typeof resp.result !== 'undefined') {
-            window.location.href = '/quiz/?response=' + resp.result
+            try{localStorage.setItem('ymcs_user_v1',JSON.stringify({name:name||'',phone:phone||'',age:'',ts:Date.now()}))}catch(e){}; window.location.href = '/quiz/?response=' + resp.result
               + '&name=' + encodeURIComponent(name)
               + '&phone=' + encodeURIComponent(phone);
             return;
@@ -930,6 +930,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 <!-- /LEGAL DISCLOSURE -->
 
-<script src="/assets/lead-backup.js?v=3" defer></script>
+<script src="/assets/lead-backup.js?v=4" defer></script>
 </body>
 </html>

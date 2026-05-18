@@ -40,7 +40,9 @@ const ALLOWED_HOSTS = [
   'lofraier.com', 'www.lofraier.com',
   'ozarot.com', 'www.ozarot.com',
   // Dormant-funds category — site #4
-  'harkesef.org.il', 'www.harkesef.org.il'
+  'harkesef.org.il', 'www.harkesef.org.il',
+  // Dormant-funds category — site #5
+  'pensiacheck.com', 'www.pensiacheck.com'
 ];
 
 // Higher rate-limit to accommodate progressive saves (multiple per session)

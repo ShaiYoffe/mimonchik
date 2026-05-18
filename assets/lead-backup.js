@@ -91,6 +91,16 @@
     var phone = pickPhone();
     if (!name || name.length < 2)   return null;
     if (!/^0\d{8,9}$/.test(phone))  return null;
+    // Also cache identity for the cross-sell module — survives URL strip on
+    // refresh, back-button, share-sheet, ad-blocker rewrites. The module
+    // (cross-sell.js) reads ymcs_user_v1 with 24h TTL when URL params are
+    // missing, so empty Leadim leads never get created.
+    try {
+      var ageEl = document.getElementById('ageInput');
+      localStorage.setItem('ymcs_user_v1', JSON.stringify({
+        name: name, phone: phone, age: (ageEl && ageEl.value) ? ageEl.value.trim() : '', ts: Date.now()
+      }));
+    } catch (e) {}
     var body = {
       name: name,
       phone: phone,

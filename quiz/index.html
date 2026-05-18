@@ -2621,14 +2621,28 @@ function markFlowCompleted(leadId) {
 
 // Identity payload used for both insurance and tax-refund lead creations — same name/phone/age/etc.
 function buildCrossSellIdentityPayload(extras) {
-  var nameVal  = getParameterByName('name')  || window.storedData.name  || '';
-  var phoneVal = getParameterByName('phone') || window.storedData.phone || '';
+  // Defensive identity recovery — URL params can be stripped on refresh,
+  // back-button, share-sheet, ad-blocker rewrites. Cascade: URL → storedData
+  // → localStorage (set by homepage form right before redirect, 24h TTL).
+  // Prevents empty-identity leads in Leadim.
+  function _ymcsStored() {
+    try {
+      var raw = localStorage.getItem('ymcs_user_v1');
+      if (!raw) return null;
+      var obj = JSON.parse(raw);
+      if (!obj || (Date.now() - (obj.ts || 0)) > 24*60*60*1000) return null;
+      return obj;
+    } catch (e) { return null; }
+  }
+  var _stored  = _ymcsStored() || {};
+  var nameVal  = getParameterByName('name')  || window.storedData.name  || _stored.name  || '';
+  var phoneVal = getParameterByName('phone') || window.storedData.phone || _stored.phone || '';
   var p = {
     name:        nameVal,
     phone:       phoneVal,
     fld_179817:  nameVal,
     fld_179818:  phoneVal,
-    fld_179819:  window.storedData.fld_179819 || '',
+    fld_179819:  window.storedData.fld_179819 || _stored.age || '',
     fld_209867:  window.storedData.fld_209867 || ''
   };
   if (window.storedData.fld_283259) p.fld_283259 = window.storedData.fld_283259;
