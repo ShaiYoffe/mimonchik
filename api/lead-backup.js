@@ -46,7 +46,9 @@ const ALLOWED_HOSTS = [
   // Dormant-funds category — site #6
   'pencia.net', 'www.pencia.net',
   // Dormant-funds category — site #7
-  'zakaot.com', 'www.zakaot.com'
+  'zakaot.com', 'www.zakaot.com',
+  // Dormant-funds category — site #8
+  'miotov.com', 'www.miotov.com'
 ];
 
 // Higher rate-limit to accommodate progressive saves (multiple per session)
