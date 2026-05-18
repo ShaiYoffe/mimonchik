@@ -1841,6 +1841,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
 
+        <!-- Step 3c (conditional): Loan-consolidation against property — appears only when fld_377198 ∈ {דירה, בית פרטי, נכס מסחרי, קרקע} -->
+        <div class="form-step conditional-step" id="fld_282716" data-section="נכסים ובטחונות" style="display: none;">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מכיוון שסימנת שיש לך <span class="prop-type-placeholder">נכס</span>, האם תהיה מעוניין בתהליך איחוד הלוואות כנגד הנכס?</h2>
+          <p class="q-hint">איחוד הלוואות כנגד נכס מאפשר ריביות נמוכות יותר והחזר חודשי קל משמעותית.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן">כן</button>
+            <button class="answer-btn" data-answer="לא">לא</button>
+          </div>
+        </div>
+
         <!-- Step 4 -->
         <div class="form-step" data-step="4" id="fld_183161" data-section="תעסוקה והכנסה">
           <div class="chat-bubble"></div>
@@ -2942,6 +2953,17 @@ jQuery(document).ready(function () {
     // Property follow-up: ask sub-type only when user answers "כן" to fld_179977
     if (stepId === "fld_179977") {
       jQuery("#fld_377198").toggleClass("conditional-step", answer !== "כן");
+    }
+
+    // Property-type follow-up: ask about loan-consolidation only if the property
+    // is collateral-eligible (a bank can issue a loan against it). מחסן / אחר /
+    // אין לי נכסים → skip the question.
+    if (stepId === "fld_377198") {
+      var _collateral = ["דירה","בית פרטי","נכס מסחרי (חנות / משרד)","קרקע/מגרש"].indexOf(answer) !== -1;
+      jQuery("#fld_282716").toggleClass("conditional-step", !_collateral);
+      if (_collateral) {
+        jQuery("#fld_282716 .prop-type-placeholder").text(answer);
+      }
     }
 
     // BDI answer drives whether negative-credit follow-ups are shown
