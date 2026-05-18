@@ -42,7 +42,9 @@ const ALLOWED_HOSTS = [
   // Dormant-funds category — site #4
   'harkesef.org.il', 'www.harkesef.org.il',
   // Dormant-funds category — site #5
-  'pensiacheck.com', 'www.pensiacheck.com'
+  'pensiacheck.com', 'www.pensiacheck.com',
+  // Dormant-funds category — site #6
+  'pencia.net', 'www.pencia.net'
 ];
 
 // Higher rate-limit to accommodate progressive saves (multiple per session)
