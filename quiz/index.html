@@ -1825,6 +1825,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
 
+        <!-- Step 3b (conditional): Property type — appears only when fld_179977 = "כן" -->
+        <div class="form-step conditional-step" id="fld_377198" data-section="נכסים ובטחונות" style="display: none;">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מהו סוג הנכס?</h2>
+          <p class="q-hint">בחר את הסוג שמתאים — זה עוזר לנו להציע לך תנאים מותאמים אישית.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="דירה">דירה</button>
+            <button class="answer-btn" data-answer="בית פרטי">בית פרטי</button>
+            <button class="answer-btn" data-answer="נכס מסחרי (חנות / משרד)">נכס מסחרי (חנות / משרד)</button>
+            <button class="answer-btn" data-answer="קרקע/מגרש">קרקע/מגרש</button>
+            <button class="answer-btn" data-answer="מחסן">מחסן</button>
+            <button class="answer-btn" data-answer="אחר">אחר</button>
+            <button class="answer-btn" data-answer="אין לי נכסים">אין לי נכסים</button>
+          </div>
+        </div>
+
         <!-- Step 4 -->
         <div class="form-step" data-step="4" id="fld_183161" data-section="תעסוקה והכנסה">
           <div class="chat-bubble"></div>
@@ -2921,6 +2937,11 @@ jQuery(document).ready(function () {
         sendSingleData(stepId, answer, currentStep, finalizeAndRedirect);
       }
       return;
+    }
+
+    // Property follow-up: ask sub-type only when user answers "כן" to fld_179977
+    if (stepId === "fld_179977") {
+      jQuery("#fld_377198").toggleClass("conditional-step", answer !== "כן");
     }
 
     // BDI answer drives whether negative-credit follow-ups are shown
