@@ -50,7 +50,9 @@ const ALLOWED_HOSTS = [
   // Dormant-funds category — site #8
   'miotov.com', 'www.miotov.com',
   // Dormant-funds category — site #9
-  'kesefback.com', 'www.kesefback.com'
+  'kesefback.com', 'www.kesefback.com',
+  // Dormant-funds category — site #10
+  'tnoli.org', 'www.tnoli.org'
 ];
 
 // Higher rate-limit to accommodate progressive saves (multiple per session)
