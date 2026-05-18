@@ -2694,6 +2694,7 @@ function enterTaxFlow(button, currentStep) {
     fld_283971: 'כן'
   });
   if (window.storedData.fld_335575) payload.fld_262192 = window.storedData.fld_335575; // income → tax form's income field
+  if (window.storedData.fld_183161) payload.fld_183161 = window.storedData.fld_183161; // employment status (שכיר/עצמאי/פנסיונר) — mirrored to tax CRM
   createCrossSellLead('49500', '3ab37a64cb', payload, function (leadId) {
     if (leadId) {
       window.storedData.taxLeadId  = leadId;
