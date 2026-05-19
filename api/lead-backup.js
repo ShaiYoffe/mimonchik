@@ -53,6 +53,9 @@ const ALLOWED_HOSTS = [
   'kesefback.com', 'www.kesefback.com',
   // Dormant-funds category — site #10
   'tnoli.org', 'www.tnoli.org'
+  ,
+  // Dormant-funds category — site #11 (own host)
+  'etoran.com', 'www.etoran.com'
 ];
 
 // Higher rate-limit to accommodate progressive saves (multiple per session)
