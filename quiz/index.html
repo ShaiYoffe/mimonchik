@@ -2736,24 +2736,45 @@ function enterTaxFlow(button, currentStep) {
 }
 
 // Telecom cross-sell launcher — replaces the legacy "setTimeout(redirect)" pattern.
-// Calls the shared YMediaCrossSell module's startTelecomOnly() entry point, which
-// shows the telecom pitch overlay on top of this page. Falls back to a direct
-// redirect if the module didn't load.
+// Aggressively gathers identity from URL > localStorage > storedData (and falls
+// back to YMediaCrossSell's _reentry mini-form if all sources are empty).
+// Logs to console for diagnostics — open DevTools and check the [ymcs] line if
+// a lead came in without identity.
 function runTelecomCrossSell(redirectTarget) {
   if (typeof window.YMediaCrossSell === 'undefined' || !window.YMediaCrossSell.startTelecomOnly) {
     setTimeout(function () { window.location.href = redirectTarget; }, 100);
     return;
   }
+  // Pull identity from every possible source
+  var _stored = {};
+  try {
+    var raw = localStorage.getItem('ymcs_user_v1');
+    if (raw) {
+      var obj = JSON.parse(raw);
+      if (obj && (Date.now() - (obj.ts || 0)) < 24*60*60*1000) _stored = obj;
+    }
+  } catch (e) {}
+  var sd = window.storedData || {};
+  var name  = getParameterByName('name')  || _stored.name  || sd.name  || sd.fld_179817 || '';
+  var phone = getParameterByName('phone') || _stored.phone || sd.phone || sd.fld_179818 || '';
+  var age   = sd.fld_179819 || _stored.age || getParameterByName('age') || '';
+  var email = sd.fld_179820 || '';
+  var city  = sd.fld_179821 || '';
+  var birth = sd.fld_283259 || '';
+  try {
+    console.log('[ymcs] runTelecomCrossSell identity', {
+      url_name: getParameterByName('name'), url_phone: getParameterByName('phone'),
+      stored_name: _stored.name, stored_phone: _stored.phone,
+      sd_name: sd.name, sd_phone: sd.phone,
+      sd_fld_179817: sd.fld_179817, sd_fld_179818: sd.fld_179818,
+      resolved: { name: name, phone: phone, age: age, email: email, city: city, birthday: birth },
+      redirectTarget: redirectTarget
+    });
+  } catch (e) {}
   jQuery("#multiStepForm").hide();
   window.YMediaCrossSell.startTelecomOnly({
-    name:  window.storedData.name  || getParameterByName('name')  || '',
-    phone: window.storedData.phone || getParameterByName('phone') || '',
-    age:   window.storedData.fld_179819 || '',
-    extra: {
-      email:    window.storedData.fld_179820 || '',
-      city:     window.storedData.fld_179821 || '',
-      birthday: window.storedData.fld_283259 || ''
-    },
+    name: name, phone: phone, age: age,
+    extra: { email: email, city: city, birthday: birth },
     redirectOnComplete: redirectTarget
   });
 }

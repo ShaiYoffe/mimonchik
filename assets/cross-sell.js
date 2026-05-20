@@ -244,15 +244,13 @@
     }).catch(function () {});
   }
 
-  // Telecom CREATE payload — includes everything we know about the user so the
-  // advertiser (HOT-authorized agent) gets a complete record on lead receipt.
-  // Sends BOTH top-level field names (the convention form 87446 uses) AND
-  // form_fields[...] notation (the convention forms 49491/49500 use) so it
-  // works regardless of how the form is configured server-side. Empty values
-  // are sent too — Leadim ignores them on UPDATE but on CREATE they'd just
-  // appear empty in the CRM, no harm. The first test on 2026-05-20 saw a
-  // lead created with no fields because we sent ONLY form_fields[]; this dual
-  // payload is the fix.
+  // Telecom CREATE payload — uses the exact field IDs specified by the user:
+  // fld_179817 (name), fld_179818 (phone), fld_179819 (age), fld_179820 (email),
+  // fld_179821 (city), fld_283259 (birthday), fld_377288 (consent),
+  // fld_377286 (provider — set later via UPDATE). Sends both top-level and
+  // form_fields[...] notation so the form receives the values regardless of
+  // its server-side config. Also logs to console for diagnostics — if values
+  // are empty when this runs, we'll see it in the browser's devtools.
   function buildTelecomCreatePayload(consent) {
     var name  = state.user.name  || '';
     var phone = state.user.phone || '';
@@ -260,10 +258,18 @@
     var email = state.extra.email || '';
     var city  = state.extra.city || state.extra.cityName || '';
     var birth = state.extra.birthday || '';
+    try {
+      console.log('[ymcs] buildTelecomCreatePayload', {
+        consent: consent, name: name, phone: phone, age: age,
+        email: email, city: city, birthday: birth,
+        state_user: state.user, state_extra: state.extra
+      });
+    } catch (e) {}
     var p = {
-      // Top-level field names (form 87446 + loan-vertical insurance/tax create)
+      // Top-level (Leadim contact-record identity)
       name:        name,
       phone:       phone,
+      // Custom field IDs the user specified
       fld_179817:  name,
       fld_179818:  phone,
       fld_179819:  age,
@@ -272,11 +278,9 @@
     if (email) p.fld_179820 = email;
     if (city)  p.fld_179821 = city;
     if (birth) p.fld_283259 = birth;
-    // Also include form_fields[...] notation as belt-and-suspenders for older
-    // Leadim form configurations.
+    // form_fields[...] mirror (Elementor convention used by forms 49491/49500)
     p['form_fields[name]']       = name;
     p['form_fields[phone]']      = phone;
-    p['form_fields[age]']        = age;
     p['form_fields[fld_179817]'] = name;
     p['form_fields[fld_179818]'] = phone;
     p['form_fields[fld_179819]'] = age;
