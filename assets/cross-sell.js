@@ -246,23 +246,44 @@
 
   // Telecom CREATE payload — includes everything we know about the user so the
   // advertiser (HOT-authorized agent) gets a complete record on lead receipt.
-  // Birthday, email, city come from state.extra if the host quiz forwarded them;
-  // dormant-funds sites don't currently capture birthday, so that field will be
-  // empty there — that's fine.
+  // Sends BOTH top-level field names (the convention form 87446 uses) AND
+  // form_fields[...] notation (the convention forms 49491/49500 use) so it
+  // works regardless of how the form is configured server-side. Empty values
+  // are sent too — Leadim ignores them on UPDATE but on CREATE they'd just
+  // appear empty in the CRM, no harm. The first test on 2026-05-20 saw a
+  // lead created with no fields because we sent ONLY form_fields[]; this dual
+  // payload is the fix.
   function buildTelecomCreatePayload(consent) {
+    var name  = state.user.name  || '';
+    var phone = state.user.phone || '';
+    var age   = state.user.age   || '';
+    var email = state.extra.email || '';
+    var city  = state.extra.city || state.extra.cityName || '';
+    var birth = state.extra.birthday || '';
     var p = {
-      'form_fields[name]':       state.user.name,
-      'form_fields[phone]':      state.user.phone,
-      'form_fields[age]':        state.user.age,
-      'form_fields[fld_179817]': state.user.name,
-      'form_fields[fld_179818]': state.user.phone,
-      'form_fields[fld_179819]': state.user.age,
-      'form_fields[fld_377288]': consent || ''
+      // Top-level field names (form 87446 + loan-vertical insurance/tax create)
+      name:        name,
+      phone:       phone,
+      fld_179817:  name,
+      fld_179818:  phone,
+      fld_179819:  age,
+      fld_377288:  consent || ''
     };
-    if (state.extra.email)    p['form_fields[fld_179820]'] = state.extra.email;
-    if (state.extra.city)     p['form_fields[fld_179821]'] = state.extra.city;
-    if (state.extra.cityName) p['form_fields[fld_179821]'] = state.extra.cityName;
-    if (state.extra.birthday) p['form_fields[fld_283259]'] = state.extra.birthday;
+    if (email) p.fld_179820 = email;
+    if (city)  p.fld_179821 = city;
+    if (birth) p.fld_283259 = birth;
+    // Also include form_fields[...] notation as belt-and-suspenders for older
+    // Leadim form configurations.
+    p['form_fields[name]']       = name;
+    p['form_fields[phone]']      = phone;
+    p['form_fields[age]']        = age;
+    p['form_fields[fld_179817]'] = name;
+    p['form_fields[fld_179818]'] = phone;
+    p['form_fields[fld_179819]'] = age;
+    p['form_fields[fld_377288]'] = consent || '';
+    if (email) p['form_fields[fld_179820]'] = email;
+    if (city)  p['form_fields[fld_179821]'] = city;
+    if (birth) p['form_fields[fld_283259]'] = birth;
     return p;
   }
 
