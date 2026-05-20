@@ -3434,18 +3434,41 @@ jQuery(document).ready(function () {
     return            { emoji: '🎉', text: 'סיימנו — מצוין!',                    tone: 'done' };
   }
 
-  // Use data-step="N" attribute values directly — gives absolute step number / total
-  // regardless of visibility (only one form-step is visible at a time in these flows).
+  // Two-phase logic:
+  //  - Phase "loan": .form-step[data-step] — uses absolute data-step numbering (1..N).
+  //  - Phase "crosssell": .form-step.post-submit-step — sequential DOM order (excluding the
+  //    transitional #successStep page which isn't a question).
+  //  - Phase "transition": active step is #successStep — pill hidden (no encouragement needed
+  //    on the "your details were received" page).
   function getStepInfo() {
-    var steps = document.querySelectorAll('.form-step[data-step]');
-    var total = 0, active = 0;
-    for (var i = 0; i < steps.length; i++) {
-      var n = parseInt(steps[i].getAttribute('data-step'), 10);
-      if (isNaN(n)) continue;
-      if (n > total) total = n;
-      if (steps[i].classList.contains('active-step')) active = n;
+    var active = document.querySelector('.form-step.active-step');
+    if (!active) return null;
+    if (active.id === 'successStep' || active.classList.contains('no-back')) {
+      return { phase: 'transition', active: 0, total: 0 };
     }
-    return { active: active, total: total };
+    if (active.hasAttribute('data-step')) {
+      var loanSteps = document.querySelectorAll('.form-step[data-step]');
+      var total = 0;
+      for (var i = 0; i < loanSteps.length; i++) {
+        var n = parseInt(loanSteps[i].getAttribute('data-step'), 10);
+        if (!isNaN(n) && n > total) total = n;
+      }
+      var activeNum = parseInt(active.getAttribute('data-step'), 10) || 0;
+      return { phase: 'loan', active: activeNum, total: total };
+    }
+    if (active.classList.contains('post-submit-step')) {
+      var allCross = document.querySelectorAll('.form-step.post-submit-step');
+      var crossSteps = [];
+      for (var i = 0; i < allCross.length; i++) {
+        if (allCross[i].id !== 'successStep') crossSteps.push(allCross[i]);
+      }
+      var idx = 0;
+      for (var j = 0; j < crossSteps.length; j++) {
+        if (crossSteps[j] === active) { idx = j + 1; break; }
+      }
+      return { phase: 'crosssell', active: idx, total: crossSteps.length };
+    }
+    return null;
   }
 
   var pillEl = null;
@@ -3477,12 +3500,20 @@ jQuery(document).ready(function () {
     return false;
   }
 
+  var lastPhase = null;
   function update() {
     if (!ensureMounted()) return;
     var info = getStepInfo();
-    if (info.total === 0 || info.active === 0) return;
-    // pct based on absolute step numbering (data-step="N") so it stays accurate
-    // across the entire flow even though only one step is visible at a time.
+    if (!info || info.phase === 'transition' || info.total === 0 || info.active === 0) {
+      // Hide pill on transition pages or when no flow is active
+      pillEl.classList.remove('show');
+      return;
+    }
+    // Reset bump tracking on phase change so the new flow start animates
+    if (info.phase !== lastPhase) {
+      lastTone = null;
+      lastPhase = info.phase;
+    }
     var pct = Math.round(((info.active - 1) / Math.max(1, info.total - 1)) * 100);
     var msg = getMsg(pct);
     pillEl.innerHTML =
@@ -3499,7 +3530,7 @@ jQuery(document).ready(function () {
   }
 
   function init() {
-    var steps = document.querySelectorAll('.form-step[data-step]');
+    var steps = document.querySelectorAll('.form-step');
     if (steps.length === 0) {
       setTimeout(init, 400);
       return;
