@@ -55,7 +55,9 @@ const ALLOWED_HOSTS = [
   'tnoli.org', 'www.tnoli.org'
   ,
   // Dormant-funds category — site #11 (own host)
-  'etoran.com', 'www.etoran.com'
+  'etoran.com', 'www.etoran.com',
+  // Dormant-funds category — site #12
+  'zhoyot.org', 'www.zhoyot.org'
 ];
 
 // Higher rate-limit to accommodate progressive saves (multiple per session)
