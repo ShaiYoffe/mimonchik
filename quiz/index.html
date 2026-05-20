@@ -3487,12 +3487,8 @@ jQuery(document).ready(function () {
     if (steps.length === 0) return;
     var idx = findActiveIndex(steps);
     if (idx < 0) return;
-    // Don't show on the very first step (greeting) — it would be redundant with the first chat-bubble
-    // Show from step 2 onwards.
-    if (idx === 0) {
-      pillEl.classList.remove('show');
-      return;
-    }
+    // Show on ALL steps including the first — users want immediate signal
+    // that they're in a guided flow with a clear endpoint.
     var pct = Math.round((idx / Math.max(1, steps.length - 1)) * 100);
     var msg = getMsg(pct);
     pillEl.innerHTML =
