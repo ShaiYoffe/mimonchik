@@ -3360,5 +3360,184 @@ jQuery(document).ready(function () {
 });
 </script>
 <script src="/assets/cookie-banner.js?v=3" defer></script>
+<!-- ════════════════════════════════════════════════════════════════════════
+     YMEDIA Cross-Sell Encouragement — keeps users moving through the long
+     multi-step questionnaire to reduce mid-flow abandonment. Phase-based
+     pill above the form that updates as the user advances.
+     Auto-attaches by watching .form-step elements; works on any of the
+     21 loan-vertical inline cross-sell variants without per-site config.
+     ════════════════════════════════════════════════════════════════════ -->
+<style>
+.ymcs-loan-encourage {
+  display: none;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 14px;
+  background: rgba(59, 130, 246, 0.10);
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1d4ed8;
+  position: relative;
+  z-index: 5;
+  margin: 12px auto 12px;
+  max-width: max-content;
+  line-height: 1.3;
+  transition: background .25s ease, border-color .25s ease, color .25s ease;
+  font-family: inherit;
+  direction: rtl;
+}
+.ymcs-loan-encourage.show { display: inline-flex; }
+.ymcs-loan-encourage .ymcs-emoji { font-size: 16px; line-height: 1; display: inline-flex; }
+.ymcs-loan-encourage[data-tone="mid"] {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.40);
+  color: #b45309;
+}
+.ymcs-loan-encourage[data-tone="near"],
+.ymcs-loan-encourage[data-tone="final"] {
+  background: rgba(34, 197, 94, 0.16);
+  border-color: rgba(34, 197, 94, 0.42);
+  color: #15803d;
+}
+.ymcs-loan-encourage[data-tone="done"] {
+  background: rgba(34, 197, 94, 0.20);
+  border-color: rgba(34, 197, 94, 0.50);
+  color: #15803d;
+}
+.ymcs-loan-encourage.bump { animation: ymcsLoanBump .55s cubic-bezier(.22,1.4,.36,1) both; }
+@keyframes ymcsLoanBump {
+  0%   { transform: scale(.92) translateY(-3px); opacity: 0; }
+  55%  { transform: scale(1.04) translateY(0); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.ymcs-loan-encourage-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  pointer-events: none;
+}
+.ymcs-loan-encourage-wrap .ymcs-loan-encourage { pointer-events: auto; }
+</style>
+<script>
+(function() {
+  // Phase messages — same set as the dormant-funds modular cross-sell.
+  function getMsg(pct) {
+    if (pct < 12)  return { emoji: '🚀', text: 'בואו נתחיל — שאלות קצרות בלבד', tone: 'start' };
+    if (pct < 28)  return { emoji: '✓',       text: 'כל הכבוד! המשך באותה הקצב',     tone: 'good' };
+    if (pct < 42)  return { emoji: '⚡',       text: 'נהדר — אתה מתקדם יפה',          tone: 'good' };
+    if (pct < 58)  return { emoji: '🎯', text: 'הגעת לחצי הדרך! כמה פרטים נוספים', tone: 'mid' };
+    if (pct < 72)  return { emoji: '💪', text: 'מצוין! עוברים את שאלות האמצע',  tone: 'mid' };
+    if (pct < 85)  return { emoji: '⏳',       text: 'כמעט שם — שאלות אחרונות',       tone: 'near' };
+    if (pct < 96)  return { emoji: '🏁', text: 'שאלה אחרונה ואז סיימת!',        tone: 'final' };
+    return            { emoji: '🎉', text: 'סיימנו — מצוין!',                    tone: 'done' };
+  }
+
+  // Visible steps only: data-step="N" + not display:none. Sequential indexes give the % progress.
+  function getVisibleSteps() {
+    return Array.prototype.filter.call(
+      document.querySelectorAll('.form-step[data-step]'),
+      function(el) {
+        var cs = window.getComputedStyle(el);
+        return cs.display !== 'none' || el.classList.contains('active-step');
+      }
+    );
+  }
+
+  function findActiveIndex(steps) {
+    for (var i = 0; i < steps.length; i++) {
+      if (steps[i].classList.contains('active-step')) return i;
+    }
+    return -1;
+  }
+
+  var pillEl = null;
+  var wrapEl = null;
+  var lastTone = null;
+
+  function ensureMounted() {
+    if (pillEl && document.body.contains(pillEl)) return true;
+    wrapEl = document.createElement('div');
+    wrapEl.className = 'ymcs-loan-encourage-wrap';
+    pillEl = document.createElement('div');
+    pillEl.className = 'ymcs-loan-encourage';
+    pillEl.setAttribute('aria-live', 'polite');
+    wrapEl.appendChild(pillEl);
+
+    // Try to find a good anchor — prefer just above the first form-step
+    var firstStep = document.querySelector('.form-step[data-step]');
+    if (firstStep && firstStep.parentNode) {
+      firstStep.parentNode.insertBefore(wrapEl, firstStep);
+      return true;
+    }
+    // Fallback: insert before the legacy progress-bar if present
+    var progress = document.querySelector('.progress-bar');
+    if (progress && progress.parentNode) {
+      progress.parentNode.insertBefore(wrapEl, progress.nextSibling);
+      return true;
+    }
+    // Last resort: skip — try again next tick (DOM not ready)
+    return false;
+  }
+
+  function update() {
+    if (!ensureMounted()) return;
+    var steps = getVisibleSteps();
+    if (steps.length === 0) return;
+    var idx = findActiveIndex(steps);
+    if (idx < 0) return;
+    // Don't show on the very first step (greeting) — it would be redundant with the first chat-bubble
+    // Show from step 2 onwards.
+    if (idx === 0) {
+      pillEl.classList.remove('show');
+      return;
+    }
+    var pct = Math.round((idx / Math.max(1, steps.length - 1)) * 100);
+    var msg = getMsg(pct);
+    pillEl.innerHTML =
+      '<span class="ymcs-emoji" aria-hidden="true">' + msg.emoji + '</span>' +
+      '<span class="ymcs-text">' + msg.text + '</span>';
+    pillEl.setAttribute('data-tone', msg.tone);
+    pillEl.classList.add('show');
+    if (lastTone && lastTone !== msg.tone) {
+      pillEl.classList.remove('bump');
+      void pillEl.offsetWidth;
+      pillEl.classList.add('bump');
+    }
+    lastTone = msg.tone;
+  }
+
+  function init() {
+    var steps = document.querySelectorAll('.form-step[data-step]');
+    if (steps.length === 0) {
+      // DOM might still be building — retry shortly
+      setTimeout(init, 400);
+      return;
+    }
+    update();
+    // Watch each form-step for class changes (active-step toggles)
+    var obs = new MutationObserver(function() {
+      // Throttle: only update once per tick
+      if (obs._scheduled) return;
+      obs._scheduled = true;
+      setTimeout(function(){ obs._scheduled = false; update(); }, 30);
+    });
+    steps.forEach(function(s) {
+      obs.observe(s, { attributes: true, attributeFilter: ['class', 'style'] });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+<!-- ════════════════════════════════════════════════════════════════════════
+     End encouragement snippet
+     ════════════════════════════════════════════════════════════════════ -->
+
 </body>
 </html>
