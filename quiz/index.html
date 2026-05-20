@@ -2533,6 +2533,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </footer>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="/assets/cross-sell.css">
+<script src="/assets/cross-sell.js" defer></script>
 <script>
 function isValidIsraeliID(id) {
   var idStr = String(id).trim();
@@ -2733,6 +2735,29 @@ function enterTaxFlow(button, currentStep) {
   });
 }
 
+// Telecom cross-sell launcher — replaces the legacy "setTimeout(redirect)" pattern.
+// Calls the shared YMediaCrossSell module's startTelecomOnly() entry point, which
+// shows the telecom pitch overlay on top of this page. Falls back to a direct
+// redirect if the module didn't load.
+function runTelecomCrossSell(redirectTarget) {
+  if (typeof window.YMediaCrossSell === 'undefined' || !window.YMediaCrossSell.startTelecomOnly) {
+    setTimeout(function () { window.location.href = redirectTarget; }, 100);
+    return;
+  }
+  jQuery("#multiStepForm").hide();
+  window.YMediaCrossSell.startTelecomOnly({
+    name:  window.storedData.name  || getParameterByName('name')  || '',
+    phone: window.storedData.phone || getParameterByName('phone') || '',
+    age:   window.storedData.fld_179819 || '',
+    extra: {
+      email:    window.storedData.fld_179820 || '',
+      city:     window.storedData.fld_179821 || '',
+      birthday: window.storedData.fld_283259 || ''
+    },
+    redirectOnComplete: redirectTarget
+  });
+}
+
 // Fire route_adv on the active flow's lead (if any), mark it completed in Supabase, then redirect.
 function finalizeAndRedirect() {
   formCompleted = true;
@@ -2742,10 +2767,10 @@ function finalizeAndRedirect() {
   if (leadId) {
     sendCrossSellUpdate(leadId, 'completed', 'true', function () {
       markFlowCompleted(leadId);
-      setTimeout(function () { window.location.href = '/thanks/'; }, 500);
+      runTelecomCrossSell('/thanks/');
     }, { routeAdv: true });
   } else {
-    setTimeout(function () { window.location.href = '/thanks/'; }, 100);
+    runTelecomCrossSell('/thanks/');
   }
 }
 
@@ -2942,7 +2967,7 @@ jQuery(document).ready(function () {
         sendCrossSellUpdate(taxLeadId, stepId, answer, function () {
           markFlowCompleted(taxLeadId);
           formCompleted = true;
-          setTimeout(function () { window.location.href = '/thanks/'; }, 500);
+          runTelecomCrossSell('/thanks/');
         }, { routeAdv: true });
       } else {
         sendSingleData(stepId, answer, currentStep, finalizeAndRedirect);
