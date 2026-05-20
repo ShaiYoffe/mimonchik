@@ -3434,22 +3434,18 @@ jQuery(document).ready(function () {
     return            { emoji: '🎉', text: 'סיימנו — מצוין!',                    tone: 'done' };
   }
 
-  // Visible steps only: data-step="N" + not display:none. Sequential indexes give the % progress.
-  function getVisibleSteps() {
-    return Array.prototype.filter.call(
-      document.querySelectorAll('.form-step[data-step]'),
-      function(el) {
-        var cs = window.getComputedStyle(el);
-        return cs.display !== 'none' || el.classList.contains('active-step');
-      }
-    );
-  }
-
-  function findActiveIndex(steps) {
+  // Use data-step="N" attribute values directly — gives absolute step number / total
+  // regardless of visibility (only one form-step is visible at a time in these flows).
+  function getStepInfo() {
+    var steps = document.querySelectorAll('.form-step[data-step]');
+    var total = 0, active = 0;
     for (var i = 0; i < steps.length; i++) {
-      if (steps[i].classList.contains('active-step')) return i;
+      var n = parseInt(steps[i].getAttribute('data-step'), 10);
+      if (isNaN(n)) continue;
+      if (n > total) total = n;
+      if (steps[i].classList.contains('active-step')) active = n;
     }
-    return -1;
+    return { active: active, total: total };
   }
 
   var pillEl = null;
@@ -3483,13 +3479,11 @@ jQuery(document).ready(function () {
 
   function update() {
     if (!ensureMounted()) return;
-    var steps = getVisibleSteps();
-    if (steps.length === 0) return;
-    var idx = findActiveIndex(steps);
-    if (idx < 0) return;
-    // Show on ALL steps including the first — users want immediate signal
-    // that they're in a guided flow with a clear endpoint.
-    var pct = Math.round((idx / Math.max(1, steps.length - 1)) * 100);
+    var info = getStepInfo();
+    if (info.total === 0 || info.active === 0) return;
+    // pct based on absolute step numbering (data-step="N") so it stays accurate
+    // across the entire flow even though only one step is visible at a time.
+    var pct = Math.round(((info.active - 1) / Math.max(1, info.total - 1)) * 100);
     var msg = getMsg(pct);
     pillEl.innerHTML =
       '<span class="ymcs-emoji" aria-hidden="true">' + msg.emoji + '</span>' +
@@ -3507,14 +3501,11 @@ jQuery(document).ready(function () {
   function init() {
     var steps = document.querySelectorAll('.form-step[data-step]');
     if (steps.length === 0) {
-      // DOM might still be building — retry shortly
       setTimeout(init, 400);
       return;
     }
     update();
-    // Watch each form-step for class changes (active-step toggles)
     var obs = new MutationObserver(function() {
-      // Throttle: only update once per tick
       if (obs._scheduled) return;
       obs._scheduled = true;
       setTimeout(function(){ obs._scheduled = false; update(); }, 30);
