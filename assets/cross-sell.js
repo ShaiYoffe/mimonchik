@@ -90,6 +90,17 @@
     // originally-intended pitch path (pitch_ins or pitch_tax).
     { id: '_reentry',   type: 'reentry' },
 
+    // Employment status — ALWAYS the first cross-sell question (regardless of insurance path).
+    // Field ID + answer options match the loan-vertical questionnaire (fld_183161).
+    // The answer is stored on state.employmentStatus and attached to every lead created later
+    // (insurance + tax + telecom) — since at THIS moment no flow lead exists in Leadim yet,
+    // we can't call updateLead. Routing after answer goes via next_fn (decided at start()).
+    { id: 'fld_183161', type: 'choices', fld: 'fld_183161',
+      q: 'מה הסטטוס התעסוקתי שלך?',
+      hint: 'אנחנו עובדים עם שכירים, עצמאים ופנסיונרים כאחד — לכל סטטוס יש מסלולים מותאמים.',
+      options: ['שכיר', 'עוסק פטור', 'עוסק מורשה', 'חברה בע״מ', 'פנסיונר/ית', 'לא עובד/ת'],
+      next_fn: function(s) { return s._postEmploymentNext || 'pitch_tax'; } },
+
     // Insurance flow
     { id: 'pitch_ins',  type: 'pitch_ins',
       next: 'fld_351761', next_on_no: 'pitch_tax' },
@@ -273,6 +284,8 @@
       fld_179817:  name,
       fld_179818:  phone,
       fld_179819:  age,
+      // Employment status — set at the start of the cross-sell flow (fld_183161)
+      fld_183161:  (typeof state !== 'undefined' && state.employmentStatus) || '',
       fld_377288:  consent || ''
     };
     if (email) p.fld_179820 = email;
@@ -284,6 +297,7 @@
     p['form_fields[fld_179817]'] = name;
     p['form_fields[fld_179818]'] = phone;
     p['form_fields[fld_179819]'] = age;
+    if (typeof state !== 'undefined' && state.employmentStatus) p['form_fields[fld_183161]'] = state.employmentStatus;
     p['form_fields[fld_377288]'] = consent || '';
     if (email) p['form_fields[fld_179820]'] = email;
     if (city)  p['form_fields[fld_179821]'] = city;
@@ -309,12 +323,31 @@
     root.className = 'ymcs-overlay';
     root.innerHTML =
       '<div class="ymcs-shell">' +
-        '<div class="ymcs-progress"><div class="ymcs-progress-bar" id="ymcsProgressBar"></div></div>' +
+        '<div class="ymcs-progress-wrap">' +
+          '<div class="ymcs-encourage" id="ymcsEncourage" aria-live="polite"></div>' +
+          '<div class="ymcs-progress"><div class="ymcs-progress-bar" id="ymcsProgressBar"></div></div>' +
+          '<div class="ymcs-progress-pct" id="ymcsProgressPct" aria-hidden="true"></div>' +
+        '</div>' +
         '<div class="ymcs-card" id="ymcsCard"></div>' +
       '</div>';
     document.body.appendChild(root);
     card = root.querySelector('#ymcsCard');
     progressBar = root.querySelector('#ymcsProgressBar');
+  }
+
+  // Encouragement messages — shown above the progress bar, change with completion %.
+  // Keeps users moving through the long cross-sell flow by signaling tangible
+  // progress and that they're closer to the end than they think.
+  // Each message returns the {text, emoji, tone} for the current pct.
+  function getEncouragement(pct) {
+    if (pct < 12)  return { emoji: '🚀', text: 'בואו נתחיל — שאלות קצרות בלבד', tone: 'start' };
+    if (pct < 28)  return { emoji: '✓',  text: 'כל הכבוד! המשך באותה הקצב',     tone: 'good' };
+    if (pct < 42)  return { emoji: '⚡',  text: 'נהדר — אתה מתקדם יפה',          tone: 'good' };
+    if (pct < 58)  return { emoji: '🎯', text: 'הגעת לחצי הדרך! כמה פרטים נוספים', tone: 'mid' };
+    if (pct < 72)  return { emoji: '💪', text: 'מצוין! עוברים את שאלות האמצע',   tone: 'mid' };
+    if (pct < 85)  return { emoji: '⏳', text: 'כמעט שם — שאלות אחרונות',         tone: 'near' };
+    if (pct < 96)  return { emoji: '🏁', text: 'שאלה אחרונה ואז סיימת!',         tone: 'final' };
+    return            { emoji: '🎉', text: 'סיימנו — מצוין!',                     tone: 'done' };
   }
   function show() {
     root.classList.add('is-open');
@@ -328,11 +361,43 @@
   }
 
   function updateProgress(stepId) {
-    if (stepId === '_reentry') { progressBar.style.width = '0%'; return; }
-    if (stepId === 'done' || stepId === 'telecom_done') { progressBar.style.width = '100%'; return; }
-    var idx = stepIndex[stepId];
-    var pct = Math.max(2, Math.round((idx / Math.max(1, totalSteps - 1)) * 100));
+    var pct;
+    if (stepId === '_reentry')                           { pct = 0; }
+    else if (stepId === 'done' || stepId === 'telecom_done') { pct = 100; }
+    else {
+      var idx = stepIndex[stepId];
+      pct = Math.max(2, Math.round((idx / Math.max(1, totalSteps - 1)) * 100));
+    }
     progressBar.style.width = pct + '%';
+
+    // Encouragement strip — keeps the user motivated through the long flow.
+    // Hidden on _reentry (the pre-question gate) so it doesn't appear before flow starts.
+    var enc = root.querySelector('#ymcsEncourage');
+    var pctEl = root.querySelector('#ymcsProgressPct');
+    if (enc) {
+      if (stepId === '_reentry') {
+        enc.classList.remove('show'); enc.innerHTML = '';
+      } else {
+        var msg = getEncouragement(pct);
+        var prevTone = enc.getAttribute('data-tone');
+        enc.setAttribute('data-tone', msg.tone);
+        enc.innerHTML =
+          '<span class="ymcs-encourage-emoji" aria-hidden="true">' + msg.emoji + '</span>' +
+          '<span class="ymcs-encourage-text">' + escapeHtml(msg.text) + '</span>';
+        enc.classList.add('show');
+        // Re-trigger the entrance animation when the tone changes (transition into next phase)
+        if (prevTone && prevTone !== msg.tone) {
+          enc.classList.remove('bump');
+          // force reflow so the animation restarts
+          // eslint-disable-next-line no-unused-expressions
+          enc.offsetWidth;
+          enc.classList.add('bump');
+        }
+      }
+    }
+    if (pctEl) {
+      pctEl.textContent = (stepId === '_reentry') ? '' : pct + '%';
+    }
   }
 
   // ============ Templates ============
@@ -574,6 +639,13 @@
   // After saving the answer for the current step, advance.
   // If the step has fire_route_adv === activeFlow, fire route_adv + markCompleted on the active lead.
   function advance(step, value) {
+    // Capture employment status on state — no lead exists yet at this point,
+    // so it can't be sent via updateLead. It'll be attached to every createLead
+    // payload downstream (insurance/tax/telecom).
+    if (step.id === 'fld_183161') {
+      state.employmentStatus = value;
+    }
+
     var leadId = state.activeFlow === 'insurance' ? state.insuranceLeadId
                : state.activeFlow === 'tax'       ? state.taxLeadId
                : state.activeFlow === 'telecom'   ? state.telecomLeadId
@@ -587,7 +659,11 @@
     sendP.then(function () {
       if (firingRouteAdv && leadId) markCompleted(leadId);
 
-      var nextId = (step.conditional_next && step.conditional_next[value]) || step.next;
+      // next_fn lets a step decide its next dynamically based on state — used by
+      // the employment-status step which branches to ins/tax pitch.
+      var nextId = (typeof step.next_fn === 'function' && step.next_fn(state, value))
+                || (step.conditional_next && step.conditional_next[value])
+                || step.next;
       if (!nextId) { render('done'); return; }
 
       // Transition into tax flow when crossing the pitch_tax boundary
@@ -641,13 +717,26 @@
     }
     if (step.type === 'pitch_ins') {
       card.querySelector('[data-act="ins-yes"]').addEventListener('click', function (e) {
-        e.preventDefault(); this.disabled = true;
+        e.preventDefault();
+        var self = this;
+        self.disabled = true;
+        // CRITICAL: never POST an empty-identity lead to Leadim. If state.user
+        // somehow doesn't have a valid name+phone at this point, route to
+        // re-entry to collect them instead of creating a hollow Leadim record.
+        if (!state.user.name || !/^0\d{8,9}$/.test(state.user.phone || '')) {
+          try { console.warn('[ymcs] pitch_ins blocked: missing identity', {user: state.user, opts: state}); } catch (e) {}
+          state._postReentryStart = 'pitch_ins';
+          self.disabled = false;
+          render('_reentry');
+          return;
+        }
         // Create the insurance lead now (we'll update it field by field)
         var payload = {
           'form_fields[name]': state.user.name,
           'form_fields[phone]': state.user.phone,
           'form_fields[age]': state.user.age
         };
+        if (state.employmentStatus) payload['form_fields[fld_183161]'] = state.employmentStatus;
         if (state.extra.incomeNis) payload['form_fields[fld_262192]'] = state.extra.incomeNis;
         createLead(INSURANCE_FORM, payload).then(function (leadId) {
           if (leadId) {
@@ -667,12 +756,22 @@
     }
     if (step.type === 'pitch_tax') {
       card.querySelector('[data-act="tax-yes"]').addEventListener('click', function (e) {
-        e.preventDefault(); this.disabled = true;
+        e.preventDefault();
+        var self = this;
+        self.disabled = true;
+        if (!state.user.name || !/^0\d{8,9}$/.test(state.user.phone || '')) {
+          try { console.warn('[ymcs] pitch_tax blocked: missing identity', {user: state.user}); } catch (e) {}
+          state._postReentryStart = 'pitch_tax';
+          self.disabled = false;
+          render('_reentry');
+          return;
+        }
         var payload = {
           'form_fields[name]': state.user.name,
           'form_fields[phone]': state.user.phone,
           'form_fields[age]': state.user.age
         };
+        if (state.employmentStatus) payload['form_fields[fld_183161]'] = state.employmentStatus;
         if (state.extra.incomeNis) payload['form_fields[fld_262192]'] = state.extra.incomeNis;
         createLead(TAX_FORM, payload).then(function (leadId) {
           if (leadId) {
@@ -696,6 +795,13 @@
       card.querySelector('[data-act="tel-yes"]').addEventListener('click', function (e) {
         e.preventDefault();
         var btn = this; btn.disabled = true;
+        if (!state.user.name || !/^0\d{8,9}$/.test(state.user.phone || '')) {
+          try { console.warn('[ymcs] pitch_telecom blocked: missing identity', {user: state.user}); } catch (e) {}
+          state._postReentryStart = 'pitch_telecom';
+          btn.disabled = false;
+          render('_reentry');
+          return;
+        }
         var payload = buildTelecomCreatePayload('כן');
         createLead(TELECOM_FORM, payload).then(function (leadId) {
           if (leadId) {
@@ -913,11 +1019,19 @@
     start: function (opts) {
       opts = opts || {};
       bootstrapIdentity(opts);
-      // Decide where to start. Tax is always shown unconditionally; the
-      // insurance pitch is gated on fld_282715='כן' (host quiz). If identity
-      // is still missing (URL gone AND localStorage empty), show the re-entry
-      // mini-form first — never POST empty name/phone to Leadim.
-      var intendedStart = (opts.insurancePay === 'כן') ? 'pitch_ins' : 'pitch_tax';
+      // The cross-sell flow now opens with the employment-status question
+      // (fld_183161). The pitch (ins or tax) follows: insurance pitch is gated
+      // on fld_282715='כן' from the host quiz, tax is the fallback.
+      // If identity is missing, show the re-entry mini-form first to avoid
+      // empty-identity leads in Leadim.
+      state._postEmploymentNext = (opts.insurancePay === 'כן') ? 'pitch_ins' : 'pitch_tax';
+      // If the host page already asked the employment-status question (in its
+      // /thanks/ intake quiz) and is passing the answer in, skip our inline step.
+      // Otherwise, fall back to asking inside the cross-sell overlay.
+      if (opts.employmentStatus) {
+        state.employmentStatus = opts.employmentStatus;
+      }
+      var intendedStart = state.employmentStatus ? state._postEmploymentNext : 'fld_183161';
       var hasIdentity = !!state.user.name && !!state.user.phone;
       state._postReentryStart = intendedStart;
 
