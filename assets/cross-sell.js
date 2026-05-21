@@ -711,14 +711,13 @@
       });
       card.querySelector('[data-act="tel-no"]').addEventListener('click', function (e) {
         e.preventDefault();
-        var btn = this; btn.disabled = true;
-        // Still create the lead with fld_377288='לא' for analytics, but
-        // explicitly DO NOT scheduleRoute — opt-outs must never be sent to
-        // the advertiser. The lead lives in Leadim for the user's reporting.
-        var payload = buildTelecomCreatePayload('לא');
-        createLead(TELECOM_FORM, payload).then(function () {
-          render('done');
-        });
+        this.disabled = true;
+        // Opt-out: user declined the telecom offer.
+        // PER USER REQUEST (2026-05-21): do NOT create a Leadim lead at all here.
+        // Previously we created a lead with fld_377288='לא' "for analytics", but in
+        // practice it flooded the advertiser's Leadim with hundreds of irrelevant
+        // opt-out entries. Now: end silently, no lead, no reporting noise.
+        render('done');
       });
       return;
     }
