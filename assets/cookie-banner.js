@@ -32,6 +32,9 @@
     '@media(max-width:560px){.cc-banner{padding:13px 16px;font-size:13px;gap:10px;left:10px;right:10px;bottom:10px;border-radius:16px;box-shadow:3px 3px 0 #1A3A35,3px 3px 0 4px #FFD93D;transform:rotate(0deg)}' +
     '.cc-banner .cc-accept{width:100%;padding:11px}}';
 
+  css += '.cc-banner{left:0!important;right:0!important;bottom:0!important;top:auto!important;margin:0!important;max-width:none!important;border-radius:0!important;border-width:0!important;padding:8px 14px!important;gap:10px!important;font-size:12.5px!important;line-height:1.4!important;flex-wrap:nowrap!important;align-items:center!important;box-shadow:0 -2px 12px rgba(0,0,0,.18)!important}.cc-banner::before{display:none!important}.cc-banner::after{display:none!important}.cc-banner .cc-text{padding-top:0!important;font-size:12px!important;line-height:1.4!important;flex:1 1 auto!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important}.cc-banner .cc-accept{padding:7px 18px!important;font-size:13px!important;border-radius:6px!important;clip-path:none!important;font-style:normal!important;letter-spacing:0!important;width:auto!important;min-width:0!important;white-space:nowrap!important;transform:none!important}@media(max-width:640px){.cc-banner{padding:7px 10px!important;font-size:11.5px!important;gap:8px!important;flex-wrap:wrap!important}.cc-banner .cc-text{flex:1 1 100%!important;font-size:11.5px!important;-webkit-line-clamp:3!important}.cc-banner .cc-accept{width:auto!important;padding:7px 16px!important;font-size:12.5px!important;flex:0 0 auto!important;align-self:flex-end!important}}'; /* YMEDIA-SLIM-OVERRIDE v1 */
+
+
   var style = document.createElement('style');
   style.setAttribute('data-cc', '');
   style.textContent = css;
@@ -48,7 +51,15 @@
     '<button type="button" class="cc-accept">אני מאשר/ת</button>';
   document.body.appendChild(b);
 
+  // YMEDIA-SLIM-OVERRIDE v1 — reserve viewport bottom-padding for the banner
+  var __ymPad = function(){ try { document.body.style.paddingBottom = (b.offsetHeight + 4) + 'px'; } catch(e){} };
+  __ymPad();
+  if (window.ResizeObserver) { try { new ResizeObserver(__ymPad).observe(b); } catch(e){} }
+  window.addEventListener('resize', __ymPad);
+
+
   b.querySelector('.cc-accept').addEventListener('click', function () {
+    try { document.body.style.paddingBottom = ''; } catch (e) {}
     try { localStorage.setItem('cookies_accepted_v1', '1'); } catch (e) {}
     b.style.transition = 'transform .35s, opacity .35s';
     b.style.transform = 'translateY(24px) rotate(-2deg)';
