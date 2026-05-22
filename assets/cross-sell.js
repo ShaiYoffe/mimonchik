@@ -218,6 +218,24 @@
   }
 
   function createLead(formCfg, payload) {
+    // LAST-LINE-OF-DEFENSE identity guard. Empty-identity leads were appearing in
+    // Leadim despite the _reentry safety net AND the pitch-level guards. We don't
+    // fully know how — possibly a code path we haven't found, possibly a JS race,
+    // possibly bots hitting cached pages. So we validate at the createLead call
+    // itself: if name<2 chars or phone doesn't match the Israeli mobile pattern,
+    // we return null IMMEDIATELY without POSTing to Leadim. This means: zero empty
+    // leads can ever leave this function, regardless of caller bugs.
+    var name  = String((payload && payload['form_fields[name]']) || '').trim();
+    var phone = String((payload && payload['form_fields[phone]']) || '').trim().replace(/[\s\-]/g, '');
+    if (name.length < 2 || !/^0\d{8,9}$/.test(phone)) {
+      try {
+        console.warn('[ymcs] createLead BLOCKED — invalid identity in payload', {
+          lm_form: formCfg.lm_form, name: name, phone: phone,
+          payload_keys: Object.keys(payload || {})
+        });
+      } catch (e) {}
+      return Promise.resolve(null);
+    }
     var url = LEADIM_CREATE + '?lm_form=' + formCfg.lm_form + '&lm_key=' + formCfg.lm_key + '&' + buildQuery(payload);
     return fetch(url, { method: 'POST' })
       .then(function (r) { return r.text(); })
