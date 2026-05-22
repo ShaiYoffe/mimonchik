@@ -1062,5 +1062,203 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 <!-- end YMEDIA Consent Emphasis ════════════════════════════════════════════ -->
 
+<!-- ════════════════════════════════════════════════════════════════════════
+     YMEDIA Phone Validity Toast — two toasts in one snippet:
+       1. RED invalid toast → when user typed a non-mobile-Israeli phone
+          (e.g. 02-xxx landline, 9-digit incomplete number, foreign format).
+          Triggered on blur OR once user has typed 10+ digits.
+          Position: just below the phone input (where the user is looking).
+       2. GREEN consent-needed toast → when phone IS a valid Israeli mobile
+          AND the terms-of-use checkbox is unticked.
+          Position: just above the consent label.
+     ADDITIVE ONLY — no DOM mutation of existing form, no regex on content.
+     ════════════════════════════════════════════════════════════════════ -->
+<style>
+.ymedia-pv-toast,
+.ymedia-pv-invalid {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  margin: 10px 0;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.4;
+  direction: rtl;
+  font-family: inherit;
+  color: #fff;
+}
+.ymedia-pv-toast {
+  background: linear-gradient(135deg, #00C853 0%, #00A847 100%);
+  box-shadow: 0 6px 18px rgba(0,168,71,.25);
+}
+.ymedia-pv-invalid {
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+  box-shadow: 0 6px 18px rgba(220,38,38,.25);
+}
+.ymedia-pv-toast.show,
+.ymedia-pv-invalid.show {
+  display: flex;
+  animation: ymediaPvSlide .35s cubic-bezier(.22,1,.36,1);
+}
+.ymedia-pv-toast .ico,
+.ymedia-pv-invalid .ico {
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  background: rgba(255,255,255,.30);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+}
+@keyframes ymediaPvSlide {
+  from { transform: translateY(-6px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+</style>
+<script>
+(function() {
+  if (window.__ymediaPhoneValidToast) return;
+  window.__ymediaPhoneValidToast = true;
+
+  // Israeli mobile: 10 digits starting with 05X.
+  function isMobileIsraeli(raw) {
+    var p = (raw || '').replace(/[\s\-]/g, '');
+    return /^05\d{8}$/.test(p);
+  }
+
+  function findPhone(scope) {
+    return scope.querySelector(
+      '#phoneInput, input[type="tel"], input[autocomplete="tel"], ' +
+      'input[name="phone"], input[name="form_fields[phone]"]'
+    );
+  }
+  function findTerms(scope) {
+    return scope.querySelector(
+      '#termsCheckbox, #consentBox, input[name="fld_228371"], ' +
+      'input[type="checkbox"][name*="terms" i], ' +
+      'input[type="checkbox"][name*="consent" i], ' +
+      'input[type="checkbox"][id*="terms" i], ' +
+      'input[type="checkbox"][id*="consent" i]'
+    );
+  }
+
+  function ensureValidToast(checkbox) {
+    var existing = document.getElementById('ymedia-pv-toast-el');
+    if (existing) return existing;
+    var el = document.createElement('div');
+    el.id = 'ymedia-pv-toast-el';
+    el.className = 'ymedia-pv-toast';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    el.innerHTML = '<span class="ico" aria-hidden="true">✓</span>' +
+                   '<span>הטלפון נקלט. בשביל להתקדם, נותר רק לאשר את תנאי השימוש ומדיניות הפרטיות.</span>';
+    var area = checkbox.closest('label, .consent, .terms-row, .terms') || checkbox.parentNode;
+    if (area && area.parentNode) {
+      area.parentNode.insertBefore(el, area);
+    } else if (checkbox.parentNode) {
+      checkbox.parentNode.insertBefore(el, checkbox);
+    }
+    return el;
+  }
+
+  function ensureInvalidToast(phoneInput) {
+    var existing = document.getElementById('ymedia-pv-invalid-el');
+    if (existing) return existing;
+    var el = document.createElement('div');
+    el.id = 'ymedia-pv-invalid-el';
+    el.className = 'ymedia-pv-invalid';
+    el.setAttribute('role', 'alert');
+    el.setAttribute('aria-live', 'polite');
+    el.innerHTML = '<span class="ico" aria-hidden="true">!</span>' +
+                   '<span>מספר הטלפון לא תקין — נא להזין מספר נייד ישראלי (לדוגמה: 050-1234567)</span>';
+    // Insert RIGHT BELOW the phone input (or its label/field wrapper)
+    var wrapper = phoneInput.closest('.field, .field-block, .form-field, .input-wrap') || phoneInput.parentNode;
+    if (wrapper && wrapper.parentNode) {
+      // Insert AFTER the wrapper so it appears below the input
+      if (wrapper.nextSibling) wrapper.parentNode.insertBefore(el, wrapper.nextSibling);
+      else wrapper.parentNode.appendChild(el);
+    } else if (phoneInput.parentNode) {
+      if (phoneInput.nextSibling) phoneInput.parentNode.insertBefore(el, phoneInput.nextSibling);
+      else phoneInput.parentNode.appendChild(el);
+    }
+    return el;
+  }
+
+  function update(form, opts) {
+    opts = opts || {};
+    var phone = findPhone(form);
+    var cb = findTerms(form);
+    if (!phone || !cb) return;
+
+    var raw = (phone.value || '').replace(/[\s\-]/g, '');
+    var hasContent = raw.length >= 4;       // user has typed something substantial
+    var validMobile = isMobileIsraeli(raw);
+    var consentOk = !!cb.checked;
+
+    var toastValid = document.getElementById('ymedia-pv-toast-el');
+    var toastInvalid = document.getElementById('ymedia-pv-invalid-el');
+
+    // Decision tree:
+    //  - Phone empty / very short              → no toast
+    //  - Phone has content but not yet 10 chars → silent until blur (don't spam while typing)
+    //  - Phone has 10+ chars OR user blurred:
+    //      - valid mobile  + consent unchecked → GREEN
+    //      - valid mobile  + consent checked   → no toast
+    //      - invalid                            → RED
+    var triggerStrict = (raw.length >= 10) || opts.fromBlur;
+    var showValid = validMobile && !consentOk;
+    var showInvalid = !validMobile && hasContent && triggerStrict;
+
+    if (showValid) {
+      toastValid = ensureValidToast(cb);
+      if (cb.offsetParent !== null) toastValid.classList.add('show'); else toastValid.classList.remove('show');
+      if (toastInvalid) toastInvalid.classList.remove('show');
+    } else if (showInvalid) {
+      toastInvalid = ensureInvalidToast(phone);
+      toastInvalid.classList.add('show');
+      if (toastValid) toastValid.classList.remove('show');
+    } else {
+      if (toastValid) toastValid.classList.remove('show');
+      if (toastInvalid) toastInvalid.classList.remove('show');
+    }
+  }
+
+  function bind(form) {
+    var phone = findPhone(form);
+    var cb = findTerms(form);
+    if (phone) {
+      phone.addEventListener('input', function() { update(form); });
+      phone.addEventListener('blur',  function() { update(form, { fromBlur: true }); });
+    }
+    if (cb) {
+      cb.addEventListener('change', function() { update(form); });
+    }
+    setTimeout(function() { update(form); }, 200);
+  }
+
+  function init() {
+    var formEls = document.querySelectorAll('form');
+    var bound = false;
+    formEls.forEach(function(f) {
+      if (findPhone(f) && findTerms(f)) { bind(f); bound = true; }
+    });
+    if (!bound) {
+      if (findPhone(document) && findTerms(document)) bind(document);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+<!-- end YMEDIA Phone Validity Toast ════════════════════════════════════════ -->
+
 </body>
 </html>
