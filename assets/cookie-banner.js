@@ -49,7 +49,7 @@
     'בלחיצה על "אני מאשר/ת" אתה מסכים לשימוש בעוגיות. ' +
     '<a href="' + PRIVACY_URL + '">מדיניות פרטיות &raquo;</a></div>' +
     '<button type="button" class="cc-accept">אני מאשר/ת</button>';
-  document.body.appendChild(b);
+  document.documentElement.appendChild(b);
 
   // YMEDIA-SLIM-OVERRIDE v1 — reserve viewport bottom-padding for the banner
   var __ymPad = function(){ try { document.body.style.paddingBottom = (b.offsetHeight + 4) + 'px'; } catch(e){} };
