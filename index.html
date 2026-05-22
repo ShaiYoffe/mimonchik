@@ -1063,7 +1063,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- end YMEDIA Consent Emphasis ════════════════════════════════════════════ -->
 
 <!-- ════════════════════════════════════════════════════════════════════════
-     YMEDIA Phone Validity Toast — two toasts in one snippet:
+     YMEDIA Phone Validity Toast — two toasts + submit blocker:
        1. RED invalid toast → when user typed a non-mobile-Israeli phone
           (e.g. 02-xxx landline, 9-digit incomplete number, foreign format).
           Triggered on blur OR once user has typed 10+ digits.
@@ -1071,6 +1071,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
        2. GREEN consent-needed toast → when phone IS a valid Israeli mobile
           AND the terms-of-use checkbox is unticked.
           Position: just above the consent label.
+       3. SUBMIT BLOCKER (capture phase) → when user clicks any submit-like
+          button while the visible phone field has content that fails the
+          Israeli-mobile regex, we preventDefault + stopImmediatePropagation
+          to STOP the form from advancing, and show the RED toast.
      ADDITIVE ONLY — no DOM mutation of existing form, no regex on content.
      ════════════════════════════════════════════════════════════════════ -->
 <style>
@@ -1114,9 +1118,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   font-size: 13px;
   font-weight: 900;
 }
+.ymedia-pv-invalid.shake {
+  animation: ymediaPvShake .42s cubic-bezier(.36,.07,.19,.97) both;
+}
 @keyframes ymediaPvSlide {
   from { transform: translateY(-6px); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes ymediaPvShake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
 }
 </style>
 <script>
@@ -1251,6 +1264,53 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
   }
 
+  // ───────────── SUBMIT BLOCKER (capture phase) ─────────────
+  // Stops the form from advancing when the visible phone has content but
+  // fails the Israeli-mobile regex. Runs BEFORE the page's own click
+  // handlers so preventDefault + stopImmediatePropagation actually win.
+  function isSubmitLike(btn) {
+    if (!btn) return false;
+    if (btn.type === 'submit') return true;
+    if (btn.id && /submit|send|next|check|start|continue/i.test(btn.id)) return true;
+    if (btn.className && /submit|send|btn-primary|next-btn|cta|start-btn|continue-btn/i.test(btn.className)) return true;
+    var t = (btn.textContent || '').trim();
+    return /בדוק|שלח|המשך|המשיך|להזמין|לבדוק|להתחיל|לקבל|next|submit|continue/i.test(t) && t.length < 60;
+  }
+  function isVisibleEl(el) {
+    if (!el) return false;
+    if (el.offsetParent === null) {
+      // offsetParent can be null for position:fixed — fall back to bounding rect
+      var r = el.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) return false;
+    }
+    return true;
+  }
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('button, input[type="submit"], [role="button"], a.cta, a.btn');
+    if (!isSubmitLike(btn)) return;
+
+    var scope = btn.closest('form') || document;
+    var phone = findPhone(scope);
+    if (!phone) return;
+    if (!isVisibleEl(phone)) return;          // phone not on screen → not this step
+    var raw = (phone.value || '').replace(/[\s\-]/g, '');
+    if (raw.length === 0) return;             // empty → let page's own validation speak
+    if (isMobileIsraeli(raw)) return;         // valid → don't block
+
+    // Invalid + visible phone with content → BLOCK
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    e.stopPropagation();
+    var toast = ensureInvalidToast(phone);
+    toast.classList.remove('shake');
+    // force reflow so the animation restarts even if already shown
+    void toast.offsetWidth;
+    toast.classList.add('show', 'shake');
+    try { phone.focus(); } catch (e1) {}
+    try { phone.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e2) {}
+    return false;
+  }, true);
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
@@ -1259,6 +1319,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 })();
 </script>
 <!-- end YMEDIA Phone Validity Toast ════════════════════════════════════════ -->
-
 </body>
 </html>
