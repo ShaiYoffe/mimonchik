@@ -667,7 +667,7 @@ body {
 /* Named submit buttons inherit .btn primary style */
 #loanAmountSubmit, #monthlyIncomeSubmit,
 #dobSubmit, #debtSubmit, #citySubmit, #purposeOtherSubmit, #cardOtherSubmit,
-#ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit {
+#ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpInsNewPhoneSubmit {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -688,7 +688,7 @@ body {
 #loanAmountSubmit:hover, #monthlyIncomeSubmit:hover,
 #dobSubmit:hover,
 #debtSubmit:hover, #citySubmit:hover, #purposeOtherSubmit:hover, #cardOtherSubmit:hover,
-#ssnSubmit:hover, #ssnIssueDateSubmit:hover, #emailSubmit:hover {
+#ssnSubmit:hover, #ssnIssueDateSubmit:hover, #emailSubmit:hover, #otpInsVerifyBtn:hover, #otpInsNewPhoneSubmit:hover {
   background: var(--gold);
   border-color: var(--gold);
   color: var(--ink);
@@ -940,7 +940,7 @@ input[type="date"].datetime-input-box:focus,
   .slider-display .cur { font-size: 26px; }
   .btn, #loanAmountSubmit, #monthlyIncomeSubmit,
   #dobSubmit, #debtSubmit, #citySubmit, #purposeOtherSubmit, #cardOtherSubmit,
-  #ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit {
+  #ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpInsNewPhoneSubmit {
     height: 52px; padding: 0 22px;
   }
   .back-btn { padding: 12px 18px; font-size: 13px; }
@@ -1461,7 +1461,7 @@ body {
 .page-card #ssnSubmit, .page-card #ssnIssueDateSubmit, .page-card #emailSubmit,
 .page-card #illnessSubmit, .page-card #insurancePaySubmit,
 .page-card #insuranceTypesSubmit, .page-card #insuranceCompanySubmit,
-.page-card #incomeSourcesSubmit {
+.page-card #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpInsNewPhoneSubmit {
   background: #FFD93D !important;
   color: #1A3A35 !important;
   border: 3px solid #1A3A35 !important;
