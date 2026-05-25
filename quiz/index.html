@@ -2588,6 +2588,55 @@ function getActiveLeadId() {
 // Create a brand-new Leadim lead in the given form, register it in the Supabase safety-net, and
 // callback with the new lead_id (or null on failure).
 function createCrossSellLead(lmForm, lmKey, payload, callback) {
+  // BULLETPROOF identity guard (v20) — recovers missing fields from ALL
+  // available sources at POST time, then HARD-BLOCKS if any required
+  // field is missing or invalid. Zero empty leads possible regardless
+  // of caller bugs, race conditions, or stale state.
+  payload = payload || {};
+  var qp = null;
+  try { qp = new URLSearchParams(window.location.search); } catch (e) {}
+  var ls = {};
+  try { ls = JSON.parse(localStorage.getItem('ymcs_user_v1') || '{}') || {}; } catch (e) { ls = {}; }
+  function first() {
+    for (var i = 0; i < arguments.length; i++) {
+      var v = arguments[i];
+      if (v !== undefined && v !== null && String(v).length > 0) return String(v);
+    }
+    return '';
+  }
+  var sd = (typeof window !== 'undefined' && window.storedData) || {};
+  var name  = first(payload.name,        sd.name,        qp && qp.get('name'),  ls.name).trim();
+  var phone = first(payload.phone,       sd.phone,       qp && qp.get('phone'), ls.phone).trim().replace(/[\s\-]/g, '');
+  var age   = first(payload.fld_179819,  sd.fld_179819,  qp && qp.get('age'),   ls.age).trim();
+  var ssn   = first(payload.fld_209867,  sd.fld_209867,  ls.ssn).replace(/\D/g, '');
+
+  var nameOk  = name.length >= 2;
+  var phoneOk = /^0\d{8,9}$/.test(phone);
+  var ageOk   = !isNaN(parseInt(age, 10)) && parseInt(age, 10) >= 18 && parseInt(age, 10) <= 99;
+  var ssnOk   = (typeof isValidIsraeliID === 'function') ? isValidIsraeliID(ssn) : (/^\d{9}$/.test(ssn));
+  if (!nameOk || !phoneOk || !ageOk || !ssnOk) {
+    try {
+      console.warn('[xs] createCrossSellLead HARD-BLOCK v20 — missing/invalid identity', {
+        lm_form: lmForm,
+        name: name, name_ok: nameOk,
+        phone: phone, phone_ok: phoneOk,
+        age: age, age_ok: ageOk,
+        ssn_ok: ssnOk,
+        payload_keys: Object.keys(payload)
+      });
+    } catch (e) {}
+    if (callback) callback(null);
+    return;
+  }
+
+  // Backfill payload with recovered + normalized values
+  payload.name = name;
+  payload.phone = phone;
+  payload.fld_179817 = payload.fld_179817 || name;
+  payload.fld_179818 = payload.fld_179818 || phone;
+  payload.fld_179819 = payload.fld_179819 || age;
+  payload.fld_209867 = ssn.length < 9 ? ('00000000' + ssn).slice(-9) : ssn;
+
   var qs = Object.keys(payload).map(function (k) {
     return encodeURIComponent(k) + '=' + encodeURIComponent(payload[k] == null ? '' : payload[k]);
   }).join('&');
@@ -2602,8 +2651,6 @@ function createCrossSellLead(lmForm, lmKey, payload, callback) {
         if (resp && typeof resp.result !== 'undefined') leadId = String(resp.result);
       } catch (e) {}
       if (leadId) {
-        // Register in the same Supabase safety-net the loan flow uses — cron will fire
-        // route_adv on this lead after 180s if the flow isn't marked completed.
         fetch('/api/schedule-route', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
