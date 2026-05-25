@@ -2,16 +2,7 @@
   "cleanUrls": true,
   "headers": [
     {
-      "source": "/assets/cross-sell.js",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-store, max-age=0, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/assets/lead-backup.js",
+      "source": "/assets/(.*)\\.js",
       "headers": [
         {
           "key": "Cache-Control",
