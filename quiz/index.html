@@ -2184,6 +2184,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="row" style="margin-top:10px;">
             <button id="otpInsResendBtn" disabled style="background:transparent; border:1.5px solid #ccc; color:#666; font-weight:600;">שלח קוד שוב <span id="otpInsResendTimer"></span></button>
           </div>
+          <div style="text-align:center; margin-top:14px;">
+            <a href="#" id="otpInsChangePhoneLink" style="font-size:13.5px; text-decoration:underline; cursor:pointer; color:#0066cc;">לא קיבלת? שנה מספר טלפון</a>
+          </div>
+          <div id="otpInsChangePhone" style="display:none; margin-top:14px; padding:14px; border:1.5px dashed #ccc; border-radius:10px; max-width:320px; margin-left:auto; margin-right:auto;">
+            <label for="otpInsNewPhone" style="display:block; font-size:13px; font-weight:700; margin-bottom:8px;">הזן מספר נייד חדש (10 ספרות):</label>
+            <input id="otpInsNewPhone" type="tel" inputmode="tel" maxlength="10" placeholder="לדוגמה: 0501234567" style="width:100%; padding:10px 12px; font-size:15px; border:1.5px solid #ccc; border-radius:8px; text-align:center; direction:ltr;" />
+            <div class="error-message" id="otpInsNewPhoneErr" style="display:none; margin-top:6px;"></div>
+            <div class="row" style="margin-top:10px;">
+              <button id="otpInsNewPhoneSubmit">שלח קוד למספר החדש</button>
+            </div>
+          </div>
         </div>
 
         <!-- Post-submit: Insurance company pre-qualifier (FIRST insurance question after pitch yes) -->
@@ -2896,6 +2907,64 @@ jQuery(function () {
         startInsuranceOtpResendCountdown(60);
       })
       .catch(function () { $err.text('תקלת תקשורת.').show(); startInsuranceOtpResendCountdown(60); });
+  });
+
+  // Phone-change UI — user can correct a fake/wrong phone
+  var $changeLink   = jQuery('#otpInsChangePhoneLink');
+  var $changeWrap   = jQuery('#otpInsChangePhone');
+  var $newPhone     = jQuery('#otpInsNewPhone');
+  var $newPhoneBtn  = jQuery('#otpInsNewPhoneSubmit');
+  var $newPhoneErr  = jQuery('#otpInsNewPhoneErr');
+  var $phoneDisplay = jQuery('#otpInsMaskedPhone');
+
+  $changeLink.on('click', function (e) {
+    e.preventDefault();
+    $changeWrap.show();
+    try { $newPhone.focus(); } catch (e) {}
+  });
+  $newPhone.on('input', function () {
+    var v = ($newPhone.val() || '').replace(/\D/g, '').slice(0, 10);
+    if (v !== $newPhone.val()) $newPhone.val(v);
+    $newPhoneErr.hide();
+  });
+  $newPhoneBtn.on('click', function (e) {
+    e.preventDefault();
+    var newPhone = ($newPhone.val() || '').trim().replace(/[\s\-]/g, '');
+    if (!/^05\d{8}$/.test(newPhone)) {
+      $newPhoneErr.text('נא להזין מספר נייד ישראלי תקין (05X-XXX-XXXX)').show();
+      try { $newPhone.focus(); } catch (e) {}
+      return;
+    }
+    // Update window.storedData.phone — the lead created after verification
+    // will use this new number (via buildCrossSellIdentityPayload).
+    window.storedData.phone = newPhone;
+    // Update display + collapse the form
+    var masked = newPhone.slice(0,3)+'-'+newPhone.slice(3,6)+'-'+newPhone.slice(6);
+    $phoneDisplay.text(masked);
+    $changeWrap.hide();
+    $newPhone.val('');
+    $newPhoneErr.hide();
+    $err.hide();
+    // Re-send OTP to the new phone
+    $newPhoneBtn.prop('disabled', true).text('שולח…');
+    fetch('/api/otp-send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: newPhone, flow: 'insurance' })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        $newPhoneBtn.prop('disabled', false).text('שלח קוד למספר החדש');
+        if (!j || !j.success) {
+          $err.text((j && j.error) || 'שליחת ה-SMS נכשלה.').show();
+        }
+        startInsuranceOtpResendCountdown(60);
+        try { jQuery('#otpInsInput').focus(); } catch (e) {}
+      })
+      .catch(function () {
+        $newPhoneBtn.prop('disabled', false).text('שלח קוד למספר החדש');
+        $err.text('תקלת תקשורת.').show();
+      });
   });
 });
 
