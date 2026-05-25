@@ -2169,6 +2169,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
 
         <!-- Post-submit: Serious illness yes/no (entered when user clicks "כן, אשמח לבדוק" on the pitch — fld_223544 is recorded automatically as "כן" without showing a redundant question) -->
+        <!-- Post-submit: SMS OTP verification (gates insurance lead creation) -->
+        <div class="form-step post-submit-step" id="otp_verify_ins" data-section="אימות זהות">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">🔐 שלחנו לך קוד אימות ב-SMS</h2>
+          <p class="q-hint">למספר <strong id="otpInsMaskedPhone"></strong> נשלח קוד בן 4 ספרות. <strong>כדי שנעביר את בקשתך לבדיקת תיק הביטוח מול נציג מורשה — יש להזין את קוד האימות.</strong> ללא אימות לא נוכל להעביר את הבקשה.</p>
+          <div class="input-field" style="max-width: 200px; margin: 18px auto;">
+            <input type="text" id="otpInsInput" inputmode="numeric" maxlength="4" autocomplete="one-time-code" placeholder="••••" style="text-align:center; font-size:28px; letter-spacing:14px; font-weight:800; direction:ltr;" />
+          </div>
+          <div class="error-message" id="otpInsErr" style="display:none;"></div>
+          <div class="row">
+            <button id="otpInsVerifyBtn" disabled>אימות קוד והמשך לבדיקה</button>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button id="otpInsResendBtn" disabled style="background:transparent; border:1.5px solid #ccc; color:#666; font-weight:600;">שלח קוד שוב <span id="otpInsResendTimer"></span></button>
+          </div>
+        </div>
+
         <!-- Post-submit: Insurance company pre-qualifier (FIRST insurance question after pitch yes) -->
         <div class="form-step post-submit-step" id="fld_351761" data-section="בדיקת ביטוח">
           <div class="chat-bubble"></div>
@@ -2736,25 +2753,151 @@ function enterInsuranceFlow(button, currentStep) {
     fadeToSpecificStep(currentStep, '#fld_351761');
     return;
   }
-  if (button) button.prop('disabled', true).text('שולח…');
-  // Insurance form 49491 maps email→fld_93084 in the spec? No — spec uses age/city/id/type/payment.
-  // Build identity payload + insurance-specific shared keys.
-  var payload = buildCrossSellIdentityPayload({
-    age:        window.storedData.fld_179819 || '',
-    city:       window.storedData.fld_179821 || '',
-    id:         window.storedData.fld_209867 || '',
-    fld_223544: 'כן'
-  });
-  createCrossSellLead('49491', '483163189b', payload, function (leadId) {
-    if (leadId) {
-      window.storedData.insuranceLeadId = leadId;
-      window.storedData.activeFlow      = 'insurance';
-      window.storedData.fld_223544      = 'כן';
-    }
-    if (button) button.prop('disabled', false).text('כן, אשמח לבדוק');
-    fadeToSpecificStep(currentStep, '#fld_351761');
-  });
+  // SMS OTP verification REQUIRED before creating the insurance lead.
+  // Fire /api/otp-send + transition to #otp_verify_ins step.
+  // The actual createCrossSellLead happens in the OTP verify success handler.
+  startInsuranceOtpFlow(button, currentStep);
 }
+
+// OTP cooldown shared between insurance + tax (re-entries reset it).
+var __otpInsCooldown = null;
+function startInsuranceOtpFlow(button, currentStep) {
+  if (button) button.prop('disabled', true).text('שולח קוד אימות…');
+  var phone = (window.storedData.phone || (typeof getParameterByName === 'function' ? getParameterByName('phone') : '') || '').trim();
+  var maskedEl = document.getElementById('otpInsMaskedPhone');
+  if (maskedEl) {
+    var masked = phone.length >= 7 ? phone.slice(0,3)+'-'+phone.slice(3,6)+'-'+phone.slice(6) : phone;
+    maskedEl.textContent = masked;
+  }
+  fetch('/api/otp-send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone: phone })
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (button) button.prop('disabled', false).text('כן, אשמח לבדוק');
+      if (j && j.success) {
+        // Transition to OTP form-step
+        fadeToSpecificStep(currentStep, '#otp_verify_ins');
+        window.storedData.__otpInsPrevStep = currentStep;
+        startInsuranceOtpResendCountdown(60);
+        setTimeout(function () { var i = document.getElementById('otpInsInput'); if (i) { try { i.focus(); } catch (e) {} } }, 300);
+      } else {
+        alert((j && j.error) || 'שליחת ה-SMS נכשלה. נסה שוב.');
+      }
+    })
+    .catch(function () {
+      if (button) button.prop('disabled', false).text('כן, אשמח לבדוק');
+      alert('תקלת תקשורת. נסה שוב.');
+    });
+}
+
+function startInsuranceOtpResendCountdown(seconds) {
+  var btn = jQuery('#otpInsResendBtn');
+  var t   = document.getElementById('otpInsResendTimer');
+  if (__otpInsCooldown) clearInterval(__otpInsCooldown);
+  var remaining = seconds;
+  btn.prop('disabled', true);
+  if (t) t.textContent = '(' + remaining + ')';
+  __otpInsCooldown = setInterval(function () {
+    remaining--;
+    if (t) t.textContent = remaining > 0 ? '(' + remaining + ')' : '';
+    if (remaining <= 0) {
+      clearInterval(__otpInsCooldown);
+      __otpInsCooldown = null;
+      btn.prop('disabled', false);
+    }
+  }, 1000);
+}
+
+// Bind OTP handlers ONCE on DOM ready
+jQuery(function () {
+  var $input = jQuery('#otpInsInput');
+  var $verify= jQuery('#otpInsVerifyBtn');
+  var $resend= jQuery('#otpInsResendBtn');
+  var $err   = jQuery('#otpInsErr');
+
+  if (!$input.length) return; // OTP step not present on this page
+
+  $input.on('input', function () {
+    var v = ($input.val() || '').replace(/\D/g, '').slice(0, 4);
+    if (v !== $input.val()) $input.val(v);
+    $verify.prop('disabled', v.length !== 4);
+    $err.hide();
+  });
+  $input.on('keydown', function (e) {
+    if (e.key === 'Enter' && !$verify.prop('disabled')) {
+      e.preventDefault();
+      $verify.trigger('click');
+    }
+  });
+
+  $verify.on('click', function (e) {
+    e.preventDefault();
+    var code = ($input.val() || '').trim();
+    if (!/^\d{4}$/.test(code)) { $err.text('הקוד חייב להיות 4 ספרות').show(); return; }
+    $verify.prop('disabled', true).text('מאמת ומכין את הבדיקה…');
+    var phone = (window.storedData.phone || (typeof getParameterByName === 'function' ? getParameterByName('phone') : '') || '').trim();
+    fetch('/api/otp-verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: phone, code: code })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.success) {
+          // OTP verified — NOW create the insurance lead
+          var payload = buildCrossSellIdentityPayload({
+            age:        window.storedData.fld_179819 || '',
+            city:       window.storedData.fld_179821 || '',
+            id:         window.storedData.fld_209867 || '',
+            fld_223544: 'כן',
+            fld_179824: code
+          });
+          createCrossSellLead('49491', '483163189b', payload, function (leadId) {
+            if (leadId) {
+              window.storedData.insuranceLeadId = leadId;
+              window.storedData.activeFlow      = 'insurance';
+              window.storedData.fld_223544      = 'כן';
+              window.storedData.fld_179824      = code;
+            }
+            if (__otpInsCooldown) { clearInterval(__otpInsCooldown); __otpInsCooldown = null; }
+            // Advance from OTP step to insurer picker
+            fadeToSpecificStep(jQuery('#otp_verify_ins'), '#fld_351761');
+          });
+        } else {
+          $err.text((j && j.error) || 'הקוד שגוי. נסה שוב.').show();
+          $verify.prop('disabled', false).text('אימות קוד והמשך לבדיקה');
+          try { $input.focus().select(); } catch (e) {}
+        }
+      })
+      .catch(function () {
+        $err.text('תקלת תקשורת. נסה שוב.').show();
+        $verify.prop('disabled', false).text('אימות קוד והמשך לבדיקה');
+      });
+  });
+
+  $resend.on('click', function (e) {
+    e.preventDefault();
+    if ($resend.prop('disabled')) return;
+    $err.hide();
+    var phone = (window.storedData.phone || (typeof getParameterByName === 'function' ? getParameterByName('phone') : '') || '').trim();
+    fetch('/api/otp-send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: phone })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j || !j.success) {
+          $err.text((j && j.error) || 'שליחת ה-SMS נכשלה.').show();
+        }
+        startInsuranceOtpResendCountdown(60);
+      })
+      .catch(function () { $err.text('תקלת תקשורת.').show(); startInsuranceOtpResendCountdown(60); });
+  });
+});
 
 // Entry point for the tax-refund flow — invoked from the answer-btn handler when fld_283971's "yes" button is clicked.
 function enterTaxFlow(button, currentStep) {
