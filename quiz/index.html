@@ -2772,7 +2772,7 @@ function startInsuranceOtpFlow(button, currentStep) {
   fetch('/api/otp-send', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone: phone })
+    body: JSON.stringify({ phone: phone, flow: 'insurance' })
   })
     .then(function (r) { return r.json(); })
     .then(function (j) {
@@ -2886,7 +2886,7 @@ jQuery(function () {
     fetch('/api/otp-send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: phone })
+      body: JSON.stringify({ phone: phone, flow: 'insurance' })
     })
       .then(function (r) { return r.json(); })
       .then(function (j) {

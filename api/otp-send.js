@@ -63,12 +63,12 @@ async function tryJsonV2(user, token, phone, message, sender) {
   return { ok: r.ok, status: r.status, text };
 }
 
-async function sendInforuSMS(phone, code) {
+async function sendInforuSMS(phone, code, ymsg) {
   const user = (process.env.INFORU_USER || '').trim();
   const token = (process.env.INFORU_TOKEN || '').trim();
   if (!user || !token) throw new Error('InfoRU credentials missing');
   const sender = (process.env.OTP_SENDER || 'mimonchik').trim();
-  const message = `קוד אימות הזהות שלך לבדיקת תיק הביטוח: ${code}`;
+  const message = ymsg;
 
   const variants = [
     { name: 'xml-ApiToken', kind: 'xml', xml: `<User><Username>${xmlEscape(user)}</Username><ApiToken>${xmlEscape(token)}</ApiToken></User>` },
@@ -124,7 +124,12 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, _test: true });
   }
   try {
-    const upstream = await sendInforuSMS(phone, code);
+    // Build message based on flow (insurance vs loan) — see comment above.
+    const flow = String((body && body.flow) || '').toLowerCase();
+    const ymsg = (flow === 'insurance')
+      ? `קוד אימות הזהות שלך לבדיקת תיק הביטוח: ${code}`
+      : `קוד אימות הזהות שלך לבדיקת זכאות להלוואה: ${code}`;
+    const upstream = await sendInforuSMS(phone, code, ymsg);
     console.log('[otp-send] InfoRU OK:', upstream.slice(0, 200));
     return res.status(200).json({ success: true });
   } catch (e) {
