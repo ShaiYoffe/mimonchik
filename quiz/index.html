@@ -667,7 +667,7 @@ body {
 /* Named submit buttons inherit .btn primary style */
 #loanAmountSubmit, #monthlyIncomeSubmit,
 #dobSubmit, #debtSubmit, #citySubmit, #purposeOtherSubmit, #cardOtherSubmit,
-#ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit {
+#ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit, #confirm2CallsBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -688,7 +688,7 @@ body {
 #loanAmountSubmit:hover, #monthlyIncomeSubmit:hover,
 #dobSubmit:hover,
 #debtSubmit:hover, #citySubmit:hover, #purposeOtherSubmit:hover, #cardOtherSubmit:hover,
-#ssnSubmit:hover, #ssnIssueDateSubmit:hover, #emailSubmit:hover, #otpInsVerifyBtn:hover, #otpInsNewPhoneSubmit:hover, #taxSalarySubmit:hover {
+#ssnSubmit:hover, #ssnIssueDateSubmit:hover, #emailSubmit:hover, #otpInsVerifyBtn:hover, #otpInsNewPhoneSubmit:hover, #taxSalarySubmit:hover, #confirm2CallsBtn:hover {
   background: var(--gold);
   border-color: var(--gold);
   color: var(--ink);
@@ -940,7 +940,7 @@ input[type="date"].datetime-input-box:focus,
   .slider-display .cur { font-size: 26px; }
   .btn, #loanAmountSubmit, #monthlyIncomeSubmit,
   #dobSubmit, #debtSubmit, #citySubmit, #purposeOtherSubmit, #cardOtherSubmit,
-  #ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit {
+  #ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit, #confirm2CallsBtn {
     height: 52px; padding: 0 22px;
   }
   .back-btn { padding: 12px 18px; font-size: 13px; }
@@ -1461,7 +1461,7 @@ body {
 .page-card #ssnSubmit, .page-card #ssnIssueDateSubmit, .page-card #emailSubmit,
 .page-card #illnessSubmit, .page-card #insurancePaySubmit,
 .page-card #insuranceTypesSubmit, .page-card #insuranceCompanySubmit,
-.page-card #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit {
+.page-card #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit, #confirm2CallsBtn {
   background: #FFD93D !important;
   color: #1A3A35 !important;
   border: 3px solid #1A3A35 !important;
@@ -2130,12 +2130,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
           <!-- Insurance pitch (only for users who answered "כן" on fld_282715) -->
           <div class="insurance-pitch" id="insurancePitch" style="display: none;">
-            <div class="pitch-badge">בונוס בלעדי</div>
+            <div style="background:rgba(34,197,94,0.10); border:1px solid rgba(34,197,94,0.35); border-radius:10px; padding:13px 16px; margin-bottom:18px; text-align:right; font-size:14px; line-height:1.5;">
+              ✅ <strong>הבקשה שלך להלוואה התקבלה!</strong> נציג מומחה אשראי מהצוות שלנו יחזור אליך בקרוב לטיפול בבקשה המקורית.
+            </div>
+            <div class="pitch-badge">🎁 בונוס בלעדי — שירות נוסף</div>
             <h3>בדיקת תיק הביטוחים שלך — בחינם, עם נציג חברת ביטוח מורשה</h3>
-            <p><strong>מכיוון שסימנת שאתה משלם על ביטוחים פרטיים</strong> — אנחנו ממליצים בחום לבצע בדיקת תיק הביטוח שלך. הבדיקה מבוצעת על-ידי <strong>נציג מורשה של חברת ביטוח מובילה</strong> שיחזור אליך טלפונית עם המלצות מותאמות אישית — האם אתה משלם יותר מדי? האם הכיסויים שלך מעודכנים? האם יש לך כפילויות?<br><br><strong>חשוב להבין:</strong> מדובר בשיחת בדיקה אמיתית עם נציג. אין עלות, אין התחייבות לסגירת ביטוח חדש — רק חוות-דעת מקצועית.</p>
+            <p><strong>מכיוון שסימנת שאתה משלם על ביטוחים פרטיים</strong> — אנחנו ממליצים בחום לבצע בדיקת תיק הביטוח שלך. הבדיקה מבוצעת על-ידי <strong>נציג מורשה של חברת ביטוח מובילה</strong> שיחזור אליך טלפונית עם המלצות מותאמות אישית.</p>
+            <div style="background:rgba(255,193,7,0.10); border-right:3px solid #FFC107; border-radius:8px; padding:14px 16px; margin:18px 0; text-align:right; font-size:14px; line-height:1.7;">
+              <div style="font-weight:700; margin-bottom:8px; font-size:15px;">📞 חשוב להבין — אם תאשר, תקבל 2 שיחות נפרדות:</div>
+              <div style="margin:6px 0;"><strong>1.</strong> נציג מומחה אשראי מהצוות שלנו — לטיפול בבקשת ההלוואה</div>
+              <div style="margin:6px 0;"><strong>2.</strong> נציג מחברת ביטוח מובילה — לבדיקת תיק הביטוחים שלך</div>
+              <div style="margin-top:10px; font-size:13px; opacity:0.9;">שתיהן ללא עלות, ללא התחייבות לסגירת ביטוח חדש — רק חוות-דעת מקצועית.</div>
+            </div>
             <div class="row">
-              <button id="insurancePitchYes">כן, אשמח לבדוק את תיק הביטוח שלי עם נציג חברת הביטוח</button>
-              <button id="insurancePitchNo" class="ghost">לא, אינני מעוניין לבדוק את תיק הביטוחים שלי</button>
+              <button id="insurancePitchYes">כן, אני מסכים לשיחה נוספת מנציג חברת הביטוח</button>
+              <button id="insurancePitchNo" class="ghost">לא, אינני מעוניין בשיחה נוספת</button>
             </div>
           </div>
 
@@ -2146,7 +2155,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="form-step post-submit-step" id="otp_verify_ins" data-section="אימות זהות">
           <div class="chat-bubble"></div>
           <h2 class="q-title">🔐 שלחנו לך קוד אימות ב-SMS</h2>
-          <p class="q-hint">למספר <strong id="otpInsMaskedPhone"></strong> נשלח קוד בן 4 ספרות. <strong>מיד לאחר האימות — נציג חברת ביטוח מורשה יחזור אליך טלפונית לבדיקת תיק הביטוחים הפרטיים שלך.</strong> ללא אימות לא נוכל להעביר את הבקשה.</p>
+          <p class="q-hint">למספר <strong id="otpInsMaskedPhone"></strong> נשלח קוד בן 4 ספרות. <strong>מיד לאחר האימות — נציג חברת ביטוח מורשה יחזור אליך טלפונית בנוסף לטיפול בבקשתך המקורית.</strong> ללא אימות לא נוכל להעביר את הבקשה.</p>
+          <div style="background:rgba(59,130,246,0.10); border:1px solid rgba(59,130,246,0.35); border-radius:10px; padding:14px 16px; margin:16px auto; max-width:340px; text-align:center; font-size:14px; line-height:1.6;">
+            <div style="opacity:.85; margin-bottom:6px;">נציג חברת הביטוח יתקשר אליך למספר:</div>
+            <div style="font-size:20px; font-weight:800; direction:ltr; letter-spacing:0.5px;" id="otpInsMaskedPhoneBig"></div>
+            <div style="opacity:.85; margin-top:6px; font-size:13px;">תוך 1-3 ימי עסקים</div>
+            <div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(127,127,127,0.15); font-size:13px; color:#d97706;">⚠️ זה יהיה ממספר לא מוכר — חשוב שתענה!</div>
+          </div>
           <div class="input-field" style="max-width: 200px; margin: 18px auto;">
             <input type="text" id="otpInsInput" inputmode="numeric" maxlength="4" autocomplete="one-time-code" placeholder="••••" style="text-align:center; font-size:28px; letter-spacing:14px; font-weight:800; direction:ltr;" />
           </div>
@@ -2168,6 +2183,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <button id="otpInsNewPhoneSubmit">שלח קוד למספר החדש</button>
             </div>
           </div>
+        </div>
+
+        <!-- Post-OTP confirmation (2026-05-26) — 2-calls summary to reduce 'I didn't sign up' complaints -->
+        <div class="form-step post-submit-step" id="confirm_2calls_ins" data-section="אימות זהות">
+          <div class="chat-bubble"></div>
+          <div style="color:#22c55e; font-weight:700; font-size:14px; margin-bottom:8px;">✅ אומת בהצלחה</div>
+          <h2 class="q-title">תודה רבה — קיבלנו את אישורך!</h2>
+          <p class="q-hint">לפני שאתה ממשיך — קח שנייה לזכור מה עומד להגיע אליך:</p>
+          <div style="background:rgba(34,197,94,0.10); border:1px solid rgba(34,197,94,0.35); border-radius:12px; padding:18px 20px; margin:18px 0; text-align:right; font-size:14.5px; line-height:1.7;">
+            <div style="font-weight:700; margin-bottom:12px; font-size:15.5px;">📨 2 שיחות בדרך אליך — שתיהן למספר <span id="confirm2callsPhone" style="direction:ltr;"></span>:</div>
+            <div style="margin:10px 0; padding-right:10px;"><div><strong>1. 📞 נציג מומחה אשראי מהצוות שלנו</strong></div><div style="opacity:.85; font-size:13.5px; margin-top:2px;">בקרוב — לטיפול בבקשת ההלוואה</div></div>
+            <div style="margin:10px 0; padding-right:10px;"><div><strong>2. 🏦 נציג מחברת ביטוח מורשה</strong></div><div style="opacity:.85; font-size:13.5px; margin-top:2px;">תוך 1-3 ימי עסקים — לבדיקת תיק הביטוחים</div></div>
+          </div>
+          <div style="background:rgba(255,193,7,0.12); border:1px solid rgba(255,193,7,0.45); border-radius:10px; padding:13px 16px; margin:14px 0; text-align:right; font-size:14px; line-height:1.6;">
+            💡 <strong>כששתי השיחות יגיעו ממספרים לא מוכרים — זה אנחנו!</strong> חשוב שתענה כדי לקבל את ההצעות שלך.
+          </div>
+          <div class="row"><button id="confirm2CallsBtn">המשך לעוד כמה שאלות קצרות ←</button></div>
         </div>
 
         <!-- Post-submit: Insurance company pre-qualifier (FIRST insurance question after pitch yes) -->
@@ -2762,9 +2794,11 @@ function startInsuranceOtpFlow(button, currentStep) {
   if (button) button.prop('disabled', true).text('שולח קוד אימות…');
   var phone = (window.storedData.phone || (typeof getParameterByName === 'function' ? getParameterByName('phone') : '') || '').trim();
   var maskedEl = document.getElementById('otpInsMaskedPhone');
+  var maskedBigEl = document.getElementById('otpInsMaskedPhoneBig');
   if (maskedEl) {
     var masked = phone.length >= 7 ? phone.slice(0,3)+'-'+phone.slice(3,6)+'-'+phone.slice(6) : phone;
     maskedEl.textContent = masked;
+    if (maskedBigEl) maskedBigEl.textContent = masked;
   }
   fetch('/api/otp-send', {
     method: 'POST',
@@ -2860,8 +2894,23 @@ jQuery(function () {
               window.storedData.fld_179824      = code;
             }
             if (__otpInsCooldown) { clearInterval(__otpInsCooldown); __otpInsCooldown = null; }
-            // Advance from OTP step to insurer picker
-            fadeToSpecificStep(jQuery('#otp_verify_ins'), '#fld_351761');
+            // Populate masked phone in confirmation screen
+            try {
+              var __phoneStr = phone || '';
+              var __masked = __phoneStr.length >= 7 ? __phoneStr.slice(0,3)+'-'+__phoneStr.slice(3,6)+'-'+__phoneStr.slice(6) : __phoneStr;
+              var __phoneEl = document.getElementById('confirm2callsPhone');
+              if (__phoneEl) __phoneEl.textContent = __masked;
+            } catch (e) {}
+            // Advance from OTP step to post-OTP confirmation screen
+            fadeToSpecificStep(jQuery('#otp_verify_ins'), '#confirm_2calls_ins');
+            // Wire the confirmation continue button (idempotent — only attaches once)
+            if (!window.__confirm2CallsWired) {
+              window.__confirm2CallsWired = true;
+              jQuery(document).on('click', '#confirm2CallsBtn', function (e) {
+                e.preventDefault();
+                fadeToSpecificStep(jQuery('#confirm_2calls_ins'), '#fld_351761');
+              });
+            }
           });
         } else {
           $err.text((j && j.error) || 'הקוד שגוי. נסה שוב.').show();
