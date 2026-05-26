@@ -3039,6 +3039,21 @@ function runTelecomCrossSell(redirectTarget) {
 }
 
 // Fire route_adv on the active flow's lead (if any), mark it completed in Supabase, then redirect.
+// ─── Self-employed gate (2026-05-26) ─────────────────────────────
+// עוסק פטור / עוסק מורשה / חברה בע״מ don't benefit from the tax
+// cross-sell — they file their own annual return through an accountant.
+// When the flow would navigate to the tax pitch, skip it and call
+// finalizeAndRedirect() directly.
+function maybeFadeToTaxPitch(currentStep) {
+  var emp = (window.storedData && window.storedData.fld_183161) || '';
+  var selfEmployed = (emp === 'עוסק פטור' || emp === 'עוסק מורשה' || emp === 'חברה בע״מ');
+  if (selfEmployed) {
+    finalizeAndRedirect();
+  } else {
+    fadeToSpecificStep(currentStep, "#fld_283971");
+  }
+}
+
 function finalizeAndRedirect() {
   formCompleted = true;
   var leadId = (window.storedData.activeFlow === 'tax')       ? window.storedData.taxLeadId
@@ -3456,7 +3471,7 @@ jQuery(document).ready(function () {
           fadeToSpecificStep(currentStep, "#successStep");
           setTimeout(function () { jQuery("#insurancePitch").show(); }, 350);
         } else {
-          fadeToSpecificStep(currentStep, "#fld_283971");
+          maybeFadeToTaxPitch(currentStep);
         }
       },
       error: function () {
@@ -3477,7 +3492,7 @@ jQuery(document).ready(function () {
   jQuery("#insurancePitchNo").click(function () {
     var currentStep = jQuery(this).closest(".form-step");
     sendSingleData("fld_223544", "לא", currentStep, function () {
-      fadeToSpecificStep(currentStep, "#fld_283971");
+      maybeFadeToTaxPitch(currentStep);
     });
   });
   // Insurance pre-qualifier (#fld_351761) — first cross-sell question after pitch-yes.
@@ -3527,7 +3542,7 @@ jQuery(document).ready(function () {
       // Remembered so .insurer-btn knows to reopen the insurance lead if the
       // user presses back + picks a company.
       window.storedData.insuranceOptedOut = true;
-      fadeToSpecificStep(currentStep, "#fld_283971");
+      maybeFadeToTaxPitch(currentStep);
     });
   });
 
@@ -3605,7 +3620,7 @@ jQuery(document).ready(function () {
     window.storedData.fld_209868 = date;
     var goNext = function () {
       window.storedData.activeFlow = 'loan'; // back to default until/unless tax flow starts
-      fadeToSpecificStep(currentStep, "#fld_283971");
+      maybeFadeToTaxPitch(currentStep);
     };
     if (insLeadId) {
       sendCrossSellUpdate(insLeadId, "fld_209868", date, function () {
