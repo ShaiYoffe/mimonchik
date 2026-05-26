@@ -2986,6 +2986,13 @@ function enterTaxFlow(button, currentStep) {
 // Logs to console for diagnostics — open DevTools and check the [ymcs] line if
 // a lead came in without identity.
 function runTelecomCrossSell(redirectTarget) {
+  // TELECOM DISABLED 2026-05-26 — telecom cross-sell removed from the loan-vertical
+  // funnel. Skip the YMediaCrossSell.startTelecomOnly call and redirect straight to
+  // the target. To re-enable: remove this early-return block. The original logic
+  // below remains intact and will run again once this block is removed.
+  setTimeout(function () { window.location.href = redirectTarget; }, 100);
+  return;
+
   if (typeof window.YMediaCrossSell === 'undefined' || !window.YMediaCrossSell.startTelecomOnly) {
     setTimeout(function () { window.location.href = redirectTarget; }, 100);
     return;
