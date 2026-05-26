@@ -3510,7 +3510,7 @@ jQuery(document).ready(function () {
     formData.append(stepId, email);
     formData.append("route_adv", true);
     if (window.dataLayer) {
-      window.dataLayer.push({ event: "lead", email: email });
+      (function(){var __ymI={name:'',phone:''};try{var __raw=localStorage.getItem('ymcs_user_v1');if(__raw){var __o=JSON.parse(__raw)||{};if(__o.name)__ymI.name=__o.name;if(__o.phone)__ymI.phone=__o.phone;}}catch(e){}if(!__ymI.name&&typeof window.storedData!=='undefined'&&window.storedData.name)__ymI.name=window.storedData.name;if(!__ymI.phone&&typeof window.storedData!=='undefined'&&window.storedData.phone)__ymI.phone=window.storedData.phone;try{var __qs=new URLSearchParams(window.location.search);if(!__ymI.name)__ymI.name=__qs.get('name')||'';if(!__ymI.phone)__ymI.phone=__qs.get('phone')||'';}catch(e){}window.dataLayer.push({ event: "lead", email: email, phone: __ymI.phone, name: __ymI.name });})();
     }
     jQuery.ajax({
       url: "https://proxy.leadim.xyz/apiproxy/5517/api/lead_update.ashx",
