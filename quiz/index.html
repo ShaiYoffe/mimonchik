@@ -2297,6 +2297,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <!-- ===== Tax qualification flow (only when fld_283971 = כן) ===== -->
 
+        <!-- First tax question — gross monthly salary (added 2026-05-26) -->
+        <div class="form-step post-submit-step" id="fld_262192" data-section="החזר מס">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מהי משכורתך החודשית ברוטו?</h2>
+          <p class="q-hint">ההכנסה משפיעה על חישוב הזכאות להחזר מס.</p>
+          <div class="input-field">
+            <input type="text" id="taxSalaryInput" placeholder="לדוגמא: 10,000" inputmode="numeric" />
+          </div>
+          <div class="error-message" id="taxSalaryError"></div>
+          <div class="row"><button id="taxSalarySubmit">המשך <span class="arr">←</span></button></div>
+        </div>
+
         <div class="form-step post-submit-step" id="tax" data-section="החזר מס">
           <div class="chat-bubble"></div>
           <h2 class="q-title">האם היית בחל"ת (חופשה ללא תשלום) ב-6 השנים האחרונות?</h2>
@@ -3403,6 +3415,20 @@ jQuery(document).ready(function () {
     sendSingleData("fld_209867", ssn, jQuery(this).closest(".form-step"), () => fadeToNextStep(jQuery(this).closest(".form-step")));
   });
 
+
+  // Tax flow: gross monthly salary submit (fld_262192 — first tax question, added 2026-05-26)
+  jQuery(document).on("click", "#taxSalarySubmit", function () {
+    var currentStep = jQuery(this).closest(".form-step");
+    var salary = formatAndSanitizeMoneyInput(jQuery("#taxSalaryInput"));
+    if (!salary || salary < 0) { jQuery("#taxSalaryError").text("יש להזין סכום תקין"); return; }
+    jQuery("#taxSalaryError").text("");
+    sendSingleData("fld_262192", salary.toLocaleString() + " ₪", currentStep, function () {
+      fadeToNextStep(currentStep);
+    });
+  });
+  jQuery(document).on("keydown", "#taxSalaryInput", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); jQuery("#taxSalarySubmit").click(); }
+  });
 
   jQuery("#emailSubmit").click(function () {
     var email = jQuery("#emailInput").val().trim();
