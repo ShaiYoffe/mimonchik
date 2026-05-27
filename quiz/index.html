@@ -3523,7 +3523,11 @@ jQuery(document).ready(function () {
         // Insurance-yes users: land on the success step (which hosts the insurance pitch).
         // Everyone else: skip the generic success card and go straight to the tax-refund pitch
         // — the tax pitch step already has its own confirmation card, so no extra screen is needed.
-        if (window.storedData && window.storedData.hasInsurance) {
+        // Insurance age gate (2026-05-27) — users ≤28 or ≥65 are outside
+        // the insurance company's target demo; skip the pitch for them.
+        var __age = parseInt(window.storedData.age || window.storedData.fld_179819 || '', 10);
+        var __ageOk = isNaN(__age) || (__age > 28 && __age < 65);
+        if (window.storedData && window.storedData.hasInsurance && __ageOk) {
           fadeToSpecificStep(currentStep, "#successStep");
           setTimeout(function () { jQuery("#insurancePitch").show(); }, 350);
         } else {
