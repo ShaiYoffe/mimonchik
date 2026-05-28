@@ -36,7 +36,8 @@ export default async function handler(req, res) {
     const results = [];
     for (const row of pending) {
       try {
-        const leadimResult = await fireRouteAdv(row.lead_id);
+        const sourceDomain = (req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+        const leadimResult = await fireRouteAdv(row.lead_id, sourceDomain);
         const { error: updateError } = await supabase
           .from(LEAD_TABLE)
           .update({ routed: true, routed_at: new Date().toISOString() })
