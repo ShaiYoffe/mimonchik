@@ -3497,14 +3497,11 @@ jQuery(document).ready(function () {
       errorBox.text("אנא הכנס כתובת דוא\"ל תקינה");
       return;
     }
+    // RouteGuard fix 2026-05-31 (B): mark-completed moved INTO the success
+    // handler below — was firing BEFORE the lead_update ajax, so if the ajax
+    // failed network-side, lead became "completed" in Supabase but route_adv
+    // was never received by Leadim → cron skipped it → lead never routed.
     formCompleted = true;
-    if (byId) {
-      fetch('/api/mark-completed', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lead_id: byId })
-      }).catch(function(){});
-    }
     var formData = new FormData();
     formData.append("by_id", byId);
     formData.append(stepId, email);
@@ -3520,6 +3517,18 @@ jQuery(document).ready(function () {
       processData: false,
       headers: { "X-LEAD-IM-AUTH": "U-D9C699243FA04F94.B2A1BCAD1B2E2B89" },
       success: function () {
+        // RouteGuard fix 2026-05-31 (B): mark completed only AFTER Leadim
+        // confirmed receipt of route_adv. If user closes the tab mid-redirect,
+        // keepalive=true lets the request finish. If the request itself fails,
+        // Supabase pg_cron will route the lead at the 3-minute mark.
+        if (byId) {
+          fetch('/api/mark-completed', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lead_id: byId }),
+            keepalive: true
+          }).catch(function(){});
+        }
         // Insurance-yes users: land on the success step (which hosts the insurance pitch).
         // Everyone else: skip the generic success card and go straight to the tax-refund pitch
         // — the tax pitch step already has its own confirmation card, so no extra screen is needed.
