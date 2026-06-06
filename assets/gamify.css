@@ -1,0 +1,160 @@
+/* ============================================================================
+   GAMIFY LAYER — purely decorative, IDs/classes all prefixed `gamify-`.
+   Anti-collision: never targets existing portfolio classes.
+   Anti-break: every rule is opt-in via the `gamify-*` selectors injected by JS.
+   If gamify.js fails to load, nothing here applies (no orphan styles).
+   ============================================================================ */
+
+/* Living "your offer" card — sticky strip at top of page-card */
+.gamify-offer-card {
+  position: relative;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(34,197,94,0.32);
+  background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02));
+  border-radius: 12px;
+  font-family: 'Heebo', 'Rubik', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #1F2937;
+  animation: gamify-fade-in .35s ease-out both;
+}
+.gamify-offer-title {
+  font-weight: 800;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #16A34A;
+  letter-spacing: -0.005em;
+}
+.gamify-offer-rows {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 14px;
+}
+.gamify-offer-row {
+  font-weight: 600;
+  color: #1F2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gamify-offer-row::before { content: "✓ "; color: #16A34A; font-weight: 800; }
+.gamify-offer-row.gamify-offer-pending { opacity: .35; }
+.gamify-offer-row.gamify-offer-pending::before { content: "○ "; color: #9CA3AF; }
+@media (max-width: 560px) {
+  .gamify-offer-rows { grid-template-columns: 1fr; gap: 2px; }
+  .gamify-offer-card { font-size: 13px; padding: 10px 12px; }
+}
+
+/* Progress-bar milestone message — sits above the existing progress-bar */
+.gamify-progress-msg {
+  font: 700 12.5px/1.3 'Heebo','Rubik',sans-serif;
+  text-align: center;
+  margin: 0 0 6px;
+  color: #1D9BF0;
+  min-height: 16px;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity .25s ease-out, transform .25s ease-out;
+}
+.gamify-progress-msg.gamify-show { opacity: 1; transform: translateY(0); }
+
+/* Floating toast — top-anchored (was bottom; moved 2026-06-06 to avoid
+   the cookie banner which is always pinned to the bottom). z-index pegged
+   at int-max so no third-party widget can sit above it. */
+.gamify-toast-host {
+  position: fixed;
+  top: 14px;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 24px);
+}
+/* Safety adapter — if the cookie banner adds `cc-active` to <html> we keep
+   the toast at the top regardless, but on very short viewports we push it
+   below the topbar so it doesn't fight with the page-tag chip. */
+@media (max-height: 600px) {
+  .gamify-toast-host { top: 8px; }
+}
+.gamify-toast {
+  background: rgba(17,22,58,0.94);
+  color: #fff;
+  font: 800 13.5px/1 'Heebo','Rubik',sans-serif;
+  padding: 9px 16px;
+  border-radius: 999px;
+  box-shadow: 0 10px 24px -10px rgba(0,0,0,0.45);
+  opacity: 0;
+  transform: translateY(-8px) scale(0.96);
+  transition: opacity .22s ease-out, transform .22s ease-out;
+  white-space: nowrap;
+}
+.gamify-toast.gamify-toast-show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.gamify-toast--streak { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.gamify-toast--save   { background: rgba(22,163,74,0.95); }
+
+/* Cross-sell decorations — value meter + reframe badges */
+.gamify-value-meter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  background: rgba(245,158,11,0.10);
+  border: 1px solid rgba(245,158,11,0.40);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font: 700 12.5px/1.2 'Heebo','Rubik',sans-serif;
+  color: #92400e;
+  margin: 6px 0 12px;
+}
+.gamify-value-meter strong { color: #b45309; font-weight: 900; }
+.gamify-value-meter .gamify-value-sep { opacity: .4; margin: 0 4px; }
+
+/* Pre-OTP eligibility preview banner — placed inside the OTP step's success-card */
+.gamify-preview {
+  background: linear-gradient(135deg, rgba(34,197,94,0.10), rgba(34,197,94,0.02));
+  border: 1.5px solid rgba(34,197,94,0.45);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 12px auto 16px;
+  max-width: 380px;
+  text-align: center;
+  font-family: 'Heebo','Rubik',sans-serif;
+  color: #1F2937;
+}
+.gamify-preview-eyebrow {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: #16A34A;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.gamify-preview-amount {
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: #15803D;
+}
+.gamify-preview-hint {
+  font-size: 12px;
+  opacity: .75;
+  margin-top: 4px;
+}
+
+@keyframes gamify-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Reduced motion — disable celebration animations for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .gamify-offer-card, .gamify-progress-msg, .gamify-toast { animation: none; transition: none; }
+}
