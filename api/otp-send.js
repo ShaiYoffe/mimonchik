@@ -124,11 +124,18 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, _test: true });
   }
   try {
-    // Build message based on flow (insurance vs loan) — see comment above.
+    // Build message based on flow. The extra-check cross-sell branches into
+    // two distinct user-facing services (work-grant vs dormant-funds), and
+    // the SMS must name the EXACT service the user just opted into — otherwise
+    // the OTP text contradicts the on-screen choice ("you chose work-grant,
+    // but the SMS says loan eligibility?"). Anything we don't explicitly
+    // recognize falls through to the loan-eligibility default.
     const flow = String((body && body.flow) || '').toLowerCase();
-    const ymsg = (flow === 'insurance')
-      ? `קוד אימות הזהות שלך לבדיקת תיק הביטוח: ${code}`
-      : `קוד אימות הזהות שלך לבדיקת זכאות להלוואה: ${code}`;
+    const ymsg =
+      flow === 'insurance'          ? `קוד אימות הזהות שלך לבדיקת תיק הביטוח: ${code}` :
+      flow === 'extra_check_grant'  ? `קוד אימות הזהות שלך לבדיקת זכאות למענק עבודה: ${code}` :
+      flow === 'extra_check_locate' ? `קוד אימות הזהות שלך לבדיקת איתור כספים אבודים: ${code}` :
+                                      `קוד אימות הזהות שלך לבדיקת זכאות להלוואה: ${code}`;
     const upstream = await sendInforuSMS(phone, code, ymsg);
     console.log('[otp-send] InfoRU OK:', upstream.slice(0, 200));
     return res.status(200).json({ success: true });
