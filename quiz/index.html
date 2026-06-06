@@ -3334,11 +3334,15 @@ jQuery(document).ready(function () {
       var bdiGood = /^(מצויין|תקין)/.test(answer || "");
       var bdiBadOrWorse = /^שלילי/.test(answer || ""); // שלילי or שלילי מאד
       // hide הוצל״פ / פשיטת רגל / צ׳קים when BDI is good; show otherwise
-      jQuery("#fld_247918, #fld_179979, #fld_248542").toggleClass("conditional-step", bdiGood);
+      // SUSPENDED 2026-06-06: fld_179979 + fld_248542 — to restore, move them back into the selector below
+      jQuery("#fld_247918").toggleClass("conditional-step", bdiGood);
+      jQuery("#fld_179979, #fld_248542").addClass("conditional-step");
       // hide ביטוח פרטי when BDI is שלילי / שלילי מאד (financial pressure → not a useful question)
       jQuery("#fld_282715").toggleClass("conditional-step", bdiBadOrWorse);
       // show bank-restriction + BDI-repair offer ONLY when BDI is שלילי / שלילי מאד
-      jQuery("#fld_375783, #fld_260354").toggleClass("conditional-step", !bdiBadOrWorse);
+      // SUSPENDED 2026-06-06: fld_375783 — to restore, move it back into the selector below
+      jQuery("#fld_260354").toggleClass("conditional-step", !bdiBadOrWorse);
+      jQuery("#fld_375783").addClass("conditional-step");
     }
 
     // Track whether user pays for private insurance — drives the post-submit pitch
