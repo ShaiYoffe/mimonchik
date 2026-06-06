@@ -142,7 +142,8 @@
   var __offerCardEl = null;
   function buildOfferCard() {
     safe(function () {
-      var card = $('.page-card') || $('.glass-card') || $('#mainCard');
+      // page-card → loan vertical; form-card / lead-form → dormant-funds.
+      var card = $('.page-card') || $('.form-card') || $('#lead-form') || $('.glass-card') || $('#mainCard');
       if (!card) return;
       if ($('#gamifyOfferCard')) { __offerCardEl = $('#gamifyOfferCard'); return; }
       var name = firstName(pickName());
