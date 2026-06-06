@@ -667,7 +667,7 @@ body {
 /* Named submit buttons inherit .btn primary style */
 #loanAmountSubmit, #monthlyIncomeSubmit,
 #dobSubmit, #debtSubmit, #citySubmit, #purposeOtherSubmit, #cardOtherSubmit,
-#ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit, #confirm2CallsBtn, #pensionAmountSubmit {
+#ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit, #confirm2CallsBtn, #pensionAmountSubmit, #otpExtraVerifyBtn, #otpExtraResendBtn, #otpExtraNewPhoneSubmit, #extraCheckDoneBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -940,7 +940,7 @@ input[type="date"].datetime-input-box:focus,
   .slider-display .cur { font-size: 26px; }
   .btn, #loanAmountSubmit, #monthlyIncomeSubmit,
   #dobSubmit, #debtSubmit, #citySubmit, #purposeOtherSubmit, #cardOtherSubmit,
-  #ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit, #confirm2CallsBtn, #pensionAmountSubmit {
+  #ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit, #confirm2CallsBtn, #pensionAmountSubmit, #otpExtraVerifyBtn, #otpExtraResendBtn, #otpExtraNewPhoneSubmit, #extraCheckDoneBtn {
     height: 52px; padding: 0 22px;
   }
   .back-btn { padding: 12px 18px; font-size: 13px; }
@@ -2338,6 +2338,122 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="row"><button id="ssnIssueDateSubmit">המשך <span class="arr">←</span></button></div>
         </div>
 
+        <!-- ===== Post-submit: Extra-check cross-sell (work-grant / dormant-funds) — added 2026-06-06 =====
+             Shown ONLY when:
+               window.storedData.hasWithdrawnPension === false   (Q1 fld_376925 = "לא")
+               AND Number(window.storedData.pensionAmount) > 20000  (Q2 fld_232629 > 20K)
+             Routes through maybeFadeToExtraCheckOrTax() which gates this and falls through to
+             the tax pitch (#fld_283971) otherwise. Strict SMS-OTP — mirrors insurance flow. -->
+        <div class="form-step post-submit-step" id="extra_check_pitch" data-section="בדיקה נוספת">
+          <div class="success-card">
+            <div class="success-icon" aria-hidden="true" style="background:linear-gradient(135deg,#0F6D5E,#13B58F);color:#fff;">✓</div>
+            <h2 class="success-title">המערכת זיהתה שמגיעים לך כספים נוספים — בדיקה אחת אחרונה!</h2>
+            <p class="success-body" style="font-weight:600;">
+              <strong>שים לב: זוהי בדיקה נוספת ועצמאית — לא חלק מבקשת ההלוואה.</strong>
+              לפי הפרופיל הפיננסי שלך, ישנו סיכוי גבוה שמגיעים לך כספים שעדיין לא משכת.
+              <span style="color:#0F6D5E;">איזה סוג של בדיקה תרצה שנעשה עבורך?</span>
+            </p>
+            <!-- Service-choice buttons — explicit big-card styling so they don't
+                 look like the small "anemic" answer pills. User specifically
+                 asked for bigger, clearer buttons w/ the rewritten copy below. -->
+            <div class="answers extra-check-answers" style="margin-top:18px; gap:12px; display:flex; flex-direction:column;">
+              <button class="answer-btn extra-check-btn extra-check-btn--grant" id="extraCheckGrantBtn" data-extra-choice="grant"
+                      style="background:linear-gradient(135deg, rgba(34,197,94,0.10), rgba(34,197,94,0.04)) !important; border:2px solid #16A34A !important; color:#11163A !important; padding:20px 22px !important; border-radius:16px !important; font:800 18px/1.35 'Heebo', sans-serif !important; text-align:right !important; box-shadow:0 8px 22px -10px rgba(22,163,74,0.45) !important; display:flex !important; align-items:center !important; gap:14px !important;">
+                <span aria-hidden="true" style="font-size:28px; line-height:1;">💰</span>
+                <span style="flex:1;">בדיקת זכאות לקבלת מענק עבודה</span>
+              </button>
+              <button class="answer-btn extra-check-btn extra-check-btn--locate" id="extraCheckLocateBtn" data-extra-choice="locate"
+                      style="background:linear-gradient(135deg, rgba(29,155,240,0.10), rgba(29,155,240,0.04)) !important; border:2px solid #1D9BF0 !important; color:#11163A !important; padding:20px 22px !important; border-radius:16px !important; font:800 18px/1.35 'Heebo', sans-serif !important; text-align:right !important; box-shadow:0 8px 22px -10px rgba(29,155,240,0.45) !important; display:flex !important; align-items:center !important; gap:14px !important;">
+                <span aria-hidden="true" style="font-size:28px; line-height:1;">🔍</span>
+                <span style="flex:1;">בדיקה לאיתור כספים אבודים בקופות גמל, ביטוחים ופנסיה</span>
+              </button>
+              <button class="answer-btn extra-check-btn extra-check-btn--skip" id="extraCheckSkipBtn" data-extra-choice="skip"
+                      style="background:#F5FAFE !important; border:1.5px solid #D6DCEC !important; color:#41487A !important; padding:14px 20px !important; border-radius:14px !important; font:600 14.5px/1.3 'Heebo', sans-serif !important; text-align:center !important;">
+                לא, תודה — אני מעדיף להתקדם עם בקשת ההלוואה בלבד
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Extra-check SMS OTP — mirrors the insurance OTP pattern (otpInsXxx → otpExtraXxx).
+             The service name in the H1 is swapped in by startExtraCheckOtpFlow() based on
+             window.storedData.extraCheckChoice so the user always sees the EXACT check
+             they just opted into (grant vs locate). -->
+        <div class="form-step post-submit-step" id="otp_verify_extra" data-section="בדיקה נוספת">
+          <div class="success-card">
+            <h2 class="success-title">אימות זהות לבדיקת <span id="otpExtraServiceName" style="color:#0F6D5E; font-weight:800;">הבדיקה הנוספת</span></h2>
+            <p class="success-body">
+              שלחנו קוד אימות בן 4 ספרות למספר <strong id="otpExtraMaskedPhone">—</strong>.
+              <br>הזן את הקוד כדי להתחיל את <strong id="otpExtraServiceNameInline" style="color:#0F6D5E;">הבדיקה</strong>.
+            </p>
+            <div class="input-field" style="max-width: 260px;margin:14px auto 0;">
+              <input type="text" id="otpExtraInput" placeholder="קוד 4 ספרות" inputmode="numeric" maxlength="4"
+                     autocomplete="one-time-code" style="text-align:center;letter-spacing:8px;font-size:22px;font-weight:800;" />
+            </div>
+            <div class="error-message" id="otpExtraErr" style="display:none;text-align:center;margin-top:8px;"></div>
+            <div class="row" style="justify-content:center;margin-top:14px;">
+              <button id="otpExtraVerifyBtn" disabled>אמת ויצא לדרך <span class="arr">←</span></button>
+            </div>
+            <div class="row" style="justify-content:center;margin-top:10px;">
+              <button id="otpExtraResendBtn" type="button" disabled
+                      style="background:transparent; border:1.5px solid #ccc; color:#666; font-weight:600;">
+                שלח קוד שוב <span id="otpExtraResendTimer"></span>
+              </button>
+            </div>
+            <div style="text-align:center; margin-top:14px;">
+              <a href="#" id="otpExtraChangePhoneLink"
+                 style="font-size:13.5px; text-decoration:underline; cursor:pointer; color:#0066cc;">
+                לא קיבלת? שנה מספר טלפון
+              </a>
+            </div>
+            <div id="otpExtraChangePhone"
+                 style="display:none; margin-top:14px; padding:14px; border:1.5px dashed #ccc; border-radius:10px; max-width:320px; margin-left:auto; margin-right:auto;">
+              <label for="otpExtraNewPhone" style="display:block; font-size:13px; font-weight:700; margin-bottom:8px;">
+                הזן מספר נייד חדש (10 ספרות):
+              </label>
+              <input id="otpExtraNewPhone" type="tel" inputmode="tel" maxlength="10"
+                     placeholder="לדוגמה: 0501234567"
+                     style="width:100%; padding:10px 12px; font-size:17px; font-weight:700; color:#111; background:#fff; border:1.5px solid #ccc; border-radius:8px; text-align:center; direction:ltr;" />
+              <div class="error-message" id="otpExtraNewPhoneErr" style="display:none; margin-top:6px;"></div>
+              <div class="row" style="margin-top:10px;">
+                <button id="otpExtraNewPhoneSubmit">שלח קוד למספר החדש</button>
+              </div>
+            </div>
+            <p class="success-body" style="margin-top:14px;font-size:13px;opacity:.75;">
+              <strong>אימות זה מאשר שהבנת ובחרת לקבל בדיקה נוספת</strong> — לא חלק מבקשת ההלוואה.
+            </p>
+          </div>
+        </div>
+
+        <!-- Extra-check confirmation — strong emphasis on the specific service chosen + the fact
+             that this is a SEPARATE callback from the loan request. Service name swapped in via JS
+             from window.storedData.extraCheckChoice ('grant' → "מענק עבודה", 'locate' → "איתור כספים"). -->
+        <div class="form-step post-submit-step" id="extra_check_done" data-section="בדיקה נוספת">
+          <div class="success-card">
+            <div style="color:#22c55e; font-weight:700; font-size:14px; margin-bottom:8px;">✅ אומת בהצלחה</div>
+            <h2 class="success-title">בדיקת <span id="extraCheckDoneServiceName">הבדיקה הנוספת</span> נרשמה במערכת!</h2>
+
+            <!-- Two-calls callout — same visual pattern as the insurance confirmation step -->
+            <div style="color:#1F2937; background:rgba(15,109,94,0.10); border:2px solid rgba(15,109,94,0.45); border-radius:12px; padding:16px 18px; margin:18px auto; max-width:400px; text-align:right;">
+              <div style="font-size:13px; opacity:.85; margin-bottom:10px; text-align:center; font-weight:700;">
+                ⚠️ שים לב — שתי שיחות נפרדות יחזרו אליך:
+              </div>
+              <div style="font-size:15.5px; font-weight:800; color:#0F6D5E; line-height:1.55;">
+                ① נציג <span id="extraCheckCalloutService">הבדיקה</span> יחזור אליך בנפרד —
+                <span style="opacity:.85; font-weight:600;">תוך 1-3 ימי עסקים</span>
+              </div>
+              <div style="font-size:14.5px; font-weight:600; line-height:1.5; margin-top:8px;">
+                ② בנוסף — בקשת ההלוואה שלך ממשיכה לטיפול נציג אשראי <span style="opacity:.7;">בשיחה אחרת</span>
+              </div>
+              <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(127,127,127,0.18); font-size:13px; color:#d97706; text-align:center; font-weight:700;">
+                💡 השיחה תהיה ממספר לא מוכר — חשוב שתענה!
+              </div>
+            </div>
+
+            <div class="row" style="margin-top:14px;"><button id="extraCheckDoneBtn">המשך לשאר השאלות <span class="arr">←</span></button></div>
+          </div>
+        </div>
+
         <!-- ===== Post-submit: Tax-refund pitch (shown to everyone) ===== -->
         <div class="form-step post-submit-step" id="fld_283971" data-section="החזר מס">
           <div class="success-card">
@@ -3125,6 +3241,405 @@ function maybeFadeToTaxPitch(currentStep) {
   }
 }
 
+// ─── Extra-check cross-sell gate (added 2026-06-06) ─────────────────────
+// Shown ONLY when user said they HAVEN'T withdrawn pension AND has >₪20K
+// in pension savings. Falls through to maybeFadeToTaxPitch() otherwise, so
+// the existing self-employed tax-pitch gate still applies for everyone.
+// Sets storedData.extraCheckShown to prevent re-entry from back navigation.
+function maybeFadeToExtraCheckOrTax(currentStep) {
+  var didNotWithdraw = (window.storedData && window.storedData.hasWithdrawnPension === false);
+  var amount = Number(window.storedData && window.storedData.pensionAmount) || 0;
+  if (!(didNotWithdraw && amount > 20000 && !window.storedData.extraCheckShown)) {
+    maybeFadeToTaxPitch(currentStep);
+    return;
+  }
+  window.storedData.extraCheckShown = true;
+
+  // ─── Advertiser-saturation gate (added 2026-06-06) ───
+  // Before showing the LOCATE / GRANT buttons, check Leadim to see whether
+  // this phone already saturated the advertisers each button routes to. Per
+  // user spec:
+  //   LOCATE hides only if BOTH 44548 AND 44089 already received this phone
+  //   GRANT  hides if EITHER 44548 OR 53705 already received this phone
+  // The check runs server-side at /api/check-extra-saturation (the Leadim
+  // auth token must stay off the wire to the client). If the API doesn't
+  // answer within 2.5s — fail-open: show both buttons. If BOTH get hidden,
+  // skip the entire extra-check pitch and continue to tax (per user spec).
+  var phone = (window.storedData.phone || (typeof getParameterByName === 'function' ? getParameterByName('phone') : '') || '').trim();
+  var __ecGateTimedOut = false;
+  var __ecGateTimer = setTimeout(function () {
+    __ecGateTimedOut = true;
+    applyExtraCheckSaturation({ locate_available: true, grant_available: true, reason: 'client_timeout' }, currentStep);
+  }, 2500);
+
+  fetch('/api/check-extra-saturation', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone: phone })
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (__ecGateTimedOut) return;  // already handled by timeout fallback
+      clearTimeout(__ecGateTimer);
+      applyExtraCheckSaturation(j || { locate_available: true, grant_available: true }, currentStep);
+    })
+    .catch(function () {
+      if (__ecGateTimedOut) return;
+      clearTimeout(__ecGateTimer);
+      // Network failure → fail-open
+      applyExtraCheckSaturation({ locate_available: true, grant_available: true, reason: 'fetch_error' }, currentStep);
+    });
+}
+
+// Applies the saturation result to the extra-check pitch: hides individual
+// buttons, or skips the pitch entirely when nothing's available. Called from
+// maybeFadeToExtraCheckOrTax above (both success and fail-open paths).
+function applyExtraCheckSaturation(result, currentStep) {
+  var locOk = (result && result.locate_available !== false);   // default-true on missing
+  var grnOk = (result && result.grant_available  !== false);
+  try { console.log('[extra-check] saturation:', { locate: locOk, grant: grnOk, raw: result }); } catch (e) {}
+
+  // Cache for the OTP-resend path & re-entry edge cases
+  window.storedData.extraCheckSaturation = { locate: locOk, grant: grnOk };
+
+  // BOTH hidden → skip the pitch entirely → continue to next cross-sell (tax).
+  if (!locOk && !grnOk) {
+    console.log('[extra-check] both options saturated — skipping pitch, routing to tax');
+    maybeFadeToTaxPitch(currentStep);
+    return;
+  }
+
+  // Toggle per-button visibility on the pitch step
+  var $grant  = jQuery('#extraCheckGrantBtn');
+  var $locate = jQuery('#extraCheckLocateBtn');
+  if (locOk) { $locate.show(); $locate.removeAttr('data-hidden-by'); }
+  else       { $locate.hide(); $locate.attr('data-hidden-by', 'saturation'); }
+  if (grnOk) { $grant.show();  $grant.removeAttr('data-hidden-by'); }
+  else       { $grant.hide();  $grant.attr('data-hidden-by', 'saturation'); }
+
+  fadeToSpecificStep(currentStep, "#extra_check_pitch");
+}
+
+// Choice handler + OTP flow for the extra-check cross-sell — mirrors the
+// insurance flow (enterInsuranceFlow / startInsuranceOtpFlow / verify).
+var __otpExtraCooldown = null;
+function startExtraCheckOtpFlow(button, currentStep) {
+  if (button) button.prop('disabled', true).text('שולח קוד אימות…');
+  var phone = (window.storedData.phone || (typeof getParameterByName === 'function' ? getParameterByName('phone') : '') || '').trim();
+  var maskedEl = document.getElementById('otpExtraMaskedPhone');
+  if (maskedEl) {
+    var masked = phone.length >= 7 ? phone.slice(0,3)+'-'+phone.slice(3,6)+'-'+phone.slice(6) : phone;
+    maskedEl.textContent = masked;
+  }
+  // Pick the SMS template that matches what the user just chose:
+  //   grant  → "...לבדיקת זכאות למענק עבודה"
+  //   locate → "...לבדיקת איתור כספים אבודים"
+  // Backend (api/otp-send.js) keys on this flow value.
+  var __ecChoice = window.storedData.extraCheckChoice;
+  var __ecFlow   = (__ecChoice === 'grant')  ? 'extra_check_grant'
+                 : (__ecChoice === 'locate') ? 'extra_check_locate'
+                 : 'extra_check';
+  // Inject the matching service name into the OTP step's H1 + inline body so
+  // the user sees the EXACT check they're authenticating for ("מענק עבודה" /
+  // "איתור כספים אבודים") — not a generic "הבדיקה הנוספת" label.
+  var __ecOtpServiceName = (__ecChoice === 'grant')  ? 'מענק עבודה'
+                          : (__ecChoice === 'locate') ? 'איתור כספים אבודים'
+                          : 'הבדיקה הנוספת';
+  var __ecOtpInlineName  = (__ecChoice === 'grant')  ? 'בדיקת המענק'
+                          : (__ecChoice === 'locate') ? 'בדיקת איתור הכספים'
+                          : 'הבדיקה';
+  var __ecNameEl   = document.getElementById('otpExtraServiceName');
+  var __ecInlineEl = document.getElementById('otpExtraServiceNameInline');
+  if (__ecNameEl)   __ecNameEl.textContent   = __ecOtpServiceName;
+  if (__ecInlineEl) __ecInlineEl.textContent = __ecOtpInlineName;
+  fetch('/api/otp-send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone: phone, flow: __ecFlow })
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (button) button.prop('disabled', false);
+      if (j && j.success) {
+        fadeToSpecificStep(currentStep, '#otp_verify_extra');
+        window.storedData.__otpExtraPrevStep = currentStep;
+        startExtraCheckOtpResendCountdown(60);
+        setTimeout(function () { var i = document.getElementById('otpExtraInput'); if (i) { try { i.focus(); } catch (e) {} } }, 300);
+      } else {
+        alert((j && j.error) || 'שליחת ה-SMS נכשלה. נסה שוב.');
+      }
+    })
+    .catch(function () {
+      if (button) button.prop('disabled', false);
+      alert('תקלת תקשורת. נסה שוב.');
+    });
+}
+
+function startExtraCheckOtpResendCountdown(seconds) {
+  var btn = jQuery('#otpExtraResendBtn');
+  var t   = document.getElementById('otpExtraResendTimer');
+  if (__otpExtraCooldown) clearInterval(__otpExtraCooldown);
+  var remaining = seconds;
+  btn.prop('disabled', true);
+  if (t) t.textContent = '(' + remaining + ')';
+  __otpExtraCooldown = setInterval(function () {
+    remaining--;
+    if (t) t.textContent = remaining > 0 ? '(' + remaining + ')' : '';
+    if (remaining <= 0) {
+      clearInterval(__otpExtraCooldown);
+      __otpExtraCooldown = null;
+      btn.prop('disabled', false);
+    }
+  }, 1000);
+}
+
+
+
+// Bind extra-check handlers ONCE on DOM ready
+jQuery(function () {
+  var $extraInput  = jQuery('#otpExtraInput');
+  var $extraVerify = jQuery('#otpExtraVerifyBtn');
+  var $extraResend = jQuery('#otpExtraResendBtn');
+  var $extraErr    = jQuery('#otpExtraErr');
+  if (!$extraInput.length) return;   // extra-check step not present
+
+  // Pitch buttons — set choice + send OTP (or skip)
+  jQuery('#extraCheckGrantBtn').on('click', function () {
+    window.storedData.extraCheckChoice = 'grant';   // מענק עבודה
+    var $btn = jQuery(this);
+    var cur  = $btn.closest('.form-step');
+    startExtraCheckOtpFlow($btn, cur);
+  });
+  jQuery('#extraCheckLocateBtn').on('click', function () {
+    window.storedData.extraCheckChoice = 'locate';  // איתור כספים
+    var $btn = jQuery(this);
+    var cur  = $btn.closest('.form-step');
+    startExtraCheckOtpFlow($btn, cur);
+  });
+  jQuery('#extraCheckSkipBtn').on('click', function () {
+    window.storedData.extraCheckChoice = 'skip';
+    var cur  = jQuery(this).closest('.form-step');
+    maybeFadeToTaxPitch(cur);
+  });
+
+  $extraInput.on('input', function () {
+    var v = ($extraInput.val() || '').replace(/\D/g, '').slice(0, 4);
+    if (v !== $extraInput.val()) $extraInput.val(v);
+    $extraVerify.prop('disabled', v.length !== 4);
+    $extraErr.hide();
+  });
+  $extraInput.on('keydown', function (e) {
+    if (e.key === 'Enter' && !$extraVerify.prop('disabled')) {
+      e.preventDefault();
+      $extraVerify.trigger('click');
+    }
+  });
+
+  $extraVerify.on('click', function (e) {
+    e.preventDefault();
+    var code = ($extraInput.val() || '').trim();
+    if (!/^\d{4}$/.test(code)) { $extraErr.text('הקוד חייב להיות 4 ספרות').show(); return; }
+    $extraVerify.prop('disabled', true).text('מאמת ומכין את הבדיקה…');
+    var phone = (window.storedData.phone || (typeof getParameterByName === 'function' ? getParameterByName('phone') : '') || '').trim();
+    fetch('/api/otp-verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: phone, code: code })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.success) {
+          // OTP verified — extra-check leads are created EXCLUSIVELY via
+          // the dedicated lead.im v2 webhook below (lm_form=118412 locate /
+          // 118413 grant). The new dedicated forms are the single source of
+          // truth for these leads — Leadim's own routing engine handles
+          // advertiser dispatch when the form receives the submission.
+          var choice = window.storedData.extraCheckChoice;
+
+          // ── Extra-check Leadim v2 dedicated-form webhook ──
+          // Fire-and-forget GET to api.lead.im/v2/submit creates the lead in
+          // the dedicated 118412 (locate) / 118413 (grant) form. This is now
+          // the ONLY destination for extra-check leads.
+          try {
+            var __ecW_form = (choice === 'grant') ? '118413' : '118412';
+            var __ecW_key  = (choice === 'grant') ? '4bb94969c3' : 'b99fdeb225';
+            var __ecW_hasWithdraw =
+                window.storedData.hasWithdrawnPension === true  ? 'כן' :
+                window.storedData.hasWithdrawnPension === false ? 'לא' : '';
+            var __ecW_pension = (window.storedData.pensionAmount != null && window.storedData.pensionAmount !== '')
+                                 ? String(window.storedData.pensionAmount) : '';
+            var __ecW_qs = new URLSearchParams();
+            // Canonical name/phone resolution — mirrors the 3-fallback pattern
+            // used everywhere else in the loan-vertical (URL params → storedData
+            // → localStorage cache 'ymcs_user_v1' from the homepage). Without
+            // this, fld_93081 was empty for the vast majority of leads because
+            // window.storedData.name is almost never set in the quiz flow —
+            // the name lives in the URL ?name=… param forwarded from the
+            // homepage redirect.
+            var __ecW_ls = {};
+            try {
+              var __ecW_lsRaw = localStorage.getItem('ymcs_user_v1');
+              if (__ecW_lsRaw) {
+                var __ecW_lsObj = JSON.parse(__ecW_lsRaw) || {};
+                if (__ecW_lsObj && (Date.now() - (__ecW_lsObj.ts || 0)) < 24*60*60*1000) __ecW_ls = __ecW_lsObj;
+              }
+            } catch (e2) {}
+            var __ecW_name = (typeof getParameterByName === 'function' && getParameterByName('name')) ||
+                             window.storedData.name  || __ecW_ls.name  || '';
+            var __ecW_phone = (window.storedData.phone) ||
+                              (typeof getParameterByName === 'function' && getParameterByName('phone')) ||
+                              __ecW_ls.phone || phone || '';
+
+            __ecW_qs.set('lm_form',     __ecW_form);
+            __ecW_qs.set('lm_key',      __ecW_key);
+            __ecW_qs.set('lm_redirect', 'no');
+            __ecW_qs.set('fld_93081',   __ecW_name);
+            __ecW_qs.set('fld_93083',   __ecW_phone);
+            __ecW_qs.set('fld_93084',   window.storedData.fld_179820 || '');
+            __ecW_qs.set('fld_93082',   window.storedData.fld_179819 || window.storedData.age || '');
+            __ecW_qs.set('fld_283259',  window.storedData.fld_283259 || window.storedData.dob || '');
+            __ecW_qs.set('fld_93140',   window.storedData.fld_179821 || '');
+            __ecW_qs.set('fld_214474',  window.storedData.fld_183161 || '');  // closest proxy we collect: employment status
+            __ecW_qs.set('fld_232629',  __ecW_pension);
+            __ecW_qs.set('fld_376925',  __ecW_hasWithdraw);
+            // Source-domain stamp (fld_179827) + verification code (fld_179824) —
+            // user requested both for the dedicated webhook so the receiving CRM
+            // can attribute the lead back to the originating site + audit-trail
+            // the OTP that gated the cross-sell consent.
+            __ecW_qs.set('fld_179827',
+              (window.storedData && window.storedData.fld_179827) ||
+              (typeof location !== 'undefined' ? location.hostname : '') || '');
+            __ecW_qs.set('fld_179824', code || '');
+            // UTM params from current URL (forwarded from the landing redirect)
+            try {
+              var __ecW_qp = new URLSearchParams(window.location.search);
+              ['utm_source','utm_medium','utm_campaign','utm_content'].forEach(function (k) {
+                var v = __ecW_qp.get(k); if (v) __ecW_qs.set(k, v);
+              });
+            } catch (e1) {}
+            // Fire-and-forget via Image() — GET endpoint, no CORS concerns,
+            // creates the lead in the dedicated 118412/118413 form. Routing
+            // to advertisers is configured on the Leadim side via this form.
+            (new Image()).src = 'https://api.lead.im/v2/submit?' + __ecW_qs.toString();
+            console.log('[extra-check] dedicated-form webhook fired (lm_form=' + __ecW_form + ', choice=' + choice + ')');
+          } catch (e0) {
+            console.warn('[extra-check] dedicated-form webhook failed:', e0);
+          }
+
+          // UX continuation — runs unconditionally regardless of webhook
+          // network outcome (webhook is fire-and-forget; the lead lifecycle
+          // lives entirely in lead.im, not in this client). Show the
+          // confirmation step with the matching service name.
+          if (__otpExtraCooldown) { clearInterval(__otpExtraCooldown); __otpExtraCooldown = null; }
+          var __ecServiceName = (choice === 'grant')  ? 'מענק עבודה'
+                               : (choice === 'locate') ? 'איתור כספים אבודים'
+                               : 'הבדיקה הנוספת';
+          jQuery('#extraCheckDoneServiceName').text(__ecServiceName);
+          jQuery('#extraCheckCalloutService').text(__ecServiceName);
+          fadeToSpecificStep(jQuery('#otp_verify_extra'), '#extra_check_done');
+          $extraVerify.text('אמת ויצא לדרך');
+        } else {
+          $extraVerify.prop('disabled', false).text('אמת ויצא לדרך');
+          $extraErr.text((j && j.error) || 'קוד שגוי. נסה שוב.').show();
+        }
+      })
+      .catch(function () {
+        $extraVerify.prop('disabled', false).text('אמת ויצא לדרך');
+        $extraErr.text('תקלת תקשורת. נסה שוב.').show();
+      });
+  });
+
+  $extraResend.on('click', function (e) {
+    e.preventDefault();
+    var $btn = jQuery(this);
+    $btn.prop('disabled', true).text('שולח…');
+    var phone = (window.storedData.phone || (typeof getParameterByName === 'function' ? getParameterByName('phone') : '') || '').trim();
+    // Same flow-routing as the initial send — keep SMS text consistent with the choice
+    var __ecChoiceR = window.storedData.extraCheckChoice;
+    var __ecFlowR   = (__ecChoiceR === 'grant')  ? 'extra_check_grant'
+                    : (__ecChoiceR === 'locate') ? 'extra_check_locate'
+                    : 'extra_check';
+    fetch('/api/otp-send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: phone, flow: __ecFlowR })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        $btn.text('שלח קוד מחדש');
+        if (j && j.success) startExtraCheckOtpResendCountdown(60);
+        else                $extraErr.text((j && j.error) || 'שליחת ה-SMS נכשלה.').show();
+      })
+      .catch(function () { $btn.text('שלח קוד מחדש').prop('disabled', false); });
+  });
+
+  jQuery('#extraCheckDoneBtn').on('click', function () {
+    var cur = jQuery(this).closest('.form-step');
+    maybeFadeToTaxPitch(cur);
+  });
+
+  // ── Change-phone UI for the extra-check OTP — mirrors the insurance one ──
+  var $eChangeLink  = jQuery('#otpExtraChangePhoneLink');
+  var $eChangeWrap  = jQuery('#otpExtraChangePhone');
+  var $eNewPhone    = jQuery('#otpExtraNewPhone');
+  var $eNewPhoneBtn = jQuery('#otpExtraNewPhoneSubmit');
+  var $eNewPhoneErr = jQuery('#otpExtraNewPhoneErr');
+  var $ePhoneDisplay= jQuery('#otpExtraMaskedPhone');
+
+  $eChangeLink.on('click', function (e) {
+    e.preventDefault();
+    $eChangeWrap.show();
+    try { $eNewPhone.focus(); } catch (e) {}
+  });
+  $eNewPhone.on('input', function () {
+    var v = ($eNewPhone.val() || '').replace(/\D/g, '').slice(0, 10);
+    if (v !== $eNewPhone.val()) $eNewPhone.val(v);
+    $eNewPhoneErr.hide();
+  });
+  $eNewPhoneBtn.on('click', function (e) {
+    e.preventDefault();
+    var newPhone = ($eNewPhone.val() || '').trim().replace(/[\s\-]/g, '');
+    if (!/^05\d{8}$/.test(newPhone)) {
+      $eNewPhoneErr.text('נא להזין מספר נייד ישראלי תקין (05X-XXX-XXXX)').show();
+      try { $eNewPhone.focus(); } catch (e) {}
+      return;
+    }
+    // Update storedData.phone — the lead created after verification will use this
+    window.storedData.phone = newPhone;
+    var masked = newPhone.slice(0,3)+'-'+newPhone.slice(3,6)+'-'+newPhone.slice(6);
+    $ePhoneDisplay.text(masked);
+    $eChangeWrap.hide();
+    $eNewPhone.val('');
+    $eNewPhoneErr.hide();
+    $extraErr.hide();
+    // Re-send OTP to the new phone with the same flow tag as the choice
+    var __ecChoiceN = window.storedData.extraCheckChoice;
+    var __ecFlowN   = (__ecChoiceN === 'grant')  ? 'extra_check_grant'
+                    : (__ecChoiceN === 'locate') ? 'extra_check_locate'
+                    : 'extra_check';
+    $eNewPhoneBtn.prop('disabled', true).text('שולח…');
+    fetch('/api/otp-send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: newPhone, flow: __ecFlowN })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        $eNewPhoneBtn.prop('disabled', false).text('שלח קוד למספר החדש');
+        if (!j || !j.success) {
+          $extraErr.text((j && j.error) || 'שליחת ה-SMS נכשלה.').show();
+        }
+        startExtraCheckOtpResendCountdown(60);
+        try { jQuery('#otpExtraInput').focus(); } catch (e) {}
+      })
+      .catch(function () {
+        $eNewPhoneBtn.prop('disabled', false).text('שלח קוד למספר החדש');
+        $extraErr.text('תקלת תקשורת. נסה שוב.').show();
+      });
+  });
+});
+
+
 function finalizeAndRedirect() {
   formCompleted = true;
   var leadId = (window.storedData.activeFlow === 'tax')       ? window.storedData.taxLeadId
@@ -3599,7 +4114,7 @@ jQuery(document).ready(function () {
           fadeToSpecificStep(currentStep, "#successStep");
           setTimeout(function () { jQuery("#insurancePitch").show(); }, 350);
         } else {
-          maybeFadeToTaxPitch(currentStep);
+          maybeFadeToExtraCheckOrTax(currentStep);
         }
       },
       error: function () {
@@ -3620,7 +4135,7 @@ jQuery(document).ready(function () {
   jQuery("#insurancePitchNo").click(function () {
     var currentStep = jQuery(this).closest(".form-step");
     sendSingleData("fld_223544", "לא", currentStep, function () {
-      maybeFadeToTaxPitch(currentStep);
+      maybeFadeToExtraCheckOrTax(currentStep);
     });
   });
   // Insurance pre-qualifier (#fld_351761) — first cross-sell question after pitch-yes.
@@ -3670,7 +4185,7 @@ jQuery(document).ready(function () {
       // Remembered so .insurer-btn knows to reopen the insurance lead if the
       // user presses back + picks a company.
       window.storedData.insuranceOptedOut = true;
-      maybeFadeToTaxPitch(currentStep);
+      maybeFadeToExtraCheckOrTax(currentStep);
     });
   });
 
