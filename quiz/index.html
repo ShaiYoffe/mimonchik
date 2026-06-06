@@ -2750,6 +2750,27 @@ var formCompleted = false;
 // Initialize storedData so code paths that reference it don't throw
 window.storedData = window.storedData || {};
 
+// PROACTIVE BACKFILL (fix 2026-06-07): pre-populate name/phone from URL params
+// and localStorage at page-load time. Without this, the extra-check webhook
+// can fire with empty name+phone if the user enters the quiz via a stripped
+// URL (no ?name=&phone= params) — Leadim then marks the lead as Invalid
+// (status_id=2) and routes_to_advertisers stays empty → wasted lead.
+try {
+  var __sd_qs = new URLSearchParams(window.location.search);
+  var __sd_url_name = (__sd_qs.get('name') || '').trim();
+  var __sd_url_phone = (__sd_qs.get('phone') || '').trim();
+  if (__sd_url_name)  window.storedData.name  = __sd_url_name;
+  if (__sd_url_phone) window.storedData.phone = __sd_url_phone;
+  // Also pull from the 24h-cache that the homepage writes on every submit
+  try {
+    var __sd_ls = JSON.parse(localStorage.getItem('ymcs_user_v1') || '{}');
+    if (__sd_ls && (Date.now() - (__sd_ls.ts || 0)) < 24*60*60*1000) {
+      if (!window.storedData.name  && __sd_ls.name)  window.storedData.name  = String(__sd_ls.name);
+      if (!window.storedData.phone && __sd_ls.phone) window.storedData.phone = String(__sd_ls.phone);
+    }
+  } catch (e) {}
+} catch (e) {}
+
 if (byId) {
   fetch('/api/schedule-route', {
     method: 'POST',
@@ -3490,6 +3511,28 @@ jQuery(function () {
                               (typeof getParameterByName === 'function' && getParameterByName('phone')) ||
                               __ecW_ls.phone || phone || '';
 
+            // HARD GUARD (fix 2026-06-07): refuse to fire the webhook if
+            // name or phone is still empty after all fallbacks. Otherwise
+            // Leadim creates an Invalid lead (status_id=2) that never routes,
+            // and the operator pays for the user-acquisition without any
+            // chance of monetisation. Logging loud + bailing is strictly
+            // better than burning the slot on a broken lead.
+            if (!String(__ecW_name).trim() || !String(__ecW_phone).trim()) {
+              console.error('[extra-check] ABORT — missing identity', {
+                name: __ecW_name, phone: __ecW_phone,
+                storedData_keys: Object.keys(window.storedData || {}),
+                url: window.location.href
+              });
+              try {
+                (new Image()).src = '/api/log-broken?event=extra_check_missing_identity'
+                  + '&name=' + encodeURIComponent(String(__ecW_name || ''))
+                  + '&phone=' + encodeURIComponent(String(__ecW_phone || ''))
+                  + '&choice=' + encodeURIComponent(String(choice || ''))
+                  + '&t=' + Date.now();
+              } catch (e0z) {}
+              throw new Error('extra-check identity guard');
+            }
+
             __ecW_qs.set('lm_form',     __ecW_form);
             __ecW_qs.set('lm_key',      __ecW_key);
             __ecW_qs.set('lm_redirect', 'no');
@@ -4071,6 +4114,12 @@ jQuery(document).ready(function () {
       errorBox.text("אנא הכנס כתובת דוא\"ל תקינה");
       return;
     }
+    // Persist email to storedData (fix 2026-06-07) so downstream flows can
+    // read it. The historical emailSubmit handler posted directly to Leadim
+    // and never wrote to storedData — so the extra-check webhook was firing
+    // with empty fld_179820 (email).
+    window.storedData.fld_179820 = email;
+    if (stepId) window.storedData[stepId] = email;
     // RouteGuard fix 2026-05-31 (B): mark-completed moved INTO the success
     // handler below — was firing BEFORE the lead_update ajax, so if the ajax
     // failed network-side, lead became "completed" in Supabase but route_adv
