@@ -121,19 +121,13 @@
   }
 
   // ── F1: Progress milestone messages ─────────────────────────────────────
-  function setupProgressMessages() {
-    safe(function () {
-      var bar = $('.progress-bar') || $('#progress-bar');
-      if (!bar) return;
-      if ($('#gamifyProgressMsg')) return;
-      var el = document.createElement('div');
-      el.id = 'gamifyProgressMsg';
-      el.className = 'gamify-progress-msg';
-      bar.parentNode.insertBefore(el, bar);
-      __progressMsgEl = el;
-      updateProgressMsg();
-    }, 'setupProgressMessages');
-  }
+  // DISABLED 2026-06-06 — every loan-vertical site already has its own
+  // brand-styled orange progress pill ("💪 מצוין! עוברים את שאלות האמצע"
+  // etc., rendered server-side from the original quiz code). The gamify
+  // milestone was creating a duplicate above the progress bar. Made into a
+  // no-op so the rest of the layer (toasts, offer card, value meters) is
+  // unaffected.
+  function setupProgressMessages() { /* no-op — see comment above */ }
 
   // ── F2 + F4: Living "your offer" card with name personalization ─────────
   // Maps storedData fields → human-readable rows.
@@ -197,7 +191,6 @@
   var __stepChangeCounter = 0;
   function onStepChanged(activeStepId) {
     __stepChangeCounter++;
-    safe(updateProgressMsg, 'progress');
     safe(refreshOfferCard, 'offer');
 
     // F3 — "saved" toast (skip the first step, no point)
