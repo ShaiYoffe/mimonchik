@@ -3535,141 +3535,67 @@ jQuery(function () {
           // truth for these leads — Leadim's own routing engine handles
           // advertiser dispatch when the form receives the submission.
           var choice = window.storedData.extraCheckChoice;
-
-          // ── Extra-check Leadim v2 dedicated-form webhook ──
-          // Fire-and-forget GET to api.lead.im/v2/submit creates the lead in
-          // the dedicated 118412 (locate) / 118413 (grant) form. This is now
-          // the ONLY destination for extra-check leads.
+          // server-gate v1 2026-06-07 — root-cause fix.
+          // All client-side validation moved server-side to /api/extra-check-submit.
+          // Why: v2/v3/v3.1 client guards kept getting bypassed by edge cases we
+          // hadn't enumerated. The server endpoint is the single source of truth —
+          // it strictly validates name + phone and forwards to Leadim only when
+          // valid. This is bulletproof against any client-side oddity (cached
+          // scripts, malformed URLs, race conditions, etc.).
           try {
-            var __ecW_form = (choice === 'grant') ? '118413' : '118412';
-            var __ecW_key  = (choice === 'grant') ? '4bb94969c3' : 'b99fdeb225';
-            var __ecW_hasWithdraw =
-                window.storedData.hasWithdrawnPension === true  ? 'כן' :
-                window.storedData.hasWithdrawnPension === false ? 'לא' : '';
-            var __ecW_pension = (window.storedData.pensionAmount != null && window.storedData.pensionAmount !== '')
-                                 ? String(window.storedData.pensionAmount) : '';
-            var __ecW_qs = new URLSearchParams();
-            // __ecCleanId v3 (2026-06-07 hotfix) — canonical name/phone resolution with bulletproof
-            // validation. v2 (00:41 today) treated literal strings like
-            // "undefined" as truthy, leading to leads with fld_179817=undefined
-            // / fld_179818=undefined being created in Leadim and rejected as
-            // Invalid (status_id=2). Lead 117255110 (fastmimon.com, 11:23)
-            // was the canary. v3 normalises away "undefined"/"null"/"NaN"
-            // and requires a real Israeli mobile + a real (non-numeric, 2+
-            // char) name before the webhook is allowed to fire.
-            function __ecCleanId(v) {
-              if (v === undefined || v === null) return '';
-              var s = String(v).trim();
-              if (!s) return '';
-              if (s === 'undefined' || s === 'null' || s === 'NaN') return '';
-              return s;
-            }
-            function __ecValidPhone(v) {
-              var s = __ecCleanId(v);
-              if (!s) return '';
-              var digits = s.replace(/\D/g, '');
-              if (digits.length === 12 && digits.indexOf('972') === 0) digits = '0' + digits.slice(3);
-              if (digits.length === 9 && digits.charAt(0) === '5') digits = '0' + digits;
-              return /^05\d{8}$/.test(digits) ? digits : '';
-            }
-            function __ecValidName(v) {
-              var s = __ecCleanId(v);
-              if (s.length < 2) return '';
-              if (/^\d+$/.test(s)) return '';
-              return s;
-            }
-
-            // v3.1 __ecW_ls restore 2026-06-07 — v3 deleted this init by accident.
-            // Without it, `__ecW_ls.name` / `__ecW_ls.phone` references below throw
-            // ReferenceError, caught by the outer try/catch, silently aborting the
-            // webhook even for valid leads. The 24-hour TTL matches the homepage
-            // localStorage write at ymcs_user_v1.
-            var __ecW_ls = {};
+            var __ecChoice = window.storedData.extraCheckChoice;
+            var __ecSD = window.storedData || {};
+            var __ecLS = {};
             try {
-              var __ecW_lsRaw = localStorage.getItem('ymcs_user_v1');
-              if (__ecW_lsRaw) {
-                var __ecW_lsObj = JSON.parse(__ecW_lsRaw) || {};
-                if (__ecW_lsObj && (Date.now() - (__ecW_lsObj.ts || 0)) < 24*60*60*1000) __ecW_ls = __ecW_lsObj;
+              var __ecLsRaw = localStorage.getItem('ymcs_user_v1');
+              if (__ecLsRaw) {
+                var __ecLsObj = JSON.parse(__ecLsRaw) || {};
+                if (__ecLsObj && (Date.now() - (__ecLsObj.ts || 0)) < 24*60*60*1000) __ecLS = __ecLsObj;
               }
             } catch (e_ls) {}
-            var __ecW_name = __ecValidName(
-              (typeof getParameterByName === 'function' && getParameterByName('name')) ||
-              (window.storedData && window.storedData.name) ||
-              __ecW_ls.name
-            );
-            var __ecW_phone = __ecValidPhone(
-              (window.storedData && window.storedData.phone) ||
-              (typeof getParameterByName === 'function' && getParameterByName('phone')) ||
-              __ecW_ls.phone ||
-              phone /* closure phone — the one OTP was actually sent to */
-            );
-
-            // HARD GUARD v3: refuse to fire the webhook if name or phone
-            // doesn't pass strict validation. Loud-log to /api/log-broken
-            // for forensics, then bail. Better to lose a cross-sell lead
-            // than to create one that bills the operator for nothing.
-            if (!__ecW_name || !__ecW_phone) {
-              console.error('[extra-check] ABORT v3 — invalid identity', {
-                name: __ecW_name, phone: __ecW_phone,
-                raw_sd_name:  (window.storedData||{}).name,
-                raw_sd_phone: (window.storedData||{}).phone,
-                raw_url_name:  (typeof getParameterByName==='function' && getParameterByName('name'))  || '',
-                raw_url_phone: (typeof getParameterByName==='function' && getParameterByName('phone')) || '',
-                raw_ls_name:  __ecW_ls.name,
-                raw_ls_phone: __ecW_ls.phone,
-                closure_phone: phone,
-                url: window.location.href
-              });
-              try {
-                (new Image()).src = '/api/log-broken?event=extra_check_missing_identity_v3'
-                  + '&name=' + encodeURIComponent(String(__ecW_name || ''))
-                  + '&phone=' + encodeURIComponent(String(__ecW_phone || ''))
-                  + '&raw_url_name='  + encodeURIComponent(String((typeof getParameterByName==='function' && getParameterByName('name'))  || ''))
-                  + '&raw_url_phone=' + encodeURIComponent(String((typeof getParameterByName==='function' && getParameterByName('phone')) || ''))
-                  + '&raw_sd_name='  + encodeURIComponent(String((window.storedData||{}).name  || ''))
-                  + '&raw_sd_phone=' + encodeURIComponent(String((window.storedData||{}).phone || ''))
-                  + '&choice=' + encodeURIComponent(String(choice || ''))
-                  + '&t=' + Date.now();
-              } catch (e0z) {}
-              throw new Error('extra-check identity guard v3');
-            }
-
-            __ecW_qs.set('lm_form',     __ecW_form);
-            __ecW_qs.set('lm_key',      __ecW_key);
-            __ecW_qs.set('lm_redirect', 'no');
-            __ecW_qs.set('fld_179817',     __ecW_name);
-            __ecW_qs.set('fld_179818',     __ecW_phone);
-            __ecW_qs.set('fld_179820',     window.storedData.fld_179820 || '');
-            __ecW_qs.set('field_2e78520', window.storedData.fld_179819 || window.storedData.age || '');
-            __ecW_qs.set('fld_283259',  window.storedData.fld_283259 || window.storedData.dob || '');
-            __ecW_qs.set('fld_93140',   window.storedData.fld_179821 || '');
-            __ecW_qs.set('fld_214474',  window.storedData.fld_183161 || '');  // closest proxy we collect: employment status
-            __ecW_qs.set('fld_232629',  __ecW_pension);
-            __ecW_qs.set('fld_376925',  __ecW_hasWithdraw);
-            // Source-domain stamp (fld_179827) + verification code (fld_179824) —
-            // user requested both for the dedicated webhook so the receiving CRM
-            // can attribute the lead back to the originating site + audit-trail
-            // the OTP that gated the cross-sell consent.
-            __ecW_qs.set('fld_179827',
-              (window.storedData && window.storedData.fld_179827) ||
-              (typeof location !== 'undefined' ? location.hostname : '') || '');
-            __ecW_qs.set('fld_179824', code || '');
-            // UTM params from current URL (forwarded from the landing redirect)
+            var __ecName  = (typeof getParameterByName === 'function' && getParameterByName('name'))  || __ecSD.name  || __ecLS.name  || '';
+            var __ecPhone = __ecSD.phone || (typeof getParameterByName === 'function' && getParameterByName('phone')) || __ecLS.phone || phone || '';
+            var __ecUtm = {};
             try {
-              var __ecW_qp = new URLSearchParams(window.location.search);
+              var __ecQp = new URLSearchParams(window.location.search);
               ['utm_source','utm_medium','utm_campaign','utm_content'].forEach(function (k) {
-                var v = __ecW_qp.get(k); if (v) __ecW_qs.set(k, v);
+                var v = __ecQp.get(k); if (v) __ecUtm[k] = v;
               });
-            } catch (e1) {}
-            // Fire-and-forget via Image() — GET endpoint, no CORS concerns,
-            // creates the lead in the dedicated 118412/118413 form. Routing
-            // to advertisers is configured on the Leadim side via this form.
-            (new Image()).src = 'https://api.lead.im/v2/submit?' + __ecW_qs.toString();
-            console.log('[extra-check] dedicated-form webhook fired (lm_form=' + __ecW_form + ', choice=' + choice + ')');
+            } catch (e_qp) {}
+            var __ecPayload = {
+              name:         __ecName,
+              phone:        __ecPhone,
+              choice:       __ecChoice,
+              email:        __ecSD.fld_179820 || '',
+              age:          __ecSD.fld_179819 || __ecSD.age || '',
+              dob:          __ecSD.fld_283259 || __ecSD.dob || '',
+              city:         __ecSD.fld_179821 || '',
+              employment:   __ecSD.fld_183161 || '',
+              pension:      (__ecSD.pensionAmount != null && __ecSD.pensionAmount !== '') ? String(__ecSD.pensionAmount) : '',
+              hasWithdraw:  (__ecSD.hasWithdrawnPension === true) ? 'כן' : (__ecSD.hasWithdrawnPension === false ? 'לא' : ''),
+              sourceDomain: __ecSD.fld_179827 || (typeof location !== 'undefined' ? location.hostname : '') || '',
+              code:         code || ''
+            };
+            Object.assign(__ecPayload, __ecUtm);
+            fetch('/api/extra-check-submit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(__ecPayload)
+            })
+              .then(function (r) { return r.json().catch(function () { return {}; }); })
+              .then(function (j) {
+                if (j && j.success) {
+                  console.log('[extra-check-submit] CREATED', { lead_id: j.lead_id, lm_form: j.lm_form, choice: __ecChoice });
+                } else {
+                  console.warn('[extra-check-submit] REJECTED', { error: j && j.error, choice: __ecChoice });
+                }
+              })
+              .catch(function (e) {
+                console.warn('[extra-check-submit] network error', e);
+              });
           } catch (e0) {
-            console.warn('[extra-check] dedicated-form webhook failed:', e0);
+            console.warn('[extra-check-submit] client error:', e0);
           }
-
           // UX continuation — runs unconditionally regardless of webhook
           // network outcome (webhook is fire-and-forget; the lead lifecycle
           // lives entirely in lead.im, not in this client). Show the
