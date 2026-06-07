@@ -1892,11 +1892,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <!-- Step 7: Total Debt -->
 
-        <!-- highvalue-gate v1 2026-06-07 — fld_197515 (revenue) + fld_374436 (restrictions).
+        <!-- highvalue-gate v1 2026-06-07 — fld_381529 (revenue) + fld_374436 (restrictions).
              Hidden by default (conditional-step). __evalHighValueGate() reveals them ONLY when
              BDI∉{שלילי,שלילי מאד} AND card∉{דיירקט,אין לי כרטיס אשראי} AND emp∈{עוסק מורשה,חברה בע״מ}
              AND loan ≥ 150,000. Navigation skips them when conditional-step is present. -->
-        <div class="form-step conditional-step" data-step="25" id="fld_197515" data-section="גובה ההלוואה">
+        <div class="form-step conditional-step" data-step="25" id="fld_381529" data-section="גובה ההלוואה">
           <div class="chat-bubble"></div>
           <h2 class="q-title">מהו המחזור הכנסות השנתי שלך? (ברוטו)</h2>
           <p class="q-hint">הזז את הסליידר או הקלד את הסכום ידנית — שני השדות מסונכרנים.</p>
@@ -3900,7 +3900,7 @@ jQuery(document).ready(function () {
   });
 
   // ─── highvalue-gate v1 2026-06-07 ───
-  // Shows fld_197515 (annual revenue) + fld_374436 (past financial restrictions)
+  // Shows fld_381529 (annual revenue) + fld_374436 (past financial restrictions)
   // ONLY when ALL 4 gates pass. Otherwise both stay .conditional-step and are
   // skipped by `currentStep.nextAll(".form-step:not(.conditional-step)").first()`.
   //
@@ -3924,7 +3924,7 @@ jQuery(document).ready(function () {
     var empOK  = (emp === 'עוסק מורשה' || emp === 'חברה בע"מ' || emp === 'חברה בע״מ');
     var loanOK = loan >= 150000;
     var show = bdiOK && cardOK && empOK && loanOK;
-    jQuery('#fld_197515, #fld_374436').toggleClass('conditional-step', !show);
+    jQuery('#fld_381529, #fld_374436').toggleClass('conditional-step', !show);
   }
 
   // Revenue slider live-display + bidirectional sync between range + text input.
@@ -3963,7 +3963,7 @@ jQuery(document).ready(function () {
     var raw = String(jQuery("#revenueAmountInput").val() || jQuery("#revenueSlider").val()).replace(/[^\d]/g, '');
     var amount = parseInt(raw, 10);
     if (isNaN(amount) || amount < 100000) return;
-    sendSingleData("fld_197515", amount.toLocaleString() + " ₪", currentStep, function () { fadeToNextStep(currentStep); });
+    sendSingleData("fld_381529", amount.toLocaleString() + " ₪", currentStep, function () { fadeToNextStep(currentStep); });
   });
 
   // Loan slider live display
@@ -3984,7 +3984,7 @@ jQuery(document).ready(function () {
     var currentStep = jQuery(this).closest(".form-step");
     const amount = jQuery("#loanSlider").val();
     sendSingleData("fld_179825", amount + " ₪", currentStep, function () {
-      // highvalue-gate v1 — re-evaluate visibility of fld_197515 + fld_374436 BEFORE the fade,
+      // highvalue-gate v1 — re-evaluate visibility of fld_381529 + fld_374436 BEFORE the fade,
       // so nextAll(.form-step:not(.conditional-step)).first() picks the right target.
       try { __evalHighValueGate(); } catch (e) {}
       fadeToNextStep(currentStep);
