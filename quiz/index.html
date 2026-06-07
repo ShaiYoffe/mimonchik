@@ -1897,24 +1897,46 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
              BDI∉{שלילי,שלילי מאד} AND card∉{דיירקט,אין לי כרטיס אשראי} AND emp∈{עוסק מורשה,חברה בע״מ}
              AND loan ≥ 150,000. Navigation skips them when conditional-step is present. -->
         <div class="form-step conditional-step" data-step="25" id="fld_381529" data-section="גובה ההלוואה">
-          <div class="chat-bubble"></div>
-          <h2 class="q-title">מהו המחזור הכנסות השנתי שלך? (ברוטו)</h2>
-          <p class="q-hint">הזז את הסליידר או הקלד את הסכום ידנית — שני השדות מסונכרנים.</p>
-          <div class="slider-wrap">
-            <div class="slider-display">
-              <span class="val" id="revenueAmountDisplay">500,000</span>
-              <span class="cur">₪</span>
-            </div>
-            <input type="range" id="revenueSlider" min="100000" max="50000000" step="50000" value="500000">
-            <div id="revenueAmountWrapper"><input type="text" id="revenueAmountInput" value="500,000" inputmode="numeric"><span id="revenueAmountCurrency">₪</span></div>
-            <div class="slider-hint">
-              <span>100,000 ₪</span>
-              <span>50,000,000 ₪</span>
-            </div>
+          <!-- revenue-styling fix v1 2026-06-07 -->
+          <style>
+          #revenueSlider { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 999px; background: linear-gradient(90deg, #E8C547 0%, #E8C547 50%, #E5E7EB 50%, #E5E7EB 100%); outline: none; cursor: pointer; margin: 10px 0; }
+          #revenueSlider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #0F1620; border: 3px solid #FFF; box-shadow: 0 3px 10px rgba(0,0,0,0.18); cursor: grab; }
+          #revenueSlider::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: #0F1620; border: 3px solid #FFF; box-shadow: 0 3px 10px rgba(0,0,0,0.18); cursor: grab; }
+          #revenueSlider:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.1); background: #E8C547; }
+          #revenueAmountInput:focus { outline: none; border-color: #0F1620; box-shadow: 0 0 0 3px rgba(15,22,32,0.10); }
+          #revenueSubmit:hover { background: #E8C547; color: #0F1620; }
+          #revenueNoBusinessBtn:hover { background: #B91C1C; opacity: 1; }
+        </style>
+        <div class="chat-bubble"></div>
+        <h2 class="q-title">מהו המחזור הכנסות השנתי של העסקה שלך? (ברוטו)</h2>
+        <p class="q-hint">הזז את הסליידר או הקלד את הסכום ידנית — שני השדות מסונכרנים.</p>
+        <div class="slider-wrap" style="max-width:520px;margin:18px auto 0;">
+          <div class="slider-display" style="display:flex;align-items:baseline;justify-content:center;gap:8px;font-weight:800;font-size:42px;color:#0F1620;margin-bottom:10px;line-height:1;">
+            <span class="val" id="revenueAmountDisplay">500,000</span>
+            <span class="cur" style="font-size:24px;">₪</span>
           </div>
-          <div class="row">
-            <button id="revenueSubmit">המשך <span class="arr">←</span></button>
+          <input type="range" id="revenueSlider" min="100000" max="50000000" step="50000" value="500000">
+          <div id="revenueAmountWrapper" style="display:flex;align-items:center;gap:8px;justify-content:center;margin-top:10px;">
+            <input type="text" id="revenueAmountInput" value="500,000" inputmode="numeric"
+                   style="width:180px;height:46px;padding:0 14px;font-size:18px;font-weight:700;text-align:center;border:1.5px solid #D6DCEC;border-radius:10px;background:#fff;color:#0F1620;direction:ltr;letter-spacing:.5px;">
+            <span id="revenueAmountCurrency" style="font-size:20px;font-weight:700;color:#41487A;">₪</span>
           </div>
+          <div class="slider-hint" style="display:flex;justify-content:space-between;font-size:12.5px;color:#41487A;opacity:.65;margin-top:8px;">
+            <span>100,000 ₪</span>
+            <span>50,000,000 ₪</span>
+          </div>
+        </div>
+        <div class="row" style="display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:22px;">
+          <button class="submit-btn" id="revenueSubmit"
+                  style="background:#0F1620;color:#FFF;border:0;height:50px;padding:0 40px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .2s;">
+            המשך <span class="arr">←</span>
+          </button>
+          <button type="button" id="revenueNoBusinessBtn"
+                  style="background:#DC2626;color:#FFF;border:0;height:40px;padding:0 26px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;opacity:.92;transition:all .2s;">
+            אין לי עסק
+          </button>
+        </div>
+        
         </div>
 
         <div class="form-step conditional-step" data-step="26" id="fld_374436" data-section="היסטוריית אשראי">
@@ -3965,6 +3987,20 @@ jQuery(document).ready(function () {
     if (isNaN(amount) || amount < 100000) return;
     sendSingleData("fld_381529", amount.toLocaleString() + " ₪", currentStep, function () { fadeToNextStep(currentStep); });
   });
+
+  // revenue-styling fix v1 — red opt-out button.
+  // For users who triggered the highvalue-gate by mistake (e.g. clicked
+  // "עוסק מורשה" without actually having a business). Sets the revenue
+  // field to "אין לי עסק", suppresses the follow-up restrictions question
+  // (fld_374436), and jumps straight to DOB.
+  jQuery("#revenueNoBusinessBtn").click(function () {
+    var $current = jQuery(this).closest(".form-step");
+    jQuery('#fld_374436').addClass('conditional-step');
+    sendSingleData("fld_381529", "אין לי עסק", $current, function () {
+      fadeToSpecificStep($current, "#fld_283259");
+    });
+  });
+
 
   // Loan slider live display
   const slider = jQuery("#loanSlider");
