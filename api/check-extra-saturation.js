@@ -150,12 +150,17 @@ export default async function handler(req, res) {
     const got_53705 = allIds.has(ADV_53705);
     const got_33995 = allIds.has(ADV_33995);
 
-    // LOCATE: 44548 + 33995 are LINKED — a lead routed to either occupies
-    // the "44548 slot". So we need (44548 OR 33995) AND 44089 to hide.
+    // dedupe v2 2026-06-07 — symmetric rule: ANY of the 4 extra-check advertisers
+    // already routed for this phone hides BOTH buttons. Original asymmetric rule
+    // allowed 53705 (אלדר מענק) to skip blocking LOCATE, leading to the same אלדר
+    // entity receiving the same phone twice via two different lead-IDs (44548 +
+    // 53705). User report: phone 0533432481 routed to 53705 then 44548 within
+    // 33 minutes — wasted budget on a guaranteed duplicate for אלדר.
+    const got_any_advertiser = (got_44548 || got_44089 || got_53705 || got_33995);
+    const locate_available = !got_any_advertiser;
+    const grant_available  = !got_any_advertiser;
+    // Keep legacy variables in the debug payload below so it stays useful.
     const locateSlotA = (got_44548 || got_33995);
-    const locate_available = !(locateSlotA && got_44089);
-    // GRANT: hide if ANY of 44548 / 53705 / 33995 already received
-    const grant_available  = !(got_44548 || got_53705 || got_33995);
 
     return res.status(200).json({
       success: true,

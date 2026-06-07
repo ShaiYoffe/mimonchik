@@ -89,6 +89,70 @@ export default async function handler(req, res) {
     });
   }
 
+  // dedupe v2 2026-06-07 — server-side saturation check BEFORE forwarding to Leadim.
+  // Defense in depth: even if the client-side button rule fails (stale page, race
+  // condition), this catches any duplicate routing attempt. Rejects if ANY of the
+  // 4 extra-check advertisers {44548, 44089, 53705, 33995} already routed this phone.
+  // Fail-open on network error — never block a legitimate first-time submission.
+  try {
+    const variants = [];
+    {
+      const digits = String(phone).replace(/\D/g, '');
+      if (digits.length === 10 && digits.startsWith('0')) {
+        variants.push(digits);
+        variants.push('972' + digits.slice(1));
+      } else if (digits.length === 9 && digits.startsWith('5')) {
+        variants.push('0' + digits);
+        variants.push('972' + digits);
+      } else if (digits.length === 12 && digits.startsWith('972')) {
+        variants.push(digits);
+        variants.push('0' + digits.slice(3));
+      } else {
+        variants.push(phone);
+      }
+    }
+    const SEARCH_TOKEN = process.env.LEADIM_SEARCH_TOKEN || 'U-7CE3E2A312094428.9D1B8F29415E3A83';
+    const BLOCKING_ADV_IDS = new Set([44548, 44089, 53705, 33995]);
+    const routedIds = new Set();
+    const fetchOpts = { method: 'GET', headers: { 'X-LEAD-IM-AUTH': SEARCH_TOKEN } };
+    const results = await Promise.all(variants.map(async (v) => {
+      try {
+        const url = `https://proxy.leadim.xyz/apiproxy/5517/api/leads_get.ashx?by_phone=${encodeURIComponent(v)}`;
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 4000);
+        const r = await fetch(url, { ...fetchOpts, signal: ctrl.signal });
+        clearTimeout(tid);
+        const j = await r.json();
+        if (!j || j.status !== 'success' || !Array.isArray(j.data)) return null;
+        for (const lead of j.data) {
+          const routes = Array.isArray(lead.routes_to_advertisers) ? lead.routes_to_advertisers : [];
+          const advs   = Array.isArray(lead.adv_users) ? lead.adv_users : [];
+          for (const id of routes) if (typeof id === 'number') routedIds.add(id);
+          for (const a of advs) if (a && typeof a.id === 'number') routedIds.add(a.id);
+        }
+        return true;
+      } catch (_) { return null; }
+    }));
+    const blocking = [...routedIds].filter(id => BLOCKING_ADV_IDS.has(id));
+    if (blocking.length > 0) {
+      console.warn('[extra-check-submit] DEDUPE_BLOCK', {
+        reason: 'phone_already_routed_to_extra_check_advertiser',
+        phone,
+        blocking_advertiser_ids: blocking,
+        all_routed_ids: [...routedIds].sort((a,b) => a-b),
+        choice,
+      });
+      return res.status(409).json({
+        success: false,
+        error: 'phone_already_routed',
+        blocking_advertiser_ids: blocking,
+      });
+    }
+  } catch (e) {
+    // Fail-open: log but allow forward
+    console.warn('[extra-check-submit] dedupe check error (fail-open):', e && e.message);
+  }
+
   // Build the Leadim v2 submission. fld_X mappings match the original
   // client-side webhook so the CRM display stays identical.
   const qs = new URLSearchParams();
