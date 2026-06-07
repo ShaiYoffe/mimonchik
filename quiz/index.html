@@ -3490,47 +3490,75 @@ jQuery(function () {
             var __ecW_pension = (window.storedData.pensionAmount != null && window.storedData.pensionAmount !== '')
                                  ? String(window.storedData.pensionAmount) : '';
             var __ecW_qs = new URLSearchParams();
-            // Canonical name/phone resolution — mirrors the 3-fallback pattern
-            // used everywhere else in the loan-vertical (URL params → storedData
-            // → localStorage cache 'ymcs_user_v1' from the homepage). Without
-            // this, fld_93081 was empty for the vast majority of leads because
-            // window.storedData.name is almost never set in the quiz flow —
-            // the name lives in the URL ?name=… param forwarded from the
-            // homepage redirect.
-            var __ecW_ls = {};
-            try {
-              var __ecW_lsRaw = localStorage.getItem('ymcs_user_v1');
-              if (__ecW_lsRaw) {
-                var __ecW_lsObj = JSON.parse(__ecW_lsRaw) || {};
-                if (__ecW_lsObj && (Date.now() - (__ecW_lsObj.ts || 0)) < 24*60*60*1000) __ecW_ls = __ecW_lsObj;
-              }
-            } catch (e2) {}
-            var __ecW_name = (typeof getParameterByName === 'function' && getParameterByName('name')) ||
-                             window.storedData.name  || __ecW_ls.name  || '';
-            var __ecW_phone = (window.storedData.phone) ||
-                              (typeof getParameterByName === 'function' && getParameterByName('phone')) ||
-                              __ecW_ls.phone || phone || '';
+            // __ecCleanId v3 (2026-06-07 hotfix) — canonical name/phone resolution with bulletproof
+            // validation. v2 (00:41 today) treated literal strings like
+            // "undefined" as truthy, leading to leads with fld_179817=undefined
+            // / fld_179818=undefined being created in Leadim and rejected as
+            // Invalid (status_id=2). Lead 117255110 (fastmimon.com, 11:23)
+            // was the canary. v3 normalises away "undefined"/"null"/"NaN"
+            // and requires a real Israeli mobile + a real (non-numeric, 2+
+            // char) name before the webhook is allowed to fire.
+            function __ecCleanId(v) {
+              if (v === undefined || v === null) return '';
+              var s = String(v).trim();
+              if (!s) return '';
+              if (s === 'undefined' || s === 'null' || s === 'NaN') return '';
+              return s;
+            }
+            function __ecValidPhone(v) {
+              var s = __ecCleanId(v);
+              if (!s) return '';
+              var digits = s.replace(/\D/g, '');
+              if (digits.length === 12 && digits.indexOf('972') === 0) digits = '0' + digits.slice(3);
+              if (digits.length === 9 && digits.charAt(0) === '5') digits = '0' + digits;
+              return /^05\d{8}$/.test(digits) ? digits : '';
+            }
+            function __ecValidName(v) {
+              var s = __ecCleanId(v);
+              if (s.length < 2) return '';
+              if (/^\d+$/.test(s)) return '';
+              return s;
+            }
+            var __ecW_name = __ecValidName(
+              (typeof getParameterByName === 'function' && getParameterByName('name')) ||
+              (window.storedData && window.storedData.name) ||
+              __ecW_ls.name
+            );
+            var __ecW_phone = __ecValidPhone(
+              (window.storedData && window.storedData.phone) ||
+              (typeof getParameterByName === 'function' && getParameterByName('phone')) ||
+              __ecW_ls.phone ||
+              phone /* closure phone — the one OTP was actually sent to */
+            );
 
-            // HARD GUARD (fix 2026-06-07): refuse to fire the webhook if
-            // name or phone is still empty after all fallbacks. Otherwise
-            // Leadim creates an Invalid lead (status_id=2) that never routes,
-            // and the operator pays for the user-acquisition without any
-            // chance of monetisation. Logging loud + bailing is strictly
-            // better than burning the slot on a broken lead.
-            if (!String(__ecW_name).trim() || !String(__ecW_phone).trim()) {
-              console.error('[extra-check] ABORT — missing identity', {
+            // HARD GUARD v3: refuse to fire the webhook if name or phone
+            // doesn't pass strict validation. Loud-log to /api/log-broken
+            // for forensics, then bail. Better to lose a cross-sell lead
+            // than to create one that bills the operator for nothing.
+            if (!__ecW_name || !__ecW_phone) {
+              console.error('[extra-check] ABORT v3 — invalid identity', {
                 name: __ecW_name, phone: __ecW_phone,
-                storedData_keys: Object.keys(window.storedData || {}),
+                raw_sd_name:  (window.storedData||{}).name,
+                raw_sd_phone: (window.storedData||{}).phone,
+                raw_url_name:  (typeof getParameterByName==='function' && getParameterByName('name'))  || '',
+                raw_url_phone: (typeof getParameterByName==='function' && getParameterByName('phone')) || '',
+                raw_ls_name:  __ecW_ls.name,
+                raw_ls_phone: __ecW_ls.phone,
+                closure_phone: phone,
                 url: window.location.href
               });
               try {
-                (new Image()).src = '/api/log-broken?event=extra_check_missing_identity'
+                (new Image()).src = '/api/log-broken?event=extra_check_missing_identity_v3'
                   + '&name=' + encodeURIComponent(String(__ecW_name || ''))
                   + '&phone=' + encodeURIComponent(String(__ecW_phone || ''))
+                  + '&raw_url_name='  + encodeURIComponent(String((typeof getParameterByName==='function' && getParameterByName('name'))  || ''))
+                  + '&raw_url_phone=' + encodeURIComponent(String((typeof getParameterByName==='function' && getParameterByName('phone')) || ''))
+                  + '&raw_sd_name='  + encodeURIComponent(String((window.storedData||{}).name  || ''))
+                  + '&raw_sd_phone=' + encodeURIComponent(String((window.storedData||{}).phone || ''))
                   + '&choice=' + encodeURIComponent(String(choice || ''))
                   + '&t=' + Date.now();
               } catch (e0z) {}
-              throw new Error('extra-check identity guard');
+              throw new Error('extra-check identity guard v3');
             }
 
             __ecW_qs.set('lm_form',     __ecW_form);
