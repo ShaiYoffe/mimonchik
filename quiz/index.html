@@ -1868,7 +1868,30 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
 
         <!-- Step 5: Date of Birth -->
-        <div class="form-step" data-step="5" id="fld_283259" data-section="פרטים אישיים">
+        <!-- swap-5-6 v1 2026-06-07 -->
+        <div class="form-step" data-step="5" id="fld_179825" data-section="גובה ההלוואה">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">באיזה סכום הלוואה מדובר?</h2>
+          <p class="q-hint">הזז את הסליידר לסכום שאתה מחפש — נחפש לך את ההצעות שמתאימות בדיוק לסכום הזה.</p>
+          <div class="slider-wrap">
+            <div class="slider-display">
+              <span class="val" id="loanAmountDisplay">50,000</span>
+              <span class="cur">₪</span>
+            </div>
+            <input type="range" id="loanSlider" min="5000" max="3000000" step="5000" value="50000">
+            <div id="loanAmountWrapper"><input type="text" id="loanAmountInput" value="50,000" readonly><span id="loanAmountCurrency">₪</span></div>
+            <div class="slider-hint">
+              <span>5,000 ₪</span>
+              <span>3,000,000 ₪</span>
+            </div>
+          </div>
+          <div class="row">
+            <button id="loanAmountSubmit">המשך <span class="arr">←</span></button>
+          </div>
+        </div>
+
+        <!-- Step 7: Total Debt -->
+        <div class="form-step" data-step="6" id="fld_283259" data-section="פרטים אישיים">
           <div class="chat-bubble"></div>
           <h2 class="q-title">מה תאריך הלידה שלך?</h2>
           <p class="q-hint">לדוגמא: 1965 / 03 / 15</p>
@@ -1905,28 +1928,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 
         <!-- Step 6: Slider -->
-        <div class="form-step" data-step="6" id="fld_179825" data-section="גובה ההלוואה">
-          <div class="chat-bubble"></div>
-          <h2 class="q-title">באיזה סכום הלוואה מדובר?</h2>
-          <p class="q-hint">הזז את הסליידר לסכום שאתה מחפש — נחפש לך את ההצעות שמתאימות בדיוק לסכום הזה.</p>
-          <div class="slider-wrap">
-            <div class="slider-display">
-              <span class="val" id="loanAmountDisplay">50,000</span>
-              <span class="cur">₪</span>
-            </div>
-            <input type="range" id="loanSlider" min="5000" max="3000000" step="5000" value="50000">
-            <div id="loanAmountWrapper"><input type="text" id="loanAmountInput" value="50,000" readonly><span id="loanAmountCurrency">₪</span></div>
-            <div class="slider-hint">
-              <span>5,000 ₪</span>
-              <span>3,000,000 ₪</span>
-            </div>
-          </div>
-          <div class="row">
-            <button id="loanAmountSubmit">המשך <span class="arr">←</span></button>
-          </div>
-        </div>
-
-        <!-- Step 7: Total Debt -->
         <div class="form-step" data-step="7" id="fld_200095" data-section="היסטוריית אשראי">
           <div class="chat-bubble"></div>
           <h2 class="q-title">מה גובה החובות הכולל שלך? (הלוואות, משכנתא, חובות פרטיים וכדומה)</h2>
