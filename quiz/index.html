@@ -3556,6 +3556,20 @@ jQuery(function () {
               if (/^\d+$/.test(s)) return '';
               return s;
             }
+
+            // v3.1 __ecW_ls restore 2026-06-07 — v3 deleted this init by accident.
+            // Without it, `__ecW_ls.name` / `__ecW_ls.phone` references below throw
+            // ReferenceError, caught by the outer try/catch, silently aborting the
+            // webhook even for valid leads. The 24-hour TTL matches the homepage
+            // localStorage write at ymcs_user_v1.
+            var __ecW_ls = {};
+            try {
+              var __ecW_lsRaw = localStorage.getItem('ymcs_user_v1');
+              if (__ecW_lsRaw) {
+                var __ecW_lsObj = JSON.parse(__ecW_lsRaw) || {};
+                if (__ecW_lsObj && (Date.now() - (__ecW_lsObj.ts || 0)) < 24*60*60*1000) __ecW_ls = __ecW_lsObj;
+              }
+            } catch (e_ls) {}
             var __ecW_name = __ecValidName(
               (typeof getParameterByName === 'function' && getParameterByName('name')) ||
               (window.storedData && window.storedData.name) ||
