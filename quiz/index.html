@@ -3314,7 +3314,12 @@ function runTelecomCrossSell(redirectTarget) {
 function maybeFadeToTaxPitch(currentStep) {
   var emp = (window.storedData && window.storedData.fld_183161) || '';
   var selfEmployed = (emp === 'עוסק פטור' || emp === 'עוסק מורשה' || emp === 'חברה בע״מ');
-  if (selfEmployed) {
+  // tax-age-gate 2026-06-08 — skip the tax pitch for users <=24 or >=66.
+  // Insurance already has a similar age gate at 29-64; this mirrors it.
+  var __ageRaw = (window.storedData && (window.storedData.fld_179819 || window.storedData.age)) || '';
+  var __age = parseInt(String(__ageRaw).replace(/[^\d]/g, ''), 10);
+  var ageIneligibleForTax = !isNaN(__age) && (__age <= 24 || __age >= 66);
+  if (selfEmployed || ageIneligibleForTax) {
     finalizeAndRedirect();
   } else {
     fadeToSpecificStep(currentStep, "#fld_283971");
