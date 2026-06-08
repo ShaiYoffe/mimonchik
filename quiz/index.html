@@ -2531,6 +2531,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
 
+        
+        <!-- tax-otp v1 2026-06-08 — SMS OTP gate before the tax-refund cross-sell.
+             Mirrors the insurance OTP pattern. Emphasises that this is an
+             ADDITIONAL check on top of the loan request. -->
+        <div class="form-step post-submit-step" id="otp_verify_tax" data-section="אימות זהות">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">🔐 שלחנו לך קוד אימות ב-SMS</h2>
+          <p class="q-hint">למספר <strong id="otpTaxMaskedPhone"></strong> נשלח קוד בן 4 ספרות. <strong>מיד לאחר האימות — נציג מומחה החזרי מס יחזור אליך טלפונית בנוסף לטיפול בבקשת ההלוואה.</strong> ללא אימות לא נוכל להעביר את הבקשה לבדיקה.</p>
+          <div style="color:#1F2937; background:rgba(255,193,7,0.10); border:2px solid rgba(255,193,7,0.55); border-radius:10px; padding:14px 16px; margin:16px auto; max-width:400px; text-align:right; font-size:14px; line-height:1.6;">
+            <div style="font-weight:800; margin-bottom:8px; text-align:center; color:#d97706;">⚠️ שים לב — מדובר בבדיקה נוספת לבקשת ההלוואה!</div>
+            <div style="margin:6px 0;"><strong>1.</strong> נציג מומחה אשראי מהצוות שלנו — לטיפול בבקשת ההלוואה</div>
+            <div style="margin:6px 0;"><strong>2.</strong> נציג מומחה החזרי מס — לבדיקת זכאות להחזר מס</div>
+            <div style="margin-top:10px; font-size:13px; opacity:.85;">שתי השיחות ללא עלות וללא התחייבות.</div>
+          </div>
+          <div class="input-field" style="max-width: 200px; margin: 18px auto;">
+            <input type="text" id="otpTaxInput" inputmode="numeric" maxlength="4" autocomplete="one-time-code" placeholder="••••" style="text-align:center; font-size:28px; letter-spacing:14px; font-weight:800; direction:ltr;" />
+          </div>
+          <div class="error-message" id="otpTaxErr" style="display:none;"></div>
+          <div class="row">
+            <button id="otpTaxVerifyBtn" disabled>אימות קוד והתחלת בדיקת החזר מס</button>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button id="otpTaxResendBtn" type="button" disabled
+                    style="background:transparent; border:1.5px solid #ccc; color:#666; font-weight:600;">
+              שלח קוד שוב <span id="otpTaxResendTimer"></span>
+            </button>
+          </div>
+        </div>
+
         <!-- ===== Tax qualification flow (only when fld_283971 = כן) ===== -->
 
         <!-- First tax question — gross monthly salary (added 2026-05-26) -->
@@ -3067,6 +3096,154 @@ function startInsuranceOtpResendCountdown(seconds) {
   }, 1000);
 }
 
+
+// tax-otp v1 2026-06-08 — SMS OTP gate before the tax cross-sell.
+// Mirrors startInsuranceOtpFlow but lives inside enterTaxFlow's promise chain.
+var __otpTaxCooldown = null;
+function startTaxOtpFlow(button, currentStep) {
+  if (button) button.prop('disabled', true).text('שולח קוד אימות…');
+  var phone = (window.storedData.phone || (typeof getParameterByName === 'function' ? getParameterByName('phone') : '') || '').trim();
+  var maskedEl = document.getElementById('otpTaxMaskedPhone');
+  if (maskedEl) {
+    var masked = phone.length >= 7 ? phone.slice(0,3)+'-'+phone.slice(3,6)+'-'+phone.slice(6) : phone;
+    maskedEl.textContent = masked;
+  }
+  fetch('/api/otp-send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone: phone, flow: 'tax' })
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (button) button.prop('disabled', false);
+      if (j && j.success) {
+        fadeToSpecificStep(currentStep, '#otp_verify_tax');
+        window.storedData.__otpTaxPrevStep = currentStep;
+        startTaxOtpResendCountdown(60);
+        setTimeout(function () { var i = document.getElementById('otpTaxInput'); if (i) { try { i.focus(); } catch (e) {} } }, 300);
+      } else {
+        alert((j && j.error) || 'שליחת ה-SMS נכשלה. נסה שוב.');
+      }
+    })
+    .catch(function () {
+      if (button) button.prop('disabled', false);
+      alert('תקלת תקשורת. נסה שוב.');
+    });
+}
+
+function startTaxOtpResendCountdown(seconds) {
+  var btn = jQuery('#otpTaxResendBtn');
+  var t   = document.getElementById('otpTaxResendTimer');
+  if (__otpTaxCooldown) clearInterval(__otpTaxCooldown);
+  var remaining = seconds;
+  btn.prop('disabled', true);
+  if (t) t.textContent = '(' + remaining + ')';
+  __otpTaxCooldown = setInterval(function () {
+    remaining--;
+    if (t) t.textContent = remaining > 0 ? '(' + remaining + ')' : '';
+    if (remaining <= 0) {
+      clearInterval(__otpTaxCooldown);
+      __otpTaxCooldown = null;
+      btn.prop('disabled', false);
+    }
+  }, 1000);
+}
+
+// Bind tax-OTP handlers ONCE on DOM ready (mirrors the insurance handler block)
+jQuery(function () {
+  var $taxInput  = jQuery('#otpTaxInput');
+  var $taxVerify = jQuery('#otpTaxVerifyBtn');
+  var $taxResend = jQuery('#otpTaxResendBtn');
+  var $taxErr    = jQuery('#otpTaxErr');
+  if (!$taxInput.length) return;
+
+  $taxInput.on('input', function () {
+    var v = ($taxInput.val() || '').replace(/\D/g, '').slice(0, 4);
+    if (v !== $taxInput.val()) $taxInput.val(v);
+    $taxVerify.prop('disabled', v.length !== 4);
+    $taxErr.hide();
+  });
+  $taxInput.on('keydown', function (e) {
+    if (e.key === 'Enter' && !$taxVerify.prop('disabled')) {
+      e.preventDefault();
+      $taxVerify.trigger('click');
+    }
+  });
+
+  $taxVerify.on('click', function (e) {
+    e.preventDefault();
+    var code = ($taxInput.val() || '').trim();
+    if (!/^\d{4}$/.test(code)) { $taxErr.text('הקוד חייב להיות 4 ספרות').show(); return; }
+    $taxVerify.prop('disabled', true).text('מאמת ומכין את הבדיקה…');
+    var phone = (window.storedData.phone || (typeof getParameterByName === 'function' ? getParameterByName('phone') : '') || '').trim();
+    fetch('/api/otp-verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: phone, code: code })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.success) {
+          // OTP verified — NOW create the tax lead in form 49500 (the
+          // original enterTaxFlow body relocated here so the lead is
+          // created ONLY after the user explicitly confirms via SMS).
+          var payload = buildCrossSellIdentityPayload({
+            fld_93084:  window.storedData.fld_179820 || '',
+            fld_93140:  window.storedData.fld_179821 || '',
+            fld_283971: 'כן'
+          });
+          if (window.storedData.fld_335575) payload.fld_262192 = window.storedData.fld_335575;
+          if (window.storedData.fld_183161) payload.fld_183161 = window.storedData.fld_183161;
+          createCrossSellLead('49500', '3ab37a64cb', payload, function (leadId) {
+            if (leadId) {
+              window.storedData.taxLeadId  = leadId;
+              window.storedData.activeFlow = 'tax';
+              window.storedData.fld_283971 = 'כן';
+            }
+            if (__otpTaxCooldown) { clearInterval(__otpTaxCooldown); __otpTaxCooldown = null; }
+            // Continue to the first tax question
+            fadeToSpecificStep(jQuery('#otp_verify_tax'), '#fld_377428');
+            $taxVerify.text('אימות קוד והתחלת בדיקת החזר מס');
+          });
+        } else {
+          $taxVerify.prop('disabled', false).text('אימות קוד והתחלת בדיקת החזר מס');
+          $taxErr.text((j && j.error) || 'קוד שגוי. נסה שוב.').show();
+        }
+      })
+      .catch(function () {
+        $taxVerify.prop('disabled', false).text('אימות קוד והתחלת בדיקת החזר מס');
+        $taxErr.text('תקלת תקשורת. נסה שוב.').show();
+      });
+  });
+
+  $taxResend.on('click', function () {
+    var $btn = jQuery(this);
+    if ($btn.prop('disabled')) return;
+    var phone = (window.storedData.phone || '').trim();
+    if (!phone) return;
+    $btn.prop('disabled', true);
+    fetch('/api/otp-send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: phone, flow: 'tax' })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.success) {
+          $taxErr.text('').hide();
+          startTaxOtpResendCountdown(60);
+        } else {
+          $btn.prop('disabled', false);
+          $taxErr.text((j && j.error) || 'שליחה נכשלה. נסה שוב.').show();
+        }
+      })
+      .catch(function () {
+        $btn.prop('disabled', false);
+        $taxErr.text('שגיאת תקשורת. נסה שוב.').show();
+      });
+  });
+});
+
 // Bind OTP handlers ONCE on DOM ready
 jQuery(function () {
   var $input = jQuery('#otpInsInput');
@@ -3235,23 +3412,10 @@ function enterTaxFlow(button, currentStep) {
     fadeToNextStep(currentStep);
     return;
   }
-  if (button) button.prop('disabled', true);
-  var payload = buildCrossSellIdentityPayload({
-    fld_93084:  window.storedData.fld_179820 || '',     // email
-    fld_93140:  window.storedData.fld_179821 || '',     // city
-    fld_283971: 'כן'
-  });
-  if (window.storedData.fld_335575) payload.fld_262192 = window.storedData.fld_335575; // income → tax form's income field
-  if (window.storedData.fld_183161) payload.fld_183161 = window.storedData.fld_183161; // employment status (שכיר/עצמאי/פנסיונר) — mirrored to tax CRM
-  createCrossSellLead('49500', '3ab37a64cb', payload, function (leadId) {
-    if (leadId) {
-      window.storedData.taxLeadId  = leadId;
-      window.storedData.activeFlow = 'tax';
-      window.storedData.fld_283971 = 'כן';
-    }
-    if (button) button.prop('disabled', false);
-    fadeToNextStep(currentStep);
-  });
+  // tax-otp v1 2026-06-08 — SMS OTP REQUIRED before creating the tax lead.
+  // The actual createCrossSellLead happens in the OTP verify success handler
+  // (see #otpTaxVerifyBtn click handler below).
+  startTaxOtpFlow(button, currentStep);
 }
 
 // Telecom cross-sell launcher — replaces the legacy "setTimeout(redirect)" pattern.

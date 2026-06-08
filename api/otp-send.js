@@ -135,6 +135,7 @@ export default async function handler(req, res) {
       flow === 'insurance'          ? `קוד אימות הזהות שלך לבדיקת תיק הביטוח: ${code}` :
       flow === 'extra_check_grant'  ? `קוד אימות הזהות שלך לבדיקת זכאות למענק עבודה: ${code}` :
       flow === 'extra_check_locate' ? `קוד אימות הזהות שלך לבדיקת איתור כספים אבודים: ${code}` :
+      flow === 'tax'                ? `קוד אימות הזהות שלך לבדיקת זכאות להחזר מס: ${code}` :
                                       `קוד אימות הזהות שלך לבדיקת זכאות להלוואה: ${code}`;
     const upstream = await sendInforuSMS(phone, code, ymsg);
     console.log('[otp-send] InfoRU OK:', upstream.slice(0, 200));
