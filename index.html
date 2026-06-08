@@ -631,6 +631,36 @@ h1.hero-title .grin {
   to   { opacity: 0.95; transform: translateY(0); }
 }
 /* LP_BADGE_CSS_END */
+
+/* LP_DNB_CSS_START */
+.lp-dnb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 18px 0 6px;
+  direction: rtl;
+}
+.lp-dnb img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  opacity: 0.92;
+  transition: opacity .2s ease, transform .2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+}
+.lp-dnb img:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+.lp-dnb-caption {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.7;
+  color: var(--lp-pill-text, inherit);
+  letter-spacing: 0.01em;
+}
+/* LP_DNB_CSS_END */
 </style>
 
 <!-- Google Tag Manager -->
@@ -757,6 +787,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           קדימה!
           <span class="arr">←</span>
         </button>
+<!-- LP_DNB_START -->
+<div class="lp-dnb">
+  <img src="/assets/dnb-trust.webp"
+       alt="חותם אמינות dun & bradstreet — עסק מהימן ומאומת"
+       width="64" height="64" loading="lazy" decoding="async" />
+  <span class="lp-dnb-caption">עסק מהימן · ‎מאומת על־ידי D&B</span>
+</div>
+<!-- LP_DNB_END -->
+
 
         <p class="secure-line">🔒 הפרטים שלך מוצפנים ובטוחים</p>
       </aside>
