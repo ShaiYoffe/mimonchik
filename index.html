@@ -1439,5 +1439,72 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   if (t && msgs.length) t.textContent = msgs[Math.floor(Math.random() * msgs.length)];
 })();</script>
 <!-- LP_BADGE_JS_END -->
+<!-- LP_CONTRAST_PATCH_START -->
+<style>
+/* Override the original LP badge + progress meter colours with
+   theme-aware values set at runtime by the script below. */
+.lp-badge {
+  background: var(--lp-pill-bg, rgba(0,0,0,0.05));
+  border-color: var(--lp-pill-border, rgba(0,0,0,0.10));
+  color: var(--lp-pill-text, #0f172a);
+}
+.lp-badge .lp-badge-icon {
+  color: var(--lp-pill-accent, var(--accent, var(--brand, var(--green, #10b981))));
+}
+.lp-progress .lp-steps {
+  color: var(--lp-pill-text, #0f172a);
+  opacity: 1;
+}
+.lp-progress .lp-step { opacity: 0.78; }
+.lp-progress .lp-step.done { opacity: 1; color: var(--lp-pill-accent, var(--accent, var(--brand, var(--green, #10b981)))); }
+.lp-progress .lp-bar {
+  background: var(--lp-pill-border, rgba(0,0,0,0.10));
+}
+</style>
+<script>(function(){
+  // Detect whether the form sits on a LIGHT or DARK background and
+  // pick text/bg colours with enough contrast for both worlds.
+  // Walks UP the DOM from the badge so embedded forms inherit the
+  // right ambient bg, not the page-level default.
+  function lum(rgbStr){
+    var m = (rgbStr || '').match(/rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+    if (!m) return 1;
+    var r = +m[1], g = +m[2], b = +m[3];
+    return (0.299*r + 0.587*g + 0.114*b) / 255;
+  }
+  function nearestOpaqueBg(el){
+    while (el && el !== document.documentElement) {
+      var bg = getComputedStyle(el).backgroundColor;
+      var alpha = (bg.match(/rgba?\([^)]+,\s*([\d.]+)\s*\)/) || [])[1];
+      if (bg && bg !== 'transparent' && (alpha == null || +alpha > 0.5)) return bg;
+      el = el.parentElement;
+    }
+    return getComputedStyle(document.body).backgroundColor || 'rgb(255,255,255)';
+  }
+  function apply(){
+    var anchor = document.getElementById('lp-badge') ||
+                 document.getElementById('lp-progress') ||
+                 document.body;
+    var bg = nearestOpaqueBg(anchor);
+    var L = lum(bg);
+    var light = L > 0.55;
+    var root = document.documentElement.style;
+    if (light) {
+      root.setProperty('--lp-pill-bg',     'rgba(0,0,0,0.05)');
+      root.setProperty('--lp-pill-border', 'rgba(0,0,0,0.10)');
+      root.setProperty('--lp-pill-text',   '#0f172a');
+    } else {
+      root.setProperty('--lp-pill-bg',     'rgba(255,255,255,0.10)');
+      root.setProperty('--lp-pill-border', 'rgba(255,255,255,0.20)');
+      root.setProperty('--lp-pill-text',   '#f1f5f9');
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', apply, { once: true });
+  } else {
+    apply();
+  }
+})();</script>
+<!-- LP_CONTRAST_PATCH_END -->
 </body>
 </html>
