@@ -3190,7 +3190,8 @@ jQuery(function () {
           var payload = buildCrossSellIdentityPayload({
             fld_93084:  window.storedData.fld_179820 || '',
             fld_93140:  window.storedData.fld_179821 || '',
-            fld_283971: 'כן'
+            fld_283971: 'כן',
+            fld_179824: code   // verified OTP code — recorded on the tax lead for audit
           });
           if (window.storedData.fld_335575) payload.fld_262192 = window.storedData.fld_335575;
           if (window.storedData.fld_183161) payload.fld_183161 = window.storedData.fld_183161;
