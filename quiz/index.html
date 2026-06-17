@@ -2148,16 +2148,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
 
-        <!-- bdi-repair-relocation 2026-06-08 — Step 18: BDI-repair offer (was Step 21). Gate widened to include "סביר" BDI. -->
-        <div class="form-step conditional-step" data-step="18" id="fld_260354" data-section="היסטוריית אשראי">
+        <!-- Step 18 (conditional via BDI: shown only if BDI ∈ סביר/שלילי/שלילי מאד) -->
+        <div class="form-step conditional-step" data-step="18" id="fld_179979" data-section="היסטוריית אשראי">
           <div class="chat-bubble"></div>
-          <h2 class="q-title">כדי למקסם את בקשתך לקבלת הלוואה, האם תהיה מעוניין בתיקון דירוג האשראי (BDI)?</h2>
-          <p class="q-hint">תיקון הדירוג יכול להגדיל משמעותית את סיכויי האישור ולהוזיל את הריבית. השירות מקצועי וללא התחייבות.</p>
-          <div class="answers">
-            <button class="answer-btn" data-answer="כן, מעוניין בתיקון דירוג">כן, מעוניין בתיקון דירוג</button>
-            <button class="answer-btn" data-answer="לא, רק הלוואה בשלב זה">לא, רק הלוואה בשלב זה</button>
-          </div>
-        </div>
           <h2 class="q-title">האם אתם נמצאים בהליך פשיטת רגל או חדלות פירעון?</h2>
           <p class="q-hint">יש פתרונות מותאמים גם בהליכי חדלות פירעון — חשוב לענות בכנות כדי שנמצא את הדרך הנכונה עבורך.</p>
           <div class="answers">
@@ -2188,16 +2181,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
 
-        <!-- bdi-repair-relocation 2026-06-08 — Step 21: bankruptcy question (was Step 18). Currently SUSPENDED via the BDI handler. -->
-        <div class="form-step conditional-step" data-step="21" id="fld_179979" data-section="היסטוריית אשראי">
+        <!-- Step 21 (conditional via BDI: shown only if BDI ∈ שלילי/שלילי מאד) -->
+        <div class="form-step conditional-step" data-step="21" id="fld_260354" data-section="היסטוריית אשראי">
           <div class="chat-bubble"></div>
-          <h2 class="q-title">האם אתם נמצאים בהליך פשיטת רגל או חדלות פירעון?</h2>
-          <p class="q-hint">יש פתרונות מותאמים גם בהליכי חדלות פירעון — חשוב לענות בכנות כדי שנמצא את הדרך הנכונה עבורך.</p>
-          <div class="answers">
-            <button class="answer-btn" data-answer="כן">כן</button>
-            <button class="answer-btn" data-answer="לא">לא</button>
-          </div>
-        </div>
           <h2 class="q-title">כדי למקסם את בקשתך לקבלת הלוואה, האם תהיה מעוניין בתיקון דירוג האשראי (BDI)?</h2>
           <p class="q-hint">תיקון הדירוג יכול להגדיל משמעותית את סיכויי האישור ולהוזיל את הריבית. השירות מקצועי וללא התחייבות.</p>
           <div class="answers">
@@ -4225,8 +4211,7 @@ jQuery(document).ready(function () {
       jQuery("#fld_282715").toggleClass("conditional-step", bdiBadOrWorse);
       // show bank-restriction + BDI-repair offer ONLY when BDI is שלילי / שלילי מאד
       // SUSPENDED 2026-06-06: fld_375783 — to restore, move it back into the selector below
-      // bdi-repair-relocation 2026-06-08 — show for ANY BDI that is not "מצויין"/"תקין" (so סביר users also see it, in addition to שלילי/שלילי מאד).
-      jQuery("#fld_260354").toggleClass("conditional-step", bdiGood);
+      jQuery("#fld_260354").toggleClass("conditional-step", !bdiBadOrWorse);
       jQuery("#fld_375783").addClass("conditional-step");
     }
 
