@@ -1662,6 +1662,58 @@ body {
   .insurer-name { font-size: 15px; }
   .insurer-skip-btn { font-size: 14px; padding: 12px 14px; }
 }
+
+/* pitch-choice — equal yes/no buttons, 2026-06-18 */
+.insurance-pitch .row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+}
+#insurancePitchYes.pitch-choice,
+#insurancePitchNo.pitch-choice {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 80px !important;
+  padding: 14px 18px !important;
+  background: #ffffff !important;
+  border: 2px solid #d1d5db !important;
+  color: #111827 !important;
+  border-radius: 14px !important;
+  font: 600 14.5px/1.45 var(--sans, sans-serif) !important;
+  text-align: right !important;
+  cursor: pointer !important;
+  transition: border-color .18s ease, background-color .18s ease, transform .12s ease, box-shadow .18s ease !important;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, .03);
+}
+#insurancePitchYes.pitch-choice:hover,
+#insurancePitchNo.pitch-choice:hover {
+  border-color: var(--ink, #111827) !important;
+  background: #f9fafb !important;
+  box-shadow: 0 6px 18px -8px rgba(15, 23, 42, .18) !important;
+  color: var(--ink, #111827) !important;
+}
+#insurancePitchYes.pitch-choice:active,
+#insurancePitchNo.pitch-choice:active { transform: translateY(1px); }
+.pitch-choice__icon {
+  flex: 0 0 auto;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 20px; line-height: 1;
+  border: 2px solid #e5e7eb;
+  background: #f3f4f6;
+}
+.pitch-choice--yes .pitch-choice__icon { background: #dcfce7; border-color: #86efac; }
+.pitch-choice--no  .pitch-choice__icon { background: #fee2e2; border-color: #fca5a5; }
+.pitch-choice__text { flex: 1 1 auto; }
+@media (max-width: 360px) {
+  #insurancePitchYes.pitch-choice, #insurancePitchNo.pitch-choice { font-size: 13.5px !important; min-height: 72px; padding: 12px 14px !important; }
+  .pitch-choice__icon { width: 38px; height: 38px; font-size: 18px; }
+}
 </style>
 
 <!-- Google Tag Manager -->
@@ -2231,8 +2283,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <div style="margin-top:10px; font-size:13px; opacity:0.9;">שתיהן ללא עלות, ללא התחייבות לסגירת ביטוח חדש — רק חוות-דעת מקצועית.</div>
             </div>
             <div class="row">
-              <button id="insurancePitchYes">כן, אני מסכים לשיחה נוספת מנציג חברת הביטוח</button>
-              <button id="insurancePitchNo" class="ghost">לא, אינני מעוניין בשיחה נוספת</button>
+              <button id="insurancePitchYes" class="pitch-choice pitch-choice--yes" type="button"><span class="pitch-choice__icon" aria-hidden="true">✅</span><span class="pitch-choice__text">כן, אני רוצה שיתקשרו אליי בשיחה נוספת חוץ מההלוואה לגבי בדיקת תיק הביטוחים שלי</span></button>
+              <button id="insurancePitchNo" class="pitch-choice pitch-choice--no ghost" type="button"><span class="pitch-choice__icon" aria-hidden="true">❌</span><span class="pitch-choice__text">לא, אני רוצה לבדוק רק את ההלוואה</span></button>
             </div>
           </div>
 
