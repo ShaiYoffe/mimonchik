@@ -1691,10 +1691,10 @@ body {
 }
 #insurancePitchYes.pitch-choice:hover,
 #insurancePitchNo.pitch-choice:hover {
-  border-color: var(--ink, #111827) !important;
+  border-color: #374151 !important;
   background: #f9fafb !important;
   box-shadow: 0 6px 18px -8px rgba(15, 23, 42, .18) !important;
-  color: var(--ink, #111827) !important;
+  color: #111827 !important;
 }
 #insurancePitchYes.pitch-choice:active,
 #insurancePitchNo.pitch-choice:active { transform: translateY(1px); }
@@ -1714,6 +1714,8 @@ body {
   #insurancePitchYes.pitch-choice, #insurancePitchNo.pitch-choice { font-size: 13.5px !important; min-height: 72px; padding: 12px 14px !important; }
   .pitch-choice__icon { width: 38px; height: 38px; font-size: 18px; }
 }
+
+/* loan-callout-themeaware-fix 2026-06-18 */
 </style>
 
 <!-- Google Tag Manager -->
@@ -1971,9 +1973,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div id="revenueAmountWrapper" style="display:flex;align-items:center;gap:8px;justify-content:center;margin-top:10px;">
             <input type="text" id="revenueAmountInput" value="500,000" inputmode="numeric"
                    style="width:180px;height:46px;padding:0 14px;font-size:18px;font-weight:700;text-align:center;border:1.5px solid #D6DCEC;border-radius:10px;background:#fff;color:#0F1620;direction:ltr;letter-spacing:.5px;">
-            <span id="revenueAmountCurrency" style="font-size:20px;font-weight:700;color:#41487A;">₪</span>
+            <span id="revenueAmountCurrency" style="font-size:20px;font-weight:700;color:var(--ink-soft,#41487A);">₪</span>
           </div>
-          <div class="slider-hint" style="display:flex;justify-content:space-between;font-size:12.5px;color:#41487A;opacity:.65;margin-top:8px;">
+          <div class="slider-hint" style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink-soft,#41487A);opacity:.65;margin-top:8px;">
             <span>100,000 ₪</span>
             <span>50,000,000 ₪</span>
           </div>
@@ -2270,13 +2272,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
           <!-- Insurance pitch (only for users who answered "כן" on fld_282715) -->
           <div class="insurance-pitch" id="insurancePitch" style="display: none;">
-            <div style="color:#1F2937; background:rgba(34,197,94,0.10); border:1px solid rgba(34,197,94,0.35); border-radius:10px; padding:13px 16px; margin-bottom:18px; text-align:right; font-size:14px; line-height:1.5;">
+            <div style="color:var(--ink,#1F2937); background:rgba(34,197,94,0.10); border:1px solid rgba(34,197,94,0.35); border-radius:10px; padding:13px 16px; margin-bottom:18px; text-align:right; font-size:14px; line-height:1.5;">
               ✅ <strong>הבקשה שלך להלוואה התקבלה!</strong> נציג מומחה אשראי מהצוות שלנו יחזור אליך בקרוב לטיפול בבקשה המקורית.
             </div>
             <div class="pitch-badge">🎁 בונוס בלעדי — שירות נוסף</div>
             <h3>בדיקת תיק הביטוחים שלך — בחינם, עם נציג חברת ביטוח מורשה</h3>
             <p><strong>מכיוון שסימנת שאתה משלם על ביטוחים פרטיים</strong> — אנחנו ממליצים בחום לבצע בדיקת תיק הביטוח שלך. הבדיקה מבוצעת על-ידי <strong>נציג מורשה של חברת ביטוח מובילה</strong> שיחזור אליך טלפונית עם המלצות מותאמות אישית.</p>
-            <div style="color:#1F2937; background:rgba(255,193,7,0.10); border-right:3px solid #FFC107; border-radius:8px; padding:14px 16px; margin:18px 0; text-align:right; font-size:14px; line-height:1.7;">
+            <div style="color:var(--ink,#1F2937); background:rgba(255,193,7,0.10); border-right:3px solid #FFC107; border-radius:8px; padding:14px 16px; margin:18px 0; text-align:right; font-size:14px; line-height:1.7;">
               <div style="font-weight:700; margin-bottom:8px; font-size:15px;">📞 חשוב להבין — אם תאשר, תקבל 2 שיחות נפרדות:</div>
               <div style="margin:6px 0;"><strong>1.</strong> נציג מומחה אשראי מהצוות שלנו — לטיפול בבקשת ההלוואה</div>
               <div style="margin:6px 0;"><strong>2.</strong> נציג מחברת ביטוח מובילה — לבדיקת תיק הביטוחים שלך</div>
@@ -2297,11 +2299,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="chat-bubble"></div>
           <h2 class="q-title">🔐 שלחנו לך קוד אימות ב-SMS</h2>
           <p class="q-hint">למספר <strong id="otpInsMaskedPhone"></strong> נשלח קוד בן 4 ספרות. <strong>מיד לאחר האימות — נציג חברת ביטוח מורשה יחזור אליך טלפונית בנוסף לטיפול בבקשתך המקורית.</strong> ללא אימות לא נוכל להעביר את הבקשה.</p>
-          <div style="color:#1F2937; background:rgba(59,130,246,0.10); border:1px solid rgba(59,130,246,0.35); border-radius:10px; padding:14px 16px; margin:16px auto; max-width:340px; text-align:center; font-size:14px; line-height:1.6;">
+          <div style="color:var(--ink,#1F2937); background:rgba(59,130,246,0.10); border:1px solid rgba(59,130,246,0.35); border-radius:10px; padding:14px 16px; margin:16px auto; max-width:340px; text-align:center; font-size:14px; line-height:1.6;">
             <div style="opacity:.85; margin-bottom:6px;">נציג חברת הביטוח יתקשר אליך למספר:</div>
             <div style="font-size:20px; font-weight:800; direction:ltr; letter-spacing:0.5px;" id="otpInsMaskedPhoneBig"></div>
             <div style="opacity:.85; margin-top:6px; font-size:13px;">תוך 1-3 ימי עסקים</div>
-            <div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(127,127,127,0.15); font-size:13px; color:#d97706;">⚠️ זה יהיה ממספר לא מוכר — חשוב שתענה!</div>
+            <div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(127,127,127,0.15); font-size:13px; color:#f59e0b;">⚠️ זה יהיה ממספר לא מוכר — חשוב שתענה!</div>
           </div>
           <div class="input-field" style="max-width: 200px; margin: 18px auto;">
             <input type="text" id="otpInsInput" inputmode="numeric" maxlength="4" autocomplete="one-time-code" placeholder="••••" style="text-align:center; font-size:28px; letter-spacing:14px; font-weight:800; direction:ltr;" />
@@ -2311,14 +2313,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <button id="otpInsVerifyBtn" disabled>אימות קוד וחזרה של נציג חברת הביטוח</button>
           </div>
           <div class="row" style="margin-top:10px;">
-            <button id="otpInsResendBtn" disabled style="background:transparent; border:1.5px solid #ccc; color:#666; font-weight:600;">שלח קוד שוב <span id="otpInsResendTimer"></span></button>
+            <button id="otpInsResendBtn" disabled style="background:transparent; border:1.5px solid #ccc; color:var(--ink-soft,#666); font-weight:600;">שלח קוד שוב <span id="otpInsResendTimer"></span></button>
           </div>
           <div style="text-align:center; margin-top:14px;">
             <a href="#" id="otpInsChangePhoneLink" style="font-size:13.5px; text-decoration:underline; cursor:pointer; color:#0066cc;">לא קיבלת? שנה מספר טלפון</a>
           </div>
           <div id="otpInsChangePhone" style="display:none; margin-top:14px; padding:14px; border:1.5px dashed #ccc; border-radius:10px; max-width:320px; margin-left:auto; margin-right:auto;">
             <label for="otpInsNewPhone" style="display:block; font-size:13px; font-weight:700; margin-bottom:8px;">הזן מספר נייד חדש (10 ספרות):</label>
-            <input id="otpInsNewPhone" type="tel" inputmode="tel" maxlength="10" placeholder="לדוגמה: 0501234567" style="width:100%; padding:10px 12px; font-size:17px; font-weight:700; color:#111; background:#fff; border:1.5px solid #ccc; border-radius:8px; text-align:center; direction:ltr;" />
+            <input id="otpInsNewPhone" type="tel" inputmode="tel" maxlength="10" placeholder="לדוגמה: 0501234567" style="width:100%; padding:10px 12px; font-size:17px; font-weight:700; color:var(--ink,#111);background:var(--paper,#fff); border:1.5px solid #ccc; border-radius:8px; text-align:center; direction:ltr;" />
             <div class="error-message" id="otpInsNewPhoneErr" style="display:none; margin-top:6px;"></div>
             <div class="row" style="margin-top:10px;">
               <button id="otpInsNewPhoneSubmit">שלח קוד למספר החדש</button>
@@ -2332,12 +2334,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div style="color:#22c55e; font-weight:700; font-size:14px; margin-bottom:8px;">✅ אומת בהצלחה</div>
           <h2 class="q-title">תודה רבה — קיבלנו את אישורך!</h2>
           <p class="q-hint">לפני שאתה ממשיך — קח שנייה לזכור מה עומד להגיע אליך:</p>
-          <div style="color:#1F2937; background:rgba(34,197,94,0.10); border:1px solid rgba(34,197,94,0.35); border-radius:12px; padding:18px 20px; margin:18px 0; text-align:right; font-size:14.5px; line-height:1.7;">
+          <div style="color:var(--ink,#1F2937); background:rgba(34,197,94,0.10); border:1px solid rgba(34,197,94,0.35); border-radius:12px; padding:18px 20px; margin:18px 0; text-align:right; font-size:14.5px; line-height:1.7;">
             <div style="font-weight:700; margin-bottom:12px; font-size:15.5px;">📨 2 שיחות בדרך אליך — שתיהן למספר <span id="confirm2callsPhone" style="direction:ltr;"></span>:</div>
             <div style="margin:10px 0; padding-right:10px;"><div><strong>1. 📞 נציג מומחה אשראי מהצוות שלנו</strong></div><div style="opacity:.85; font-size:13.5px; margin-top:2px;">בקרוב — לטיפול בבקשת ההלוואה</div></div>
             <div style="margin:10px 0; padding-right:10px;"><div><strong>2. 🏦 נציג מחברת ביטוח מורשה</strong></div><div style="opacity:.85; font-size:13.5px; margin-top:2px;">תוך 1-3 ימי עסקים — לבדיקת תיק הביטוחים</div></div>
           </div>
-          <div style="color:#1F2937; background:rgba(255,193,7,0.12); border:1px solid rgba(255,193,7,0.45); border-radius:10px; padding:13px 16px; margin:14px 0; text-align:right; font-size:14px; line-height:1.6;">
+          <div style="color:var(--ink,#1F2937); background:rgba(255,193,7,0.12); border:1px solid rgba(255,193,7,0.45); border-radius:10px; padding:13px 16px; margin:14px 0; text-align:right; font-size:14px; line-height:1.6;">
             💡 <strong>כששתי השיחות יגיעו ממספרים לא מוכרים — זה אנחנו!</strong> חשוב שתענה כדי לקבל את ההצעות שלך.
           </div>
           <div class="row"><button id="confirm2CallsBtn">המשך לעוד כמה שאלות קצרות ←</button></div>
@@ -2480,7 +2482,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <span style="flex:1;">בדיקה לאיתור כספים אבודים בקופות גמל, ביטוחים ופנסיה</span>
               </button>
               <button class="answer-btn extra-check-btn extra-check-btn--skip" id="extraCheckSkipBtn" data-extra-choice="skip"
-                      style="background:#F5FAFE !important; border:1.5px solid #D6DCEC !important; color:#41487A !important; padding:14px 20px !important; border-radius:14px !important; font:600 14.5px/1.3 'Heebo', sans-serif !important; text-align:center !important;">
+                      style="background:#F5FAFE !important; border:1.5px solid #D6DCEC !important; color:var(--ink-soft,#41487A) !important; padding:14px 20px !important; border-radius:14px !important; font:600 14.5px/1.3 'Heebo', sans-serif !important; text-align:center !important;">
                 לא, תודה — אני מעדיף להתקדם עם בקשת ההלוואה בלבד
               </button>
             </div>
@@ -2508,7 +2510,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             <div class="row" style="justify-content:center;margin-top:10px;">
               <button id="otpExtraResendBtn" type="button" disabled
-                      style="background:transparent; border:1.5px solid #ccc; color:#666; font-weight:600;">
+                      style="background:transparent; border:1.5px solid #ccc; color:var(--ink-soft,#666); font-weight:600;">
                 שלח קוד שוב <span id="otpExtraResendTimer"></span>
               </button>
             </div>
@@ -2525,7 +2527,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               </label>
               <input id="otpExtraNewPhone" type="tel" inputmode="tel" maxlength="10"
                      placeholder="לדוגמה: 0501234567"
-                     style="width:100%; padding:10px 12px; font-size:17px; font-weight:700; color:#111; background:#fff; border:1.5px solid #ccc; border-radius:8px; text-align:center; direction:ltr;" />
+                     style="width:100%; padding:10px 12px; font-size:17px; font-weight:700; color:var(--ink,#111);background:var(--paper,#fff); border:1.5px solid #ccc; border-radius:8px; text-align:center; direction:ltr;" />
               <div class="error-message" id="otpExtraNewPhoneErr" style="display:none; margin-top:6px;"></div>
               <div class="row" style="margin-top:10px;">
                 <button id="otpExtraNewPhoneSubmit">שלח קוד למספר החדש</button>
@@ -2546,7 +2548,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h2 class="success-title">בדיקת <span id="extraCheckDoneServiceName">הבדיקה הנוספת</span> נרשמה במערכת!</h2>
 
             <!-- Two-calls callout — same visual pattern as the insurance confirmation step -->
-            <div style="color:#1F2937; background:rgba(15,109,94,0.10); border:2px solid rgba(15,109,94,0.45); border-radius:12px; padding:16px 18px; margin:18px auto; max-width:400px; text-align:right;">
+            <div style="color:var(--ink,#1F2937); background:rgba(15,109,94,0.10); border:2px solid rgba(15,109,94,0.45); border-radius:12px; padding:16px 18px; margin:18px auto; max-width:400px; text-align:right;">
               <div style="font-size:13px; opacity:.85; margin-bottom:10px; text-align:center; font-weight:700;">
                 ⚠️ שים לב — שתי שיחות נפרדות יחזרו אליך:
               </div>
@@ -2557,7 +2559,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <div style="font-size:14.5px; font-weight:600; line-height:1.5; margin-top:8px;">
                 ② בנוסף — בקשת ההלוואה שלך ממשיכה לטיפול נציג אשראי <span style="opacity:.7;">בשיחה אחרת</span>
               </div>
-              <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(127,127,127,0.18); font-size:13px; color:#d97706; text-align:center; font-weight:700;">
+              <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(127,127,127,0.18); font-size:13px; color:#f59e0b; text-align:center; font-weight:700;">
                 💡 השיחה תהיה ממספר לא מוכר — חשוב שתענה!
               </div>
             </div>
@@ -2592,8 +2594,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="chat-bubble"></div>
           <h2 class="q-title">🔐 שלחנו לך קוד אימות ב-SMS</h2>
           <p class="q-hint">למספר <strong id="otpTaxMaskedPhone"></strong> נשלח קוד בן 4 ספרות. <strong>מיד לאחר האימות — נציג מומחה החזרי מס יחזור אליך טלפונית בנוסף לטיפול בבקשת ההלוואה.</strong> ללא אימות לא נוכל להעביר את הבקשה לבדיקה.</p>
-          <div style="color:#1F2937; background:rgba(255,193,7,0.10); border:2px solid rgba(255,193,7,0.55); border-radius:10px; padding:14px 16px; margin:16px auto; max-width:400px; text-align:right; font-size:14px; line-height:1.6;">
-            <div style="font-weight:800; margin-bottom:8px; text-align:center; color:#d97706;">⚠️ שים לב — מדובר בבדיקה נוספת לבקשת ההלוואה!</div>
+          <div style="color:var(--ink,#1F2937); background:rgba(255,193,7,0.10); border:2px solid rgba(255,193,7,0.55); border-radius:10px; padding:14px 16px; margin:16px auto; max-width:400px; text-align:right; font-size:14px; line-height:1.6;">
+            <div style="font-weight:800; margin-bottom:8px; text-align:center; color:#f59e0b;">⚠️ שים לב — מדובר בבדיקה נוספת לבקשת ההלוואה!</div>
             <div style="margin:6px 0;"><strong>1.</strong> נציג מומחה אשראי מהצוות שלנו — לטיפול בבקשת ההלוואה</div>
             <div style="margin:6px 0;"><strong>2.</strong> נציג מומחה החזרי מס — לבדיקת זכאות להחזר מס</div>
             <div style="margin-top:10px; font-size:13px; opacity:.85;">שתי השיחות ללא עלות וללא התחייבות.</div>
@@ -2607,7 +2609,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
           <div class="row" style="margin-top:10px;">
             <button id="otpTaxResendBtn" type="button" disabled
-                    style="background:transparent; border:1.5px solid #ccc; color:#666; font-weight:600;">
+                    style="background:transparent; border:1.5px solid #ccc; color:var(--ink-soft,#666); font-weight:600;">
               שלח קוד שוב <span id="otpTaxResendTimer"></span>
             </button>
           </div>
