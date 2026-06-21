@@ -4012,9 +4012,45 @@ function formatAndSanitizeMoneyInput(inputElement) {
   return null;
 }
 
+// === leads.ymedia.co.il fld_XXX → display_id map (added 2026-06-21) ===
+// Loan-flow quiz fields only. Insurance/tax cross-sell PATCHes are intentionally
+// NOT mirrored to our CRM — those flows live entirely in Leadim and don't have a
+// corresponding lead in leads.ymedia.co.il.
+var YL_FLD_TO_DID = {
+  fld_196663: '10060', fld_296630: '10286', fld_179977: '10026',
+  fld_377198: '10735', fld_282716: '10159', fld_183161: '10036',
+  fld_179825: '10009', fld_381529: '10063', fld_374436: '10222',
+  fld_283259: '10163', fld_247918: '10115', fld_200095: '10064',
+  fld_210801: '10071', fld_375712: '10223', fld_240263: '10108',
+  fld_261441: '10131', fld_282715: '10158', fld_179821: '10005',
+  fld_376925: '10081', fld_232629: '10196', fld_209867: '10069',
+  fld_354417: '10194', fld_196665: '10062', fld_179979: '10028',
+  fld_248542: '10116', fld_375783: '10123', fld_260354: '10127',
+  fld_179820: '10004', fld_335575: '10050'
+};
+var YL_WEBHOOK = 'https://leads.ymedia.co.il/api/sales-webhook/3eefcbd258d3cee5603b1a0096e98b64';
+function ylPatchSingle(fieldId, value) {
+  try {
+    if (window.storedData && (window.storedData.activeFlow === 'insurance' || window.storedData.activeFlow === 'tax')) return;
+    var did = YL_FLD_TO_DID[fieldId]; if (!did) return;
+    var ylId = ''; try { ylId = localStorage.getItem('ymcs_ylead_id_v1') || ''; } catch (e) {}
+    if (!ylId) return;
+    var body = new URLSearchParams(); body.set(did, String(value));
+    fetch(YL_WEBHOOK + '?lead_id=' + encodeURIComponent(ylId), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+      keepalive: true
+    }).catch(function () {});
+  } catch (e) {}
+}
+
 function sendSingleData(fieldId, value, currentStep, successCallback) {
   // Track every answer locally so flow finalisers can read them back
   window.storedData[fieldId] = value;
+  // === leads.ymedia.co.il parallel stream (added 2026-06-21) — fire-and-forget,
+  // never blocks Leadim. Skips when activeFlow is insurance/tax. ===
+  ylPatchSingle(fieldId, value);
   // Route the update to whichever lead the user is currently filling out:
   // loan flow → byId (from URL); insurance/tax flow → the lead we created on pitch click.
   var leadId = getActiveLeadId();
@@ -4470,6 +4506,29 @@ jQuery(document).ready(function () {
     // failed network-side, lead became "completed" in Supabase but route_adv
     // was never received by Leadim → cron skipped it → lead never routed.
     formCompleted = true;
+
+    // === leads.ymedia.co.il routing trigger (added 2026-06-21) ===
+    // Fire-and-forget PATCH to our internal sales CRM. Sets #10298="true"
+    // (the routing-trigger flag) which makes our server fire its routing
+    // engine. Mirrors the Leadim route_adv=true below. Never blocks — if our
+    // endpoint is down, Leadim still routes and the user flow continues.
+    try {
+      var __ylId = '';
+      try { __ylId = localStorage.getItem('ymcs_ylead_id_v1') || ''; } catch (e) {}
+      if (__ylId) {
+        var __ylBody = new URLSearchParams();
+        __ylBody.set('10004', email);
+        __ylBody.set('10298', 'true');
+        fetch('https://leads.ymedia.co.il/api/sales-webhook/3eefcbd258d3cee5603b1a0096e98b64?lead_id=' + encodeURIComponent(__ylId), {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: __ylBody.toString(),
+          keepalive: true
+        }).catch(function () { /* silent */ });
+      }
+    } catch (e) { /* silent */ }
+    // === end leads.ymedia.co.il routing trigger ===
+
     var formData = new FormData();
     formData.append("by_id", byId);
     formData.append(stepId, email);
