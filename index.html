@@ -917,6 +917,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if (__utm.utm_term)     __ylBody.set('10045', __utm.utm_term);
       if (__utm.gclid)        __ylBody.set('10046', __utm.gclid);
       if (__utm.fblid)        __ylBody.set('10047', __utm.fblid);
+      if (formData && formData.fld_228371) __ylBody.set('10098', formData.fld_228371);
+      if (formData && formData.fld_331359) __ylBody.set('10124', formData.fld_331359);
       try { localStorage.removeItem('ymcs_ylead_id_v1'); } catch (e) {}
       fetch('https://leads.ymedia.co.il/api/sales-webhook/3eefcbd258d3cee5603b1a0096e98b64', {
         method: 'POST',
