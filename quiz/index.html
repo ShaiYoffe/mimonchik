@@ -4012,10 +4012,15 @@ function formatAndSanitizeMoneyInput(inputElement) {
   return null;
 }
 
-// === leads.ymedia.co.il fld_XXX → display_id map (added 2026-06-21) ===
+// === leads.ymedia.co.il fld_XXX → display_id map (race-fix 2026-06-21) ===
 // Loan-flow quiz fields only. Insurance/tax cross-sell PATCHes are intentionally
-// NOT mirrored to our CRM — those flows live entirely in Leadim and don't have a
-// corresponding lead in leads.ymedia.co.il.
+// NOT mirrored — those flows live entirely in Leadim.
+//
+// Race-condition fix: the homepage POST's .then() may not run before the browser
+// navigates to /quiz/ (keepalive sends the request but the JS handler is gone).
+// Bootstrap below: on quiz load, check localStorage; if empty, create the lead
+// here from URL params (name+phone). Every ylPatchSingle awaits this promise
+// so PATCHes never fire with no lead_id.
 var YL_FLD_TO_DID = {
   fld_196663: '10060', fld_296630: '10286', fld_179977: '10026',
   fld_377198: '10735', fld_282716: '10159', fld_183161: '10036',
@@ -4029,19 +4034,49 @@ var YL_FLD_TO_DID = {
   fld_179820: '10004', fld_335575: '10050'
 };
 var YL_WEBHOOK = 'https://leads.ymedia.co.il/api/sales-webhook/3eefcbd258d3cee5603b1a0096e98b64';
+window.__ylBootstrap = (function () {
+  try {
+    var ylId = '';
+    try { ylId = localStorage.getItem('ymcs_ylead_id_v1') || ''; } catch (e) {}
+    if (ylId) return Promise.resolve(ylId);
+    var qs = new URLSearchParams(window.location.search);
+    var name = qs.get('name') || '';
+    var phone = qs.get('phone') || '';
+    if (!name || !phone) return Promise.resolve(null);
+    var body = new URLSearchParams();
+    body.set('10001', name);
+    body.set('10002', phone);
+    body.set('10010', window.location.hostname);
+    return fetch(YL_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString()
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (res && res.lead_id) {
+        try { localStorage.setItem('ymcs_ylead_id_v1', res.lead_id); } catch (e) {}
+        return res.lead_id;
+      }
+      return null;
+    })
+    .catch(function () { return null; });
+  } catch (e) { return Promise.resolve(null); }
+})();
 function ylPatchSingle(fieldId, value) {
   try {
     if (window.storedData && (window.storedData.activeFlow === 'insurance' || window.storedData.activeFlow === 'tax')) return;
     var did = YL_FLD_TO_DID[fieldId]; if (!did) return;
-    var ylId = ''; try { ylId = localStorage.getItem('ymcs_ylead_id_v1') || ''; } catch (e) {}
-    if (!ylId) return;
-    var body = new URLSearchParams(); body.set(did, String(value));
-    fetch(YL_WEBHOOK + '?lead_id=' + encodeURIComponent(ylId), {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body.toString(),
-      keepalive: true
-    }).catch(function () {});
+    Promise.resolve(window.__ylBootstrap).then(function (ylId) {
+      if (!ylId) return;
+      var body = new URLSearchParams(); body.set(did, String(value));
+      fetch(YL_WEBHOOK + '?lead_id=' + encodeURIComponent(ylId), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+        keepalive: true
+      }).catch(function () {});
+    });
   } catch (e) {}
 }
 
@@ -4507,15 +4542,13 @@ jQuery(document).ready(function () {
     // was never received by Leadim → cron skipped it → lead never routed.
     formCompleted = true;
 
-    // === leads.ymedia.co.il routing trigger (added 2026-06-21) ===
-    // Fire-and-forget PATCH to our internal sales CRM. Sets #10298="true"
-    // (the routing-trigger flag) which makes our server fire its routing
-    // engine. Mirrors the Leadim route_adv=true below. Never blocks — if our
-    // endpoint is down, Leadim still routes and the user flow continues.
+    // === leads.ymedia.co.il routing trigger (race-fix 2026-06-21) ===
+    // Fire-and-forget PATCH to our internal sales CRM. Sets #10298="true" so
+    // our server fires its routing engine. Awaits __ylBootstrap so we don't
+    // miss the trigger if homepage POST .then() lost the race to navigation.
     try {
-      var __ylId = '';
-      try { __ylId = localStorage.getItem('ymcs_ylead_id_v1') || ''; } catch (e) {}
-      if (__ylId) {
+      Promise.resolve(window.__ylBootstrap).then(function (__ylId) {
+        if (!__ylId) return;
         var __ylBody = new URLSearchParams();
         __ylBody.set('10004', email);
         __ylBody.set('10298', 'true');
@@ -4524,9 +4557,9 @@ jQuery(document).ready(function () {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: __ylBody.toString(),
           keepalive: true
-        }).catch(function () { /* silent */ });
-      }
-    } catch (e) { /* silent */ }
+        }).catch(function () {});
+      });
+    } catch (e) {}
     // === end leads.ymedia.co.il routing trigger ===
 
     var formData = new FormData();
