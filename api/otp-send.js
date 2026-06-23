@@ -131,14 +131,15 @@ export default async function handler(req, res) {
     // but the SMS says loan eligibility?"). Anything we don't explicitly
     // recognize falls through to the loan-eligibility default.
     const flow = String((body && body.flow) || '').toLowerCase();
-    // Clarified 2026-06-23 — every cross-sell template now makes it explicit
-    // that verifying triggers an ADDITIONAL call on top of the loan request.
-    // Default (loan) stays neutral since that's the user's original request.
+    // Option 2 (2026-06-23 v2) — sequential framing: code → verify → callback.
+    // Makes it explicit that verifying triggers a SEPARATE call, on top of
+    // the original loan request. Default (loan) is the user's primary request
+    // so it stays a simple verification message.
     const ymsg =
-      flow === 'insurance'          ? `קוד לאישור בדיקת תיק הביטוח (בנוסף לבקשת ההלוואה): ${code}` :
-      flow === 'extra_check_grant'  ? `קוד לאישור בדיקת זכאות למענק עבודה (בנוסף לבקשת ההלוואה): ${code}` :
-      flow === 'extra_check_locate' ? `קוד לאישור איתור כספים אבודים (בנוסף לבקשת ההלוואה): ${code}` :
-      flow === 'tax'                ? `קוד לאישור בדיקת זכאות להחזר מס (בנוסף לבקשת ההלוואה): ${code}` :
+      flow === 'insurance'          ? `קוד אימות: ${code}. לאחר האישור — שיחה נפרדת מנציג ביטוח לבדיקת תיק הביטוח (בנוסף לבקשתך להלוואה).` :
+      flow === 'tax'                ? `קוד אימות: ${code}. לאחר האישור — שיחה נפרדת ממומחה החזרי מס לבדיקת זכאות להחזר מס (בנוסף לבקשתך להלוואה).` :
+      flow === 'extra_check_grant'  ? `קוד אימות: ${code}. לאחר האישור — שיחה נפרדת ממומחה מענק עבודה לבדיקת זכאות (בנוסף לבקשתך להלוואה).` :
+      flow === 'extra_check_locate' ? `קוד אימות: ${code}. לאחר האישור — שיחה נפרדת לאיתור כספים אבודים על שמך (בנוסף לבקשתך להלוואה).` :
                                       `קוד אימות לבדיקת זכאות להלוואה: ${code}`;
     const upstream = await sendInforuSMS(phone, code, ymsg);
     console.log('[otp-send] InfoRU OK:', upstream.slice(0, 200));
