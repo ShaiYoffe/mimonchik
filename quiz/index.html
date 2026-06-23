@@ -1718,6 +1718,39 @@ body {
 /* loan-callout-themeaware-fix 2026-06-18 */
 
 /* loan-contrast-round2 2026-06-18 */
+
+/* tax-pitch-2call CSS 2026-06-23 */
+#taxPitchYes.pitch-choice,
+#taxPitchNo.pitch-choice {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 80px !important;
+  padding: 14px 18px !important;
+  background: #ffffff !important;
+  border: 2px solid #d1d5db !important;
+  color: #111827 !important;
+  border-radius: 14px !important;
+  font: 600 14.5px/1.45 var(--sans, sans-serif) !important;
+  text-align: right !important;
+  cursor: pointer !important;
+  transition: border-color .18s ease, background-color .18s ease, transform .12s ease, box-shadow .18s ease !important;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, .03);
+}
+#taxPitchYes.pitch-choice:hover,
+#taxPitchNo.pitch-choice:hover {
+  border-color: #374151 !important;
+  background: #f9fafb !important;
+  box-shadow: 0 6px 18px -8px rgba(15, 23, 42, .18) !important;
+  color: #111827 !important;
+}
+#taxPitchYes.pitch-choice:active,
+#taxPitchNo.pitch-choice:active { transform: translateY(1px); }
+@media (max-width: 360px) {
+  #taxPitchYes.pitch-choice, #taxPitchNo.pitch-choice { font-size: 13.5px !important; min-height: 72px; padding: 12px 14px !important; }
+}
 </style>
 
 <!-- Google Tag Manager -->
@@ -2571,21 +2604,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
 
         <!-- ===== Post-submit: Tax-refund pitch (shown to everyone) ===== -->
+        <!-- tax-pitch-2call-redesign 2026-06-23 -->
         <div class="form-step post-submit-step" id="fld_283971" data-section="החזר מס">
-          <div class="success-card">
-            <div class="success-icon success-icon--gold" aria-hidden="true">₪</div>
-            <h2 class="success-title">המערכת זיהתה שישנו סיכוי גבוה לקבלת החזר מס מהמדינה!</h2>
-            <p class="success-body">רוב הישראלים מפספסים החזרי מס שמגיעים להם — לפעמים אלפי שקלים. בדיקת זכאות מקצועית, חינמית וללא התחייבות.</p>
-          </div>
           <div class="insurance-pitch">
-            <div class="pitch-badge">בונוס נוסף</div>
-            <h3>האם תרצה שגוף מקצועי יחזור אליך לבדיקת זכאות להחזר מס?</h3>
-            <p>שיחה ראשונית בלבד — מומחים יבדקו עבורך את הזכאות, יסבירו איך לקבל את הכסף שמגיע לך, ויעשו עבורך את כל התהליך מול רשויות המס.</p>
-            <div class="answers">
-              <button class="answer-btn" data-answer="כן" data-tax-yes="true">כן, אשמח לבדוק זכאות</button>
-              <button class="answer-btn" data-answer="לא" data-tax-yes="false">לא תודה, סיום</button>
+            <div style="color:var(--ink,#1F2937); background:rgba(34,197,94,0.10); border:1px solid rgba(34,197,94,0.35); border-radius:10px; padding:13px 16px; margin-bottom:18px; text-align:right; font-size:14px; line-height:1.5;">
+              ✅ <strong>הבקשה שלך להלוואה התקבלה!</strong> נציג מומחה אשראי מהצוות שלנו יחזור אליך בקרוב לטיפול בבקשה המקורית.
+            </div>
+            <div class="pitch-badge">🎁 בונוס בלעדי — שירות נוסף</div>
+            <h3>בדיקת זכאות להחזר מס — בחינם, עם מומחה החזרי מס</h3>
+            <p>רוב הישראלים מפספסים החזרי מס שמגיעים להם — <strong>לפעמים אלפי שקלים</strong>. מומחה החזרי מס יחזור אליך טלפונית ויבדוק עבורך את הזכאות, יסביר איך לקבל את הכסף שמגיע לך, ויעשה עבורך את כל התהליך מול רשויות המס.</p>
+            <div style="color:var(--ink,#1F2937); background:rgba(255,193,7,0.10); border-right:3px solid #FFC107; border-radius:8px; padding:14px 16px; margin:18px 0; text-align:right; font-size:14px; line-height:1.7;">
+              <div style="font-weight:700; margin-bottom:8px; font-size:15px;">📞 חשוב להבין — אם תאשר, תקבל 2 שיחות נפרדות:</div>
+              <div style="margin:6px 0;"><strong>1.</strong> נציג מומחה אשראי מהצוות שלנו — לטיפול בבקשת ההלוואה</div>
+              <div style="margin:6px 0;"><strong>2.</strong> נציג מומחה החזרי מס — לבדיקת זכאות להחזר מס</div>
+              <div style="margin-top:10px; font-size:13px; opacity:0.9;">שתי השיחות ללא עלות וללא התחייבות — רק בדיקה מקצועית.</div>
+            </div>
+            <div class="row">
+              <button id="taxPitchNo" class="answer-btn pitch-choice pitch-choice--no" data-answer="לא" data-tax-yes="false" type="button"><span class="pitch-choice__icon" aria-hidden="true">❌</span><span class="pitch-choice__text">לא, אני רוצה לבדוק רק את ההלוואה</span></button>
+              <button id="taxPitchYes" class="answer-btn pitch-choice pitch-choice--yes" data-answer="כן" data-tax-yes="true" type="button"><span class="pitch-choice__icon" aria-hidden="true">✅</span><span class="pitch-choice__text">כן, אני רוצה שיתקשרו אליי בשיחה נוספת חוץ מההלוואה לבדיקת זכאות להחזר מס</span></button>
             </div>
           </div>
+        </div>
         </div>
 
         
