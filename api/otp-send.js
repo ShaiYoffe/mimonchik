@@ -131,12 +131,15 @@ export default async function handler(req, res) {
     // but the SMS says loan eligibility?"). Anything we don't explicitly
     // recognize falls through to the loan-eligibility default.
     const flow = String((body && body.flow) || '').toLowerCase();
+    // Clarified 2026-06-23 — every cross-sell template now makes it explicit
+    // that verifying triggers an ADDITIONAL call on top of the loan request.
+    // Default (loan) stays neutral since that's the user's original request.
     const ymsg =
-      flow === 'insurance'          ? `קוד אימות הזהות שלך לבדיקת תיק הביטוח: ${code}` :
-      flow === 'extra_check_grant'  ? `קוד אימות הזהות שלך לבדיקת זכאות למענק עבודה: ${code}` :
-      flow === 'extra_check_locate' ? `קוד אימות הזהות שלך לבדיקת איתור כספים אבודים: ${code}` :
-      flow === 'tax'                ? `קוד אימות הזהות שלך לבדיקת זכאות להחזר מס: ${code}` :
-                                      `קוד אימות הזהות שלך לבדיקת זכאות להלוואה: ${code}`;
+      flow === 'insurance'          ? `קוד לאישור בדיקת תיק הביטוח (בנוסף לבקשת ההלוואה): ${code}` :
+      flow === 'extra_check_grant'  ? `קוד לאישור בדיקת זכאות למענק עבודה (בנוסף לבקשת ההלוואה): ${code}` :
+      flow === 'extra_check_locate' ? `קוד לאישור איתור כספים אבודים (בנוסף לבקשת ההלוואה): ${code}` :
+      flow === 'tax'                ? `קוד לאישור בדיקת זכאות להחזר מס (בנוסף לבקשת ההלוואה): ${code}` :
+                                      `קוד אימות לבדיקת זכאות להלוואה: ${code}`;
     const upstream = await sendInforuSMS(phone, code, ymsg);
     console.log('[otp-send] InfoRU OK:', upstream.slice(0, 200));
     return res.status(200).json({ success: true });
