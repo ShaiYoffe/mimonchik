@@ -1245,8 +1245,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   color: #fff;
 }
 .ymedia-pv-toast {
-  background: linear-gradient(135deg, #00C853 0%, #00A847 100%);
-  box-shadow: 0 6px 18px rgba(0,168,71,.25);
+  /* AMBER, not GREEN — 2026-06-23. The green + ✓ combination was being
+     read as "form submitted successfully" because it mirrors every
+     success-message convention. Amber + ⚠ + imperative copy reframes
+     it as ACTION REQUIRED, not ACHIEVEMENT UNLOCKED. */
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  box-shadow: 0 6px 18px rgba(217,119,6,.30);
+  border: 2px solid #FCD34D;
 }
 .ymedia-pv-invalid {
   background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
@@ -1318,8 +1323,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     el.className = 'ymedia-pv-toast';
     el.setAttribute('role', 'status');
     el.setAttribute('aria-live', 'polite');
-    el.innerHTML = '<span class="ico" aria-hidden="true">✓</span>' +
-                   '<span>הטלפון נקלט. בשביל להתקדם, נותר רק לאשר את תנאי השימוש ומדיניות הפרטיות.</span>';
+    el.innerHTML = '<span class="ico" aria-hidden="true">⚠</span>' +
+                   '<span><strong>עוד שלב אחרון!</strong> סמן/י את תיבת ההסכמה לתנאי השימוש ולחץ/י על כפתור השליחה — הטופס טרם נשלח.</span>';
     var area = checkbox.closest('label, .consent, .terms-row, .terms') || checkbox.parentNode;
     if (area && area.parentNode) {
       area.parentNode.insertBefore(el, area);
