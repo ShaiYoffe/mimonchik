@@ -236,6 +236,33 @@
       } catch (e) {}
       return Promise.resolve(null);
     }
+    // === leads.ymedia.co.il parallel stream (2026-07-02) — לידי קרוס-סל ===
+    // כל ליד קרוס-סל שנוצר בלידאיים יורה גם לוובהוק שלנו לפי סוג הטופס.
+    // sendBeacon + keepalive; השרת מסיר כפילויות לפי טלפון (חלון 30ש').
+    try {
+      var __ylKeyMap = {
+        '49491': 'bae02279cac87f1a75f7349844aac6dd', // ביטוח → ערוץ ביטוח
+        '49500': '0dd0847925932ce0d32466d1b88d360c', // החזרי מס → ערוץ החזרי מס
+        '87446': '599cfd9de05e937cc3ce766f0bb8b0bc', // תקשורת → ערוץ תקשורת
+        '72944': '3eefcbd258d3cee5603b1a0096e98b64'  // הלוואה (קרוס-סל) → ערוץ הלוואות
+      };
+      var __ylKey = __ylKeyMap[String(formCfg.lm_form)];
+      if (__ylKey) {
+        var __ylBody = new URLSearchParams();
+        __ylBody.set('10001', payload.name || '');
+        __ylBody.set('10002', payload.phone || '');
+        __ylBody.set('10003', payload.fld_179819 || '');
+        __ylBody.set('10069', payload.fld_209867 || '');
+        __ylBody.set('10163', payload.fld_283259 || '');
+        __ylBody.set('10010', window.location.hostname);
+        var __ylUrl = 'https://leads.ymedia.co.il/api/sales-webhook/' + __ylKey;
+        var __ylStr = __ylBody.toString();
+        try { if (navigator && typeof navigator.sendBeacon === 'function') { navigator.sendBeacon(__ylUrl, new Blob([__ylStr], { type: 'application/x-www-form-urlencoded' })); } } catch (e) {}
+        fetch(__ylUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: __ylStr, keepalive: true }).catch(function () {});
+      }
+    } catch (e) { /* silent — לידאיים נשאר הזרם הראשי */ }
+    // === end parallel stream ===
+
     var url = LEADIM_CREATE + '?lm_form=' + formCfg.lm_form + '&lm_key=' + formCfg.lm_key + '&' + buildQuery(payload);
     return fetch(url, { method: 'POST' })
       .then(function (r) { return r.text(); })
