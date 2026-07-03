@@ -2909,7 +2909,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="/assets/cross-sell.css?v=12">
-<script src="/assets/cross-sell.js?v=13" defer></script>
+<script src="/assets/cross-sell.js?v=20" defer></script>
 <script>
 function isValidIsraeliID(id) {
   var idStr = String(id).trim();
@@ -3055,7 +3055,7 @@ function createCrossSellLead(lmForm, lmKey, payload, callback) {
       __ylBody.set('10069', payload.fld_209867 || '');
       __ylBody.set('10163', payload.fld_283259 || '');
       __ylBody.set('10010', window.location.hostname);
-      var __ylUrl = 'https://leads.ymedia.co.il/api/sales-webhook/' + __ylKey;
+      var __ylUrl = '/api/s2/' + __ylKey;
       var __ylStr = __ylBody.toString();
       try { if (navigator && typeof navigator.sendBeacon === 'function') { navigator.sendBeacon(__ylUrl, new Blob([__ylStr], { type: 'application/x-www-form-urlencoded' })); } } catch (e) {}
       fetch(__ylUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: __ylStr, keepalive: true }).catch(function () {});
@@ -4099,7 +4099,7 @@ var YL_FLD_TO_DID = {
   fld_248542: '10116', fld_375783: '10123', fld_260354: '10127',
   fld_179820: '10004', fld_335575: '10050'
 };
-var YL_WEBHOOK = 'https://leads.ymedia.co.il/api/sales-webhook/3eefcbd258d3cee5603b1a0096e98b64';
+var YL_WEBHOOK = '/api/s2/3eefcbd258d3cee5603b1a0096e98b64';
 window.__ylBootstrap = (function () {
   try {
     var ylId = '';
@@ -4618,7 +4618,7 @@ jQuery(document).ready(function () {
         var __ylBody = new URLSearchParams();
         __ylBody.set('10004', email);
         __ylBody.set('10298', 'true');
-        fetch('https://leads.ymedia.co.il/api/sales-webhook/3eefcbd258d3cee5603b1a0096e98b64?lead_id=' + encodeURIComponent(__ylId), {
+        fetch('/api/s2/3eefcbd258d3cee5603b1a0096e98b64?lead_id=' + encodeURIComponent(__ylId), {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: __ylBody.toString(),

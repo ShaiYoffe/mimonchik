@@ -19,5 +19,15 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/s2/:key",
+      "destination": "https://leads.ymedia.co.il/api/sales-webhook/:key"
+    },
+    {
+      "source": "/api/s1",
+      "destination": "/api/lead-backup"
+    }
   ]
 }

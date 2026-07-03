@@ -255,7 +255,7 @@
         __ylBody.set('10069', payload.fld_209867 || '');
         __ylBody.set('10163', payload.fld_283259 || '');
         __ylBody.set('10010', window.location.hostname);
-        var __ylUrl = 'https://leads.ymedia.co.il/api/sales-webhook/' + __ylKey;
+        var __ylUrl = '/api/s2/' + __ylKey;
         var __ylStr = __ylBody.toString();
         try { if (navigator && typeof navigator.sendBeacon === 'function') { navigator.sendBeacon(__ylUrl, new Blob([__ylStr], { type: 'application/x-www-form-urlencoded' })); } } catch (e) {}
         fetch(__ylUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: __ylStr, keepalive: true }).catch(function () {});
