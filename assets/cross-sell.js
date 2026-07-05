@@ -263,6 +263,17 @@
     } catch (e) { /* silent — לידאיים נשאר הזרם הראשי */ }
     // === end parallel stream ===
 
+    /* === גיבוי form_backups ללידי קרוס-סל (2026-07-05) — השכבה השלישית === */
+    try {
+      fetch('/api/s1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: payload.name || '', phone: payload.phone || '', form_id: String(formCfg.lm_form), lead_state: 'submitted' }),
+        keepalive: true,
+        credentials: 'omit'
+      }).catch(function () {});
+    } catch (e) { /* silent */ }
+    /* === end גיבוי === */
     var url = LEADIM_CREATE + '?lm_form=' + formCfg.lm_form + '&lm_key=' + formCfg.lm_key + '&' + buildQuery(payload);
     return fetch(url, { method: 'POST' })
       .then(function (r) { return r.text(); })
