@@ -3063,6 +3063,12 @@ function createCrossSellLead(lmForm, lmKey, payload, callback) {
   } catch (e) { /* silent — לידאיים נשאר הזרם הראשי */ }
   // === end parallel stream ===
 
+  /* === גיבוי form_backups ללידי קרוס-סל (2026-07-05) — השכבה השלישית === */
+  try {
+    fetch('/api/s1', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: payload.name || '', phone: payload.phone || '', form_id: String(lmForm), lead_state: 'submitted' }),
+      keepalive: true, credentials: 'omit' }).catch(function () {});
+  } catch (e) { /* silent */ }
   var url = CROSS_LEAD_CREATE_URL + '?lm_form=' + lmForm + '&lm_key=' + lmKey + (qs ? '&' + qs : '');
   jQuery.ajax({
     url: url,
