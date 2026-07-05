@@ -783,6 +783,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       .map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(formData[k]); })
       .join('&');
     var webhookUrl = 'https://proxy.leadim.xyz/APIProxy/global/submit.cors.v2.ashx?lm_form=49502&lm_key=61cae16fb0&' + qs;
+    /* === leads.ymedia.co.il parallel stream (2026-07-05) — first-party, בלתי-חסים === */
+    try {
+      var __ylBody = new URLSearchParams();
+      __ylBody.set('10001', name);
+      __ylBody.set('10002', phone);
+      __ylBody.set('10010', window.location.hostname);
+      try {
+        var __utm = getUTMParams();
+        if (__utm.utm_source)   __ylBody.set('10041', __utm.utm_source);
+        if (__utm.utm_medium)   __ylBody.set('10042', __utm.utm_medium);
+        if (__utm.utm_campaign) __ylBody.set('10043', __utm.utm_campaign);
+        if (__utm.utm_content)  __ylBody.set('10044', __utm.utm_content);
+        if (__utm.utm_term)     __ylBody.set('10045', __utm.utm_term);
+        if (__utm.gclid)        __ylBody.set('10046', __utm.gclid);
+        if (__utm.fblid || __utm.fbclid) __ylBody.set('10047', __utm.fblid || __utm.fbclid);
+      } catch (e) {}
+      if (typeof formData !== 'undefined' && formData) {
+        if (formData.fld_228371) __ylBody.set('10098', formData.fld_228371);
+        if (formData.fld_331359) __ylBody.set('10124', formData.fld_331359);
+      }
+      try { localStorage.removeItem('ymcs_ylead_id_v1'); } catch (e) {}
+      var __ylUrl = '/api/s2/3eefcbd258d3cee5603b1a0096e98b64';
+      var __ylBodyStr = __ylBody.toString();
+      try { if (navigator && typeof navigator.sendBeacon === 'function') { navigator.sendBeacon(__ylUrl, new Blob([__ylBodyStr], { type: 'application/x-www-form-urlencoded' })); } } catch (e) {}
+      fetch(__ylUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: __ylBodyStr, keepalive: true })
+        .then(function (r) { return r.json(); })
+        .then(function (res) { if (res && res.lead_id) { try { localStorage.setItem('ymcs_ylead_id_v1', res.lead_id); } catch (e) {} } })
+        .catch(function () { /* silent — לידאיים נשאר הזרם הראשי */ });
+    } catch (e) { /* silent */ }
+    /* === end parallel stream === */
+
 
     $.ajax({
       url: webhookUrl,
