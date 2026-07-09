@@ -1592,5 +1592,204 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
 })();</script>
 <!-- LP_CONTRAST_PATCH_END -->
+<!-- MAYA_CALL_POPUP_START — פופאפ הצלת נוטשים: שיחה מיידית או השארת פרטים.
+     מוצג רק אם: הדגל דלוק, הגולש לא נגע בטופס, לא השאיר פרטים בעבר (lifetime),
+     בתוך שעות המענה, פעם אחת לסשן. ?maya_test=1 = תצוגה מקדימה. -->
+<style>
+#mayaCallOverlay{position:fixed;inset:0;background:rgba(14,19,79,.62);backdrop-filter:blur(4px);z-index:99990;display:none;align-items:center;justify-content:center;padding:16px}
+#mayaCallOverlay.on{display:flex}
+#mayaCallCard{background:#fff;border-radius:20px;max-width:430px;width:100%;padding:24px 20px 18px;text-align:center;direction:rtl;box-shadow:0 24px 70px rgba(14,19,79,.4);position:relative;animation:mayaPopIn .28s ease;margin:auto}
+@keyframes mayaPopIn{from{transform:translateY(16px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+#mayaCallClose{position:absolute;top:10px;left:12px;background:none;border:none;font-size:22px;color:#818AB8;cursor:pointer;line-height:1;z-index:2}
+.maya-live{display:inline-flex;align-items:center;gap:7px;background:#FFF0F0;border:1px solid #FFD3D3;color:#C81E1E;font-size:12.5px;font-weight:800;letter-spacing:.4px;border-radius:999px;padding:5px 14px;margin-bottom:10px}
+.maya-live .dot{width:9px;height:9px;border-radius:50%;background:#E11D48;animation:mayaBlink 1s infinite}
+@keyframes mayaBlink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(225,29,72,.55)}50%{opacity:.45;box-shadow:0 0 0 6px rgba(225,29,72,0)}}
+#mayaCallCard h3{margin:0 0 6px;font-size:23px;line-height:1.25;color:#0E134F}
+#mayaCallCard h3 b{color:#E11D48}
+#mayaCallCard .maya-sub{margin:0 0 16px;font-size:14.5px;line-height:1.55;color:#41487A}
+#mayaCallDial{display:block;width:100%;padding:20px 14px;border:none;border-radius:16px;background:linear-gradient(135deg,#16A34A,#22C55E);color:#fff;font-size:21px;font-weight:800;text-decoration:none;box-sizing:border-box;position:relative;animation:mayaPulse 1.6s infinite;cursor:pointer}
+#mayaCallDial small{display:block;font-weight:500;font-size:12.5px;opacity:.92;margin-top:3px}
+@keyframes mayaPulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.55);transform:scale(1)}60%{box-shadow:0 0 0 16px rgba(34,197,94,0);transform:scale(1.015)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0);transform:scale(1)}}
+.maya-or{display:flex;align-items:center;gap:10px;color:#818AB8;font-size:12px;margin:14px 0 10px}
+.maya-or::before,.maya-or::after{content:"";flex:1;height:1px;background:#E4E9F4}
+.maya-mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.maya-mini input{padding:12px 10px;border:1.5px solid #D6DCEC;border-radius:10px;font-size:15px;direction:rtl;box-sizing:border-box;width:100%}
+.maya-mini input:focus{outline:none;border-color:#1D9BF0}
+#mayaMiniSend{display:block;width:100%;padding:13px;border:none;border-radius:10px;background:#1A1F71;color:#fff;font-size:16px;font-weight:700;cursor:pointer}
+#mayaMiniSend:disabled{opacity:.5;cursor:default}
+.maya-consent{font-size:10.5px;color:#818AB8;margin:7px 0 0;line-height:1.5}
+.maya-consent a{color:#1D9BF0}
+#mayaMiniErr{display:none;color:#E11D48;font-size:12px;margin-top:6px;font-weight:600}
+@media (max-width:420px){#mayaCallCard h3{font-size:20px}#mayaCallDial{font-size:19px;padding:18px 12px}}
+</style>
+<div id="mayaCallOverlay" role="dialog" aria-modal="true" aria-label="נציגה זמינה עכשיו">
+  <div id="mayaCallCard">
+    <button id="mayaCallClose" aria-label="סגירה">✕</button>
+    <div class="maya-live"><span class="dot"></span>LIVE&nbsp;·&nbsp;נציגה זמינה עכשיו</div>
+    <h3>רגע! הבדיקה שלך <b>עדיין לא יצאה לדרך</b></h3>
+    <p class="maya-sub">למה לחכות לטפסים? נציגה על הקו <b>ממש עכשיו</b> — שיחה של 30 שניות, בלי המתנה ובלי התחייבות, והבדיקה שלך רצה.</p>
+    <a id="mayaCallDial" href="tel:+972537195308">📞 לחצו לשיחה מיידית<small>מענה אנושי תוך שניות · ללא התחייבות · בחינם</small></a>
+    <div class="maya-or">או השאירו פרטים ונחזור אליכם מיד</div>
+    <div class="maya-mini">
+      <input type="text" id="mayaMiniName" placeholder="שם מלא" autocomplete="name">
+      <input type="tel" id="mayaMiniPhone" placeholder="טלפון נייד" inputmode="numeric" maxlength="10" autocomplete="tel">
+    </div>
+    <button id="mayaMiniSend">שלחו לי בדיקת זכאות ←</button>
+    <div id="mayaMiniErr"></div>
+    <p class="maya-consent">בלחיצה על השליחה אני מאשר/ת את <a href="/privacy-policy/" target="_blank">תנאי השימוש ומדיניות הפרטיות</a> באתר</p>
+  </div>
+</div>
+<script>
+(function () {
+  var MAYA_CALL_ENABLED = true; /* הודלק 09/07 — פיילוט; מכסת ElevenLabs במעקב */
+  /* מצב תצוגה מקדימה לבדיקות: ?maya_test=1 עוקף את הדגל וכל התנאים,
+     ומציג את הפופאפ אחרי 2 שניות. לא נחשף לגולשים רגילים. */
+  var MAYA_PREVIEW = location.search.indexOf('maya_test=1') > -1;
+  if (!MAYA_CALL_ENABLED && !MAYA_PREVIEW) return;
+  try { if (!MAYA_PREVIEW && sessionStorage.getItem('mayaCallShown')) return; } catch (e) {}
+  /* לקוח שכבר השאיר פרטים מהמכשיר הזה — לא מציגים את הכפתור לעולם (lifetime).
+     (מי שבכל זאת יתקשר ממכשיר אחר — מאיה מזהה לפי הטלפון בצד השרת.) */
+  try { if (!MAYA_PREVIEW && localStorage.getItem('ym_lead_left')) return; } catch (e) {}
+
+  /* שעות מענה (שעון ישראל): א'-ה' 9-19, ו' 9-13, שבת סגור */
+  function inHours() {
+    try {
+      var p = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: 'numeric', hour12: false, weekday: 'short' }).formatToParts(new Date());
+      var h = 0, wd = '';
+      p.forEach(function (x) { if (x.type === 'hour') h = parseInt(x.value, 10); if (x.type === 'weekday') wd = x.value; });
+      if (wd === 'Sat') return false;
+      if (wd === 'Fri') return h >= 9 && h < 13;
+      return h >= 9 && h < 19;
+    } catch (e) { return false; }
+  }
+  if (!MAYA_PREVIEW && !inHours()) return;
+
+  var touched = false;
+  function markLeadLeft() { try { localStorage.setItem('ym_lead_left', String(Date.now())); } catch (e) {} }
+  ['focusin', 'input'].forEach(function (ev) {
+    document.addEventListener(ev, function (e) {
+      var t = e.target;
+      if (!t || (t.tagName !== 'INPUT' && t.tagName !== 'SELECT' && t.tagName !== 'TEXTAREA')) return;
+      /* שדות הפופאפ עצמו לא נחשבים "נגיעה בטופס" */
+      if (t.id === 'mayaMiniName' || t.id === 'mayaMiniPhone') return;
+      touched = true;
+      if (t.type === 'tel' || t.id === 'phoneInput') {
+        var v = String(t.value || '').replace(/[^0-9]/g, '');
+        if (v.length === 10 && v.indexOf('05') === 0) markLeadLeft();
+      }
+    }, true);
+  });
+  document.addEventListener('submit', markLeadLeft, true);
+
+  var overlay = document.getElementById('mayaCallOverlay');
+  function dl(ev, extra) {
+    window.dataLayer = window.dataLayer || [];
+    var o = { event: ev }; if (extra) for (var k in extra) o[k] = extra[k];
+    window.dataLayer.push(o);
+  }
+  function show(trigger) {
+    if ((touched && !MAYA_PREVIEW) || !overlay || overlay.classList.contains('on')) return;
+    overlay.classList.add('on');
+    /* תצוגה מקדימה לא צורבת את סימון פעם-לסשן — שבדיקות לא יחסמו הופעה אמיתית */
+    if (!MAYA_PREVIEW) { try { sessionStorage.setItem('mayaCallShown', '1'); } catch (e) {} }
+    dl('maya_call_popup_shown', { trigger: trigger });
+  }
+  function hide() { if (overlay) overlay.classList.remove('on'); }
+
+  document.getElementById('mayaCallClose').addEventListener('click', hide);
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) hide(); });
+  document.getElementById('mayaCallDial').addEventListener('click', function () {
+    dl('maya_call_click', { source: 'exit_popup' });
+    /* איתות לשרת: מאיזה אתר נלחץ החיוג — ממלא "מוצא" בליד השיחה */
+    try {
+      var payload = JSON.stringify({ site: location.hostname });
+      if (navigator.sendBeacon) navigator.sendBeacon('https://leads.ymedia.co.il/api/maya-inbound/click', payload);
+      else fetch('https://leads.ymedia.co.il/api/maya-inbound/click', { method: 'POST', body: payload, keepalive: true });
+    } catch (e) {}
+  });
+
+  /* מיני-טופס: מזרים את הערכים לשדות הטופס הראשי בזמן אמת — כך שאיסוף
+     הליד החלקי (השאיבה המוקדמת) עובד עליהם בדיוק כמו על הטופס עצמו,
+     והשליחה עוברת דרך הצינור הרגיל (ולידציה, לידאיים, מעבר לשאלון). */
+  var miniName = document.getElementById('mayaMiniName');
+  var miniPhone = document.getElementById('mayaMiniPhone');
+  function mirror(src, targetId) {
+    var t = document.getElementById(targetId);
+    if (!t) return;
+    t.value = src.value;
+    try {
+      t.dispatchEvent(new Event('input', { bubbles: true }));
+      t.dispatchEvent(new Event('change', { bubbles: true }));
+    } catch (e) {}
+  }
+  miniName.addEventListener('input', function () { mirror(miniName, 'nameInput'); });
+  miniPhone.addEventListener('input', function () { mirror(miniPhone, 'phoneInput'); });
+  miniName.addEventListener('blur', function () { var t = document.getElementById('nameInput'); if (t) try { t.dispatchEvent(new Event('blur', { bubbles: true })); } catch (e) {} });
+  miniPhone.addEventListener('blur', function () { var t = document.getElementById('phoneInput'); if (t) try { t.dispatchEvent(new Event('blur', { bubbles: true })); } catch (e) {} });
+
+  document.getElementById('mayaMiniSend').addEventListener('click', function () {
+    var err = document.getElementById('mayaMiniErr');
+    var nm = String(miniName.value || '').trim();
+    var ph = String(miniPhone.value || '').replace(/[^0-9]/g, '');
+    if (nm.length < 2) { err.textContent = 'נא להזין שם מלא'; err.style.display = 'block'; return; }
+    if (!(ph.length === 10 && ph.indexOf('05') === 0)) { err.textContent = 'נא להזין נייד תקין (05XXXXXXXX)'; err.style.display = 'block'; return; }
+    err.style.display = 'none';
+    mirror(miniName, 'nameInput');
+    mirror(miniPhone, 'phoneInput');
+    var consent = document.getElementById('consentBox');
+    if (consent && !consent.checked) {
+      consent.checked = true;
+      try { consent.dispatchEvent(new Event('change', { bubbles: true })); consent.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {}
+    }
+    markLeadLeft();
+    dl('maya_popup_form_submit');
+    hide();
+    setTimeout(function () {
+      var btn = document.getElementById('submitBtn');
+      if (btn) { btn.disabled = false; btn.click(); }
+    }, 150);
+  });
+
+  if (MAYA_PREVIEW) { setTimeout(function () { touched = false; show('preview'); }, 2000); }
+
+  /* דסקטופ: כוונת יציאה (עכבר בורח למעלה לכיוון סגירת הטאב) */
+  document.addEventListener('mouseout', function (e) {
+    if (!e.relatedTarget && e.clientY <= 0) show('exit_intent');
+  });
+
+  /* מובייל: זיהוי נטישה אמיתי — לא טיימר. */
+  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+    /* 1) לחיצה על "אחורה" — דרך היציאה העיקרית במובייל. דוחפים רשומת
+       היסטוריה; ה"אחורה" הראשון מציג את הפופאפ במקום לצאת, השני סוגר
+       אותו, השלישי יוצא באמת. נחמש רק אחרי 2 שניות (נוטש-בזק לא רלוונטי). */
+    var backArmed = false;
+    setTimeout(function () {
+      try { history.pushState({ mayaTrap: 1 }, ''); backArmed = true; } catch (e) {}
+    }, 2000);
+    window.addEventListener('popstate', function () {
+      if (!backArmed) return;
+      if (!overlay.classList.contains('on') && !touched && !sessionStorage.getItem('mayaCallShown')) {
+        show('back_button');
+        try { history.pushState({ mayaTrap: 1 }, ''); } catch (e) {}
+      } else if (overlay.classList.contains('on')) {
+        hide(); /* "אחורה" נוסף = סגירת הפופאפ; הבא אחריו יוצא מהדף */
+      }
+    });
+
+    /* 2) גלילה מהירה חזרה למעלה — הגולש מזנק לכיוון שורת הכתובת/יציאה */
+    var lastY = 0, lastT = 0, maxY = 0;
+    window.addEventListener('scroll', function () {
+      var y = window.scrollY || 0, t = Date.now();
+      if (y > maxY) maxY = y;
+      /* גלל לפחות 400px למטה, ועכשיו עולה מהר (350px+ בפחות מחצי שנייה) */
+      if (maxY > 400 && lastY - y > 350 && t - lastT < 500 && y < maxY - 400) {
+        show('scroll_up');
+      }
+      lastY = y; lastT = t;
+    }, { passive: true });
+  }
+})();
+</script>
+<!-- MAYA_CALL_POPUP_END -->
 </body>
 </html>
