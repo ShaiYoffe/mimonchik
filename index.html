@@ -1646,7 +1646,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      ומציג את הפופאפ אחרי 2 שניות. לא נחשף לגולשים רגילים. */
   var MAYA_PREVIEW = location.search.indexOf('maya_test=1') > -1;
   if (!MAYA_CALL_ENABLED && !MAYA_PREVIEW) return;
-  try { if (!MAYA_PREVIEW && sessionStorage.getItem('mayaCallShown')) return; } catch (e) {}
+  /* הוצג פעם אחת מהמכשיר הזה — לא מופיע שוב לעולם (לא מציקים) */
+  try { if (!MAYA_PREVIEW && localStorage.getItem('mayaCallShownAt')) return; } catch (e) {}
   /* לקוח שכבר השאיר פרטים מהמכשיר הזה — לא מציגים את הכפתור לעולם (lifetime).
      (מי שבכל זאת יתקשר ממכשיר אחר — מאיה מזהה לפי הטלפון בצד השרת.) */
   try { if (!MAYA_PREVIEW && localStorage.getItem('ym_lead_left')) return; } catch (e) {}
@@ -1690,8 +1691,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   function show(trigger) {
     if ((touched && !MAYA_PREVIEW) || !overlay || overlay.classList.contains('on')) return;
     overlay.classList.add('on');
-    /* תצוגה מקדימה לא צורבת את סימון פעם-לסשן — שבדיקות לא יחסמו הופעה אמיתית */
-    if (!MAYA_PREVIEW) { try { sessionStorage.setItem('mayaCallShown', '1'); } catch (e) {} }
+    /* תצוגה מקדימה לא צורבת את הסימון — שבדיקות לא יחסמו הופעה אמיתית */
+    if (!MAYA_PREVIEW) { try { localStorage.setItem('mayaCallShownAt', String(Date.now())); } catch (e) {} }
     dl('maya_call_popup_shown', { trigger: trigger });
   }
   function hide() { if (overlay) overlay.classList.remove('on'); }
@@ -1768,7 +1769,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }, 2000);
     window.addEventListener('popstate', function () {
       if (!backArmed) return;
-      if (!overlay.classList.contains('on') && !touched && !sessionStorage.getItem('mayaCallShown')) {
+      if (!overlay.classList.contains('on') && !touched && !localStorage.getItem('mayaCallShownAt')) {
         show('back_button');
         try { history.pushState({ mayaTrap: 1 }, ''); } catch (e) {}
       } else if (overlay.classList.contains('on')) {
