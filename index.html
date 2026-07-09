@@ -1690,6 +1690,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   }
   function show(trigger) {
     if ((touched && !MAYA_PREVIEW) || !overlay || overlay.classList.contains('on')) return;
+    /* נבדק גם כאן (לא רק בטעינה): באותו ביקור, אחרי הצגה+סגירה, ניסיון
+       יציאה נוסף לא מקפיץ שוב. פעם אחת = פעם אחת. */
+    try { if (!MAYA_PREVIEW && localStorage.getItem('mayaCallShownAt')) return; } catch (e) {}
     overlay.classList.add('on');
     /* תצוגה מקדימה לא צורבת את הסימון — שבדיקות לא יחסמו הופעה אמיתית */
     if (!MAYA_PREVIEW) { try { localStorage.setItem('mayaCallShownAt', String(Date.now())); } catch (e) {} }
