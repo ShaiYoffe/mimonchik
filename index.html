@@ -1596,7 +1596,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      מוצג רק אם: הדגל דלוק, הגולש לא נגע בטופס, לא השאיר פרטים בעבר (lifetime),
      בתוך שעות המענה, פעם אחת לסשן. ?maya_test=1 = תצוגה מקדימה. -->
 <style>
-#mayaCallOverlay{position:fixed;inset:0;background:rgba(14,19,79,.62);backdrop-filter:blur(4px);z-index:99990;display:none;align-items:center;justify-content:center;padding:16px}
+#mayaCallOverlay{position:absolute;left:0;right:0;top:0;height:100vh;background:rgba(14,19,79,.62);backdrop-filter:blur(4px);z-index:99990;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
 #mayaCallOverlay.on{display:flex}
 #mayaCallCard{background:#fff;border-radius:20px;max-width:430px;width:100%;padding:24px 20px 18px;text-align:center;direction:rtl;box-shadow:0 24px 70px rgba(14,19,79,.4);position:relative;animation:mayaPopIn .28s ease;margin:auto}
 @keyframes mayaPopIn{from{transform:translateY(16px) scale(.97);opacity:0}to{transform:none;opacity:1}}
@@ -1688,17 +1688,33 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     var o = { event: ev }; if (extra) for (var k in extra) o[k] = extra[k];
     window.dataLayer.push(o);
   }
+  /* לאתרים יש transform על body (מגן הגלילה למובייל) — זה הופך fixed ל-absolute
+     ביחס למסמך. לכן מצמידים ידנית לחלון: top=גובה הגלילה, height=גובה המסך,
+     מעדכנים בגלילה/שינוי גודל, ונועלים את גלילת הרקע כשהפופאפ פתוח. */
+  function glue() {
+    overlay.style.top = (window.scrollY || document.documentElement.scrollTop || 0) + 'px';
+    overlay.style.height = window.innerHeight + 'px';
+  }
   function show(trigger) {
     if ((touched && !MAYA_PREVIEW) || !overlay || overlay.classList.contains('on')) return;
     /* נבדק גם כאן (לא רק בטעינה): באותו ביקור, אחרי הצגה+סגירה, ניסיון
        יציאה נוסף לא מקפיץ שוב. פעם אחת = פעם אחת. */
     try { if (!MAYA_PREVIEW && localStorage.getItem('mayaCallShownAt')) return; } catch (e) {}
+    glue();
+    window.addEventListener('scroll', glue, { passive: true });
+    window.addEventListener('resize', glue);
+    try { document.documentElement.style.overflow = 'hidden'; } catch (e) {}
     overlay.classList.add('on');
     /* תצוגה מקדימה לא צורבת את הסימון — שבדיקות לא יחסמו הופעה אמיתית */
     if (!MAYA_PREVIEW) { try { localStorage.setItem('mayaCallShownAt', String(Date.now())); } catch (e) {} }
     dl('maya_call_popup_shown', { trigger: trigger });
   }
-  function hide() { if (overlay) overlay.classList.remove('on'); }
+  function hide() {
+    if (overlay) overlay.classList.remove('on');
+    window.removeEventListener('scroll', glue);
+    window.removeEventListener('resize', glue);
+    try { document.documentElement.style.overflow = ''; } catch (e) {}
+  }
 
   document.getElementById('mayaCallClose').addEventListener('click', hide);
   overlay.addEventListener('click', function (e) { if (e.target === overlay) hide(); });
