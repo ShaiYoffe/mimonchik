@@ -1645,9 +1645,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   /* מצב תצוגה מקדימה לבדיקות: ?maya_test=1 עוקף את הדגל וכל התנאים,
      ומציג את הפופאפ אחרי 2 שניות. לא נחשף לגולשים רגילים. */
   var MAYA_PREVIEW = location.search.indexOf('maya_test=1') > -1;
+  var shownOnce = false; /* מוצג פעם אחת לכל טעינת-דף (לא לתמיד) — כדי שהמספר יוצג לכולם בכל ביקור בלי לולאת אחורה */
   if (!MAYA_CALL_ENABLED && !MAYA_PREVIEW) return;
   /* הוצג פעם אחת מהמכשיר הזה — לא מופיע שוב לעולם (לא מציקים) */
-  try { if (!MAYA_PREVIEW && localStorage.getItem('mayaCallShownAt')) return; } catch (e) {}
+  if (!MAYA_PREVIEW && shownOnce) return;
   /* לקוח שכבר השאיר פרטים מהמכשיר הזה — לא מציגים את הכפתור לעולם (lifetime).
      (מי שבכל זאת יתקשר ממכשיר אחר — מאיה מזהה לפי הטלפון בצד השרת.) */
   try { if (!MAYA_PREVIEW && localStorage.getItem('ym_lead_left')) return; } catch (e) {}
@@ -1699,14 +1700,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     if ((touched && !MAYA_PREVIEW) || !overlay || overlay.classList.contains('on')) return;
     /* נבדק גם כאן (לא רק בטעינה): באותו ביקור, אחרי הצגה+סגירה, ניסיון
        יציאה נוסף לא מקפיץ שוב. פעם אחת = פעם אחת. */
-    try { if (!MAYA_PREVIEW && localStorage.getItem('mayaCallShownAt')) return; } catch (e) {}
+    if (!MAYA_PREVIEW && shownOnce) return;
     glue();
     window.addEventListener('scroll', glue, { passive: true });
     window.addEventListener('resize', glue);
     try { document.documentElement.style.overflow = 'hidden'; } catch (e) {}
     overlay.classList.add('on');
     /* תצוגה מקדימה לא צורבת את הסימון — שבדיקות לא יחסמו הופעה אמיתית */
-    if (!MAYA_PREVIEW) { try { localStorage.setItem('mayaCallShownAt', String(Date.now())); } catch (e) {} }
+    shownOnce = true;
     dl('maya_call_popup_shown', { trigger: trigger });
   }
   function hide() {
@@ -1788,7 +1789,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }, 2000);
     window.addEventListener('popstate', function () {
       if (!backArmed) return;
-      if (!overlay.classList.contains('on') && !touched && !localStorage.getItem('mayaCallShownAt')) {
+      if (!overlay.classList.contains('on') && !touched && !shownOnce) {
         show('back_button');
         try { history.pushState({ mayaTrap: 1 }, ''); } catch (e) {}
       } else if (overlay.classList.contains('on')) {
