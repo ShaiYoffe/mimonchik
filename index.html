@@ -1773,6 +1773,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   if (MAYA_PREVIEW) { setTimeout(function () { touched = false; show('preview'); }, 2000); }
 
+  /* טריגר שהות: 20 שניות בדף בלי להתחיל למלא את הטופס → הפופאפ קופץ.
+     show() כבר בודק touched (התחיל למלא) ו-shownOnce (כבר הוצג), אז לא יקפוץ במקרים האלה. */
+  if (!MAYA_PREVIEW) setTimeout(function () { show('idle_20s'); }, 20000);
+
   /* דסקטופ: כוונת יציאה (עכבר בורח למעלה לכיוון סגירת הטאב) */
   document.addEventListener('mouseout', function (e) {
     if (!e.relatedTarget && e.clientY <= 0) show('exit_intent');
