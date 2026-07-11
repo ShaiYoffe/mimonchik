@@ -1663,7 +1663,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       return h >= 9 && h < 19;
     } catch (e) { return false; }
   }
-  if (!MAYA_PREVIEW && !inHours()) return;
+  /* 24/7 — הופעת הפופאפ אינה מוגבלת בשעות (מאיה עונה תמיד) */
 
   var touched = false;
   function markLeadLeft() { try { localStorage.setItem('ym_lead_left', String(Date.now())); } catch (e) {} }
