@@ -2152,8 +2152,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="row"><button id="citySubmit">המשך <span class="arr">←</span></button></div>
         </div>
 
-        <!-- Step 15a (added 2026-06-06): pension withdrawal history -->
-        <div class="form-step" data-step="22" id="fld_376925" data-section="חסכונות פנסיוניים">
+        <!-- Q376925-RESTORE: pension withdrawal-history question SUSPENDED 2026-07-05.
+     To restore: re-insert the block below into the flow, restore the
+     fld_376925 branch in the .answer-btn handler (search Q376925-RESTORE
+     there too), and make fld_355131 conditional on it as before.
+<div class="form-step" data-step="22" id="fld_376925" data-section="חסכונות פנסיוניים">
           <div class="chat-bubble"></div>
           <h2 class="q-title">האם משכת בעבר כספים מהפנסיה או מקופה אחרת?</h2>
           <p class="q-hint">לדוגמא: קרן פנסיה / קרן השתלמות / קופת גמל</p>
@@ -2162,24 +2165,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <button class="answer-btn" data-answer="לא, לא משכתי מעולם כספים פנסיונים">לא, לא משכתי מעולם כספים פנסיונים</button>
           </div>
         </div>
-
-        <!-- Step 15b (added 2026-06-06): conditional — pension savings amount.
-             Shown only when fld_376925 = "לא". The answer-btn handler
-             toggles the conditional-step class on this element based on
-             the user's answer to fld_376925. -->
-        <div class="form-step conditional-step" data-step="23" id="fld_232629" data-section="חסכונות פנסיוניים">
-          <div class="chat-bubble"></div>
-          <h2 class="q-title">כמה להערכתך צברת בחסכונות פנסיונים?</h2>
-          <p class="q-hint">כולל קרן פנסיה, קרן השתלמות, קופת גמל, ופוליסות חיסכון פנסיוני אחרות שצברת לאורך השנים.</p>
-          <div class="input-field" style="max-width: 280px;">
-            <input type="text" id="pensionAmountInput" placeholder="לדוגמא: 75,000" inputmode="numeric" />
-          </div>
-          <div class="error-message" id="pensionAmountError"></div>
-          <div class="row" style="gap:8px;flex-wrap:wrap;">
-            <button id="pensionAmountSubmit">המשך <span class="arr">←</span></button>
-            <button class="answer-btn" data-answer="אין לי חסכונות פנסיונים">אין לי חסכונות פנסיונים</button>
-          </div>
-        </div>
+-->
 
         <!-- Step 15 -->
         <div class="form-step" data-step="15" id="fld_209867" data-section="זיהוי">
@@ -2235,6 +2221,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="row" id="purposeOtherRow" style="display: none;">
             <button id="purposeOtherSubmit">המשך <span class="arr">←</span></button>
           </div>
+        </div>
+
+        <!-- Step 18 (reworked 2026-07-05): pension savings threshold — replaces the
+             suspended fld_376925 question. Same Leadim field fld_232629. -->
+        <div class="form-step" data-step="18" id="fld_232629" data-section="חסכונות פנסיוניים">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">האם יש בבעלותך כספים פנסיונים מעל 70,000 ₪?</h2>
+          <p class="q-hint">כולל קרן פנסיה, קרן השתלמות, קופת גמל ופוליסות חיסכון פנסיוני אחרות.</p>
+          <div class="answers">
+            <button class="answer-btn" data-answer="כן, מעל 70,000 ₪">כן, מעל 70,000 ₪</button>
+            <button class="answer-btn" data-answer="מתחת ל-70,000 ₪">מתחת ל-70,000 ₪</button>
+            <button class="answer-btn" data-answer="אין לי בכלל חסכונות פנסיונים">אין לי בכלל חסכונות פנסיונים</button>
+          </div>
+        </div>
+
+        <!-- Step 19 (added 2026-07-05): conditional — accumulation estimate.
+             Shown only when fld_232629 ≠ "אין לי בכלל". Leadim field fld_355131. -->
+        <div class="form-step conditional-step" data-step="19" id="fld_355131" data-section="חסכונות פנסיוניים">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">מה גובה הצבירה להערכתך בחסכונות הפנסיונים?</h2>
+          <p class="q-hint">כולל קרן פנסיה, קרן השתלמות, קופת גמל, ופוליסות חיסכון פנסיוני אחרות שצברת לאורך השנים.</p>
+          <div class="input-field" style="max-width: 280px;">
+            <input type="text" id="pensionAmountInput" placeholder="לדוגמא: 75,000" inputmode="numeric" />
+          </div>
+          <div class="error-message" id="pensionAmountError"></div>
+          <div class="row"><button id="pensionAmountSubmit">המשך <span class="arr">←</span></button></div>
         </div>
 
         <!-- Step 18 (conditional via BDI: shown only if BDI ∈ סביר/שלילי/שלילי מאד) -->
@@ -3626,9 +3638,9 @@ function maybeFadeToTaxPitch(currentStep) {
 // the existing self-employed tax-pitch gate still applies for everyone.
 // Sets storedData.extraCheckShown to prevent re-entry from back navigation.
 function maybeFadeToExtraCheckOrTax(currentStep) {
-  var didNotWithdraw = (window.storedData && window.storedData.hasWithdrawnPension === false);
+  var hasPension = (window.storedData && window.storedData.hasPensionSavings === true);
   var amount = Number(window.storedData && window.storedData.pensionAmount) || 0;
-  if (!(didNotWithdraw && amount > 20000 && !window.storedData.extraCheckShown)) {
+  if (!(hasPension && amount > 20000 && !window.storedData.extraCheckShown)) {
     maybeFadeToTaxPitch(currentStep);
     return;
   }
@@ -4420,18 +4432,16 @@ jQuery(document).ready(function () {
       window.storedData.hasInsurance = (answer === "כן");
     }
 
-    // ── Pension withdrawal history (added 2026-06-06) ──
-    // Q1 (fld_376925): drives the gate for the "extra check" cross-sell that
-    // will run between insurance and tax. If user answered "כן" they already
-    // withdrew → skip Q2 by adding conditional-step to fld_232629.
-    if (stepId === "fld_376925") {
-      var __withdrew = (answer === "כן, משכתי כספים פנסיונים בעבר");
-      window.storedData.hasWithdrawnPension = __withdrew;
-      jQuery("#fld_232629").toggleClass("conditional-step", __withdrew);
-    }
-    // Q2 (fld_232629): the "אין לי" button is also an answer-btn — capture 0.
-    if (stepId === "fld_232629" && answer === "אין לי חסכונות פנסיונים") {
-      window.storedData.pensionAmount = 0;
+    // ── Pension savings threshold (reworked 2026-07-05) ──
+    // fld_232629 now asks whether the user holds >₪70K in pension savings.
+    // Q376925-RESTORE: the old withdrawal-history branch lived here.
+    // Reveals the fld_355131 accumulation follow-up unless "אין לי בכלל".
+    if (stepId === "fld_232629") {
+      var __noPension = (answer === "אין לי בכלל חסכונות פנסיונים");
+      window.storedData.hasPensionSavings = !__noPension;
+      window.storedData.pensionOver70k = (answer === "כן, מעל 70,000 ₪");
+      if (__noPension) window.storedData.pensionAmount = 0;
+      jQuery("#fld_355131").toggleClass("conditional-step", __noPension);
     }
 
     sendSingleData(stepId, answer, currentStep, function () {
@@ -4497,7 +4507,7 @@ jQuery(document).ready(function () {
     }
     jQuery("#pensionAmountError").text("");
     window.storedData.pensionAmount = amount;
-    sendSingleData("fld_232629", amount.toLocaleString() + " ₪", currentStep, function () { fadeToNextStep(currentStep); });
+    sendSingleData("fld_355131", amount.toLocaleString() + " ₪", currentStep, function () { fadeToNextStep(currentStep); });
   });
 
   jQuery("#debtSubmit").click(function () {
