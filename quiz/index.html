@@ -2512,7 +2512,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <p class="success-body" style="font-weight:600;">
               <strong>שים לב: זוהי בדיקה נוספת ועצמאית — לא חלק מבקשת ההלוואה.</strong>
               לפי הפרופיל הפיננסי שלך, ישנו סיכוי גבוה שמגיעים לך כספים שעדיין לא משכת.
-              <span style="color:#10b981;">איזה סוג של בדיקה תרצה שנעשה עבורך?</span>
+              <span style="color:#10b981;">רוצה שנבדוק לך אם מגיעים לך כספים?</span>
             </p>
             <!-- Service-choice buttons — explicit big-card styling so they don't
                  look like the small "anemic" answer pills. User specifically
@@ -3688,6 +3688,9 @@ function maybeFadeToExtraCheckOrTax(currentStep) {
 function applyExtraCheckSaturation(result, currentStep) {
   var locOk = (result && result.locate_available !== false);   // default-true on missing
   var grnOk = (result && result.grant_available  !== false);
+  // GRANT-SUSPENDED 2026-07-19 (הוראת משתמש) — הסתרה זמנית של אפשרות מענק
+  // עבודה; כופה grant "לא-זמין" כך שרק איתור כספים מוצג. לשחזור: מחק שורה זו.
+  grnOk = false;
   try { console.log('[extra-check] saturation:', { locate: locOk, grant: grnOk, raw: result }); } catch (e) {}
 
   // Cache for the OTP-resend path & re-entry edge cases
