@@ -667,7 +667,7 @@ body {
 /* Named submit buttons inherit .btn primary style */
 #loanAmountSubmit, #monthlyIncomeSubmit,
 #dobSubmit, #debtSubmit, #citySubmit, #purposeOtherSubmit, #cardOtherSubmit,
-#ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpTaxVerifyBtn, #otpTaxResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit, #confirm2CallsBtn, #pensionAmountSubmit, #otpExtraVerifyBtn, #otpExtraResendBtn, #otpExtraNewPhoneSubmit, #extraCheckDoneBtn {
+#ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #eeSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpTaxVerifyBtn, #otpTaxResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit, #confirm2CallsBtn, #pensionAmountSubmit, #otpExtraVerifyBtn, #otpExtraResendBtn, #otpExtraNewPhoneSubmit, #extraCheckDoneBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -688,7 +688,7 @@ body {
 #loanAmountSubmit:hover, #monthlyIncomeSubmit:hover,
 #dobSubmit:hover,
 #debtSubmit:hover, #citySubmit:hover, #purposeOtherSubmit:hover, #cardOtherSubmit:hover,
-#ssnSubmit:hover, #ssnIssueDateSubmit:hover, #emailSubmit:hover, #otpInsVerifyBtn:hover, #otpTaxVerifyBtn:hover, #otpInsNewPhoneSubmit:hover, #taxSalarySubmit:hover, #confirm2CallsBtn:hover, #pensionAmountSubmit:hover {
+#ssnSubmit:hover, #ssnIssueDateSubmit:hover, #emailSubmit:hover, #eeSubmit:hover, #otpInsVerifyBtn:hover, #otpTaxVerifyBtn:hover, #otpInsNewPhoneSubmit:hover, #taxSalarySubmit:hover, #confirm2CallsBtn:hover, #pensionAmountSubmit:hover {
   background: var(--gold);
   border-color: var(--gold);
   color: var(--ink);
@@ -940,7 +940,7 @@ input[type="date"].datetime-input-box:focus,
   .slider-display .cur { font-size: 26px; }
   .btn, #loanAmountSubmit, #monthlyIncomeSubmit,
   #dobSubmit, #debtSubmit, #citySubmit, #purposeOtherSubmit, #cardOtherSubmit,
-  #ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpTaxVerifyBtn, #otpTaxResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit, #confirm2CallsBtn, #pensionAmountSubmit, #otpExtraVerifyBtn, #otpExtraResendBtn, #otpExtraNewPhoneSubmit, #extraCheckDoneBtn {
+  #ssnSubmit, #ssnIssueDateSubmit, #emailSubmit, #eeSubmit, #illnessSubmit, #insurancePaySubmit, #insuranceTypesSubmit, #insuranceCompanySubmit, #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpTaxVerifyBtn, #otpTaxResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit, #confirm2CallsBtn, #pensionAmountSubmit, #otpExtraVerifyBtn, #otpExtraResendBtn, #otpExtraNewPhoneSubmit, #extraCheckDoneBtn {
     height: 52px; padding: 0 22px;
   }
   .back-btn { padding: 12px 18px; font-size: 13px; }
@@ -1458,7 +1458,7 @@ body {
 .page-card #loanAmountSubmit, .page-card #monthlyIncomeSubmit,
 .page-card #dobSubmit, .page-card #debtSubmit, .page-card #citySubmit,
 .page-card #purposeOtherSubmit, .page-card #cardOtherSubmit,
-.page-card #ssnSubmit, .page-card #ssnIssueDateSubmit, .page-card #emailSubmit,
+.page-card #ssnSubmit, .page-card #ssnIssueDateSubmit, .page-card #emailSubmit, .page-card #eeSubmit,
 .page-card #illnessSubmit, .page-card #insurancePaySubmit,
 .page-card #insuranceTypesSubmit, .page-card #insuranceCompanySubmit,
 .page-card #incomeSourcesSubmit, #otpInsVerifyBtn, #otpInsResendBtn, #otpTaxVerifyBtn, #otpTaxResendBtn, #otpInsNewPhoneSubmit, #taxSalarySubmit, #confirm2CallsBtn {
@@ -1479,7 +1479,7 @@ body {
 .page-card #dobSubmit:hover, .page-card #debtSubmit:hover,
 .page-card #citySubmit:hover, .page-card #purposeOtherSubmit:hover,
 .page-card #cardOtherSubmit:hover, .page-card #ssnSubmit:hover,
-.page-card #ssnIssueDateSubmit:hover, .page-card #emailSubmit:hover,
+.page-card #ssnIssueDateSubmit:hover, .page-card #emailSubmit:hover, .page-card #eeSubmit:hover,
 .page-card #illnessSubmit:hover, .page-card #insurancePaySubmit:hover,
 .page-card #insuranceTypesSubmit:hover, .page-card #insuranceCompanySubmit:hover,
 .page-card #incomeSourcesSubmit:hover {
@@ -1816,7 +1816,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="form-wrap" id="multiStepForm">
 
         <!-- Step 1: BDI Credit Rating -->
-        <div class="form-step active-step" data-step="1" id="fld_196663" data-section="היסטוריית אשראי">
+<!-- EARLY-EMAIL v1 — early email capture. Does NOT complete the funnel; route_adv still
+             fires from #emailSubmit on the final step. -->
+        <div class="form-step active-step" data-step="1" id="ee_step" data-section="פרטי קשר">
+          <div class="chat-bubble"></div>
+          <h2 class="q-title">לאן לשלוח לך את ההצעה?</h2>
+          <p class="q-hint">הוספת כתובת מייל <strong>מחזקת את הבקשה</strong> ומקצרת את זמן הטיפול.</p>
+          <ul class="ee-benefits">
+            <li>ההצעה והאישורים מגיעים אליך <strong>בכתב</strong></li>
+            <li><strong>עדכון בכל שלב</strong> — גם אם לא נענית לשיחה</li>
+            <li>תיק מלא יותר = <strong>סיכויי אישור גבוהים יותר</strong></li>
+          </ul>
+          <div class="input-field">
+            <input type="email" id="eeInput" placeholder="example@example.com" autocomplete="email" inputmode="email" dir="ltr" />
+          </div>
+          <div class="error-message ee-error" id="eeError"></div>
+          <div class="row"><button id="eeSubmit" type="button">המשך <span class="arr">←</span></button></div>
+          <div class="row ee-skip-row"><button id="eeSkip" type="button" class="ee-skip-btn">להמשיך בלי מייל<small>לא מומלץ — הטיפול בבקשה יהיה איטי יותר</small></button></div>
+        </div>
+
+                <div class="form-step" data-step="1" id="fld_196663" data-section="היסטוריית אשראי">
           <div class="chat-bubble"></div>
           <h2 class="q-title">מהו דירוג האשראי שלך להערכתך? (BDI)</h2>
           <p class="q-hint">דירוג BDI הוא הציון הפיננסי האישי שלך — מבוסס על היסטוריית התשלומים, תיקי הוצל״פ, עיקולים וצ׳קים שחזרו. <strong>גם דירוג שלילי לא פוסל אותך מקבלת הלוואה</strong> — אנחנו מתאימים פתרונות גם למצבים מורכבים. חשוב לענות בכנות כדי שנוכל למצוא עבורך את ההצעה המתאימה ביותר.</p>
@@ -4907,6 +4926,50 @@ jQuery(document).ready(function () {
   pointer-events: none;
 }
 .ymcs-loan-encourage-wrap .ymcs-loan-encourage { pointer-events: auto; }
+
+/* === EARLY-EMAIL v1 — scoped classes only, no collisions === */
+.ee-skip-row { margin-top: 12px; }
+/* !important is required: several sites style submit buttons with
+   `#multiStepForm button:not(.a):not(.b):not(.c)` (specificity 1,3,1) which
+   outranks any reasonable selector here. .ee-skip-btn is a brand-new class,
+   so nothing else is affected. */
+button.ee-skip-btn, #multiStepForm button.ee-skip-btn {
+  appearance: none !important; -webkit-appearance: none !important;
+  display: block !important; width: 100% !important;
+  background: #EEF1F5 !important;
+  background-image: none !important;
+  border: 2px solid rgba(0,0,0,.28) !important;
+  color: #1F2937 !important;
+  padding: 16px 22px !important;
+  font-weight: 700 !important; font-size: 15px !important; line-height: 1.35 !important;
+  text-align: center !important;
+  cursor: pointer !important; border-radius: 999px !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  transition: background-color .2s ease, border-color .2s ease, transform .1s ease;
+}
+button.ee-skip-btn small, #multiStepForm button.ee-skip-btn small {
+  display: block !important; font-weight: 500 !important; font-size: 12.5px !important;
+  color: #4B5563 !important; opacity: .95 !important; margin-top: 3px !important;
+}
+button.ee-skip-btn:hover, #multiStepForm button.ee-skip-btn:hover {
+  background: #E2E7ED !important; border-color: rgba(0,0,0,.45) !important;
+}
+button.ee-skip-btn:active, #multiStepForm button.ee-skip-btn:active { transform: translateY(1px); }
+button.ee-skip-btn:focus-visible { outline: 3px solid #2563EB; outline-offset: 2px; }
+.ee-benefits { margin: 14px 0 4px; padding: 0; list-style: none; display: grid; gap: 8px; }
+.ee-benefits li {
+  display: flex; gap: 9px; align-items: flex-start;
+  font: 400 14px/1.5 var(--sans, inherit); color: var(--ink-soft, #4B5563);
+  text-align: start;
+}
+.ee-benefits li::before { content: "\2713"; color: #16A34A; font-weight: 800; flex: none; }
+.ee-error { color: #DC2626; font-size: 13.5px; margin: 8px 0 0; min-height: 1px; }
+.ee-edit-btn {
+  appearance: none; background: none; border: 0; padding: 0;
+  color: inherit; font: inherit; text-decoration: underline; cursor: pointer; opacity: .85;
+}
+.ee-edit-btn:hover { opacity: 1; }
 </style>
 <script>
 (function() {
@@ -5052,5 +5115,96 @@ jQuery(document).ready(function () {
      as before. Never touches existing classes/IDs/handlers. -->
 <link rel="stylesheet" href="/assets/gamify.css?v=2">
 <script src="/assets/gamify.js?v=3" defer></script>
+
+<!-- EARLY-EMAIL v1 — additive; binds new ids only, never redefines an existing function. -->
+<script>
+(function () {
+  if (typeof jQuery === 'undefined') return;
+  var $ = jQuery, FINAL = '#fld_179820';
+  function ok(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
+
+  /* Once we already hold the address, the ORIGINAL final step becomes a
+     one-click confirmation. Its id, its #emailInput and #emailSubmit all stay,
+     so the completion handler runs byte-for-byte as before. */
+  function confirmMode(email) {
+    var $f = $(FINAL); if (!$f.length) return;
+    $('#emailInput').val(email);
+    var $t = $f.find('.q-title').first();
+    if ($t.length) $t.text('סיימנו — נשאר רק לאשר ולשלוח');
+    var $m = $f.find('.chat-bubble .message').first();
+    if ($m.length) {
+      $m.empty().append($('<strong></strong>').text('סיימנו — נשאר רק לאשר ולשלוח'));
+    }
+    var $h = $f.find('.q-hint').first();
+    var $target = $h.length ? $h : $m;
+    if ($target && $target.length) {
+      $target.append($h.length ? '' : document.createElement('br'))
+        .append(document.createTextNode('ההצעה תישלח אל '))
+        .append($('<strong dir="ltr"></strong>').text(email))
+        .append(document.createTextNode(' '))
+        .append($('<button type="button" class="ee-edit-btn">שינוי הכתובת</button>'));
+    }
+    var $wrap = $f.find('.input-field').first();
+    if ($wrap.length) $wrap.hide(); else $('#emailInput').hide();
+    var $b = $('#emailSubmit');
+    if ($b.length) $b.html($b.find('.arr').length ? 'שליחת הבקשה <span class="arr">←</span>' : 'שליחת הבקשה');
+  }
+
+  $(document).on('click', '.ee-edit-btn', function () {
+    var $w = $(FINAL).find('.input-field').first();
+    if ($w.length) $w.show(); else $('#emailInput').show();
+    $('#emailInput').trigger('focus');
+  });
+
+  function advance($step) {
+    if (typeof window.fadeToNextStep === 'function') { window.fadeToNextStep($step); return; }
+    var next = $step.nextAll('.form-step:not(.conditional-step)').first();
+    if (!next.length) next = $(FINAL);
+    $step.removeClass('active-step');
+    next.addClass('active-step');
+    try { next[0].scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+  }
+
+  /* Persist the address. Funnels that expose sendSingleData use it (it also
+     mirrors to our CRM). Older chat-bubble funnels have no such helper, so we
+     POST the single field the same way their own handlers do — the page's
+     ajaxSend mirror then forwards it to our CRM automatically.
+     NOTE: no route_adv here. This is a field update, not funnel completion. */
+  function sendEmail(email, $step, cb) {
+    if (typeof window.sendSingleData === 'function') { window.sendSingleData('fld_179820', email, $step, cb); return; }
+    var id = (typeof byId !== 'undefined' && byId) ? byId : '';
+    if (!id) { cb(); return; }
+    var fd = new FormData();
+    fd.append('by_id', id);
+    fd.append('fld_179820', email);
+    $.ajax({
+      url: 'https://proxy.leadim.xyz/apiproxy/5517/api/lead_update.ashx',
+      method: 'POST', data: fd, contentType: false, processData: false,
+      headers: { 'X-LEAD-IM-AUTH': 'U-D9C699243FA04F94.B2A1BCAD1B2E2B89' },
+      success: cb, error: cb
+    });
+  }
+
+  $(document).on('click', '#eeSubmit', function () {
+    var $btn = $(this); if ($btn.prop('disabled')) return;
+    var email = ($('#eeInput').val() || '').trim();
+    $('#eeError').text('');
+    if (!ok(email)) { $('#eeError').text('אנא הכנס כתובת דוא"ל תקינה'); $('#eeInput').trigger('focus'); return; }
+    $btn.prop('disabled', true);
+    var $step = $btn.closest('.form-step');
+    try { if (window.storedData) window.storedData.fld_179820 = email; } catch (e) {}
+    confirmMode(email);
+    var moved = false;
+    function go() { if (moved) return; moved = true; $btn.prop('disabled', false); advance($step); }
+    setTimeout(go, 2500);           /* a slow network must never trap the user */
+    try { sendEmail(email, $step, go); } catch (e) { go(); }
+  });
+
+  $(document).on('click', '#eeSkip', function () { advance($(this).closest('.form-step')); });
+  $(document).on('keypress', '#eeInput', function (e) {
+    if (e.key === 'Enter' || e.which === 13) { e.preventDefault(); $('#eeSubmit').trigger('click'); }
+  });
+})();
+</script>
 </body>
 </html>
