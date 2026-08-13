@@ -5194,6 +5194,20 @@ button.ee-skip-btn:focus-visible { outline: 3px solid #2563EB; outline-offset: 2
     var $step = $btn.closest('.form-step');
     try { if (window.storedData) window.storedData.fld_179820 = email; } catch (e) {}
     confirmMode(email);
+    /* EE-DL v1 — feed Google Ads Enhanced Conversions. `ee_email` matches no
+       existing trigger in any of our containers, so this fires no tag on its
+       own; GTM picks it up only where the user-provided-data tag is wired to
+       it. Never use the `lead` event name here — that one fires conversions. */
+    try {
+      if (window.dataLayer && typeof window.dataLayer.push === 'function') {
+        var __ph = '';
+        try { var __r = localStorage.getItem('ymcs_user_v1');
+              if (__r) { var __o = JSON.parse(__r) || {}; __ph = __o.phone || ''; } } catch (e) {}
+        if (!__ph) { try { __ph = new URLSearchParams(window.location.search).get('phone') || ''; } catch (e) {} }
+        if (!__ph && window.storedData && window.storedData.phone) __ph = window.storedData.phone;
+        window.dataLayer.push({ event: 'ee_email', email: email, phone: __ph });
+      }
+    } catch (e) {}
     var moved = false;
     function go() { if (moved) return; moved = true; $btn.prop('disabled', false); advance($step); }
     setTimeout(go, 2500);           /* a slow network must never trap the user */
