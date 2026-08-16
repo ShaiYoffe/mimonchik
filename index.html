@@ -949,7 +949,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         try {
           var resp = (typeof responseText === 'string') ? JSON.parse(responseText) : responseText;
           if (resp && typeof resp.result !== 'undefined') {
-            try{localStorage.setItem('ymcs_user_v1',JSON.stringify({name:name||'',phone:phone||'',age:'',ts:Date.now()}))}catch(e){}; window.location.href = '/quiz/?response=' + resp.result
+            try{localStorage.setItem('ymcs_user_v1',JSON.stringify({name:name||'',phone:phone||'',age:'',ts:Date.now()}))}catch(e){}; /* RG-AT-CREATE 16/08 */ try { fetch('/api/schedule-route', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lead_id: String(resp.result) }), keepalive: true }).catch(function () {}); } catch (e) {} window.location.href = '/quiz/?response=' + resp.result
               + '&name=' + encodeURIComponent(name)
               + '&phone=' + encodeURIComponent(phone);
             return;

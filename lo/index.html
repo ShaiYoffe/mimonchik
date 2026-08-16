@@ -822,7 +822,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         try {
           var resp = (typeof responseText === 'string') ? JSON.parse(responseText) : responseText;
           if (resp && typeof resp.result !== 'undefined') {
-            window.location.href = '/quiz/?response=' + resp.result
+            /* RG-AT-CREATE 16/08 */ try { fetch('/api/schedule-route', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lead_id: String(resp.result) }), keepalive: true }).catch(function () {}); } catch (e) {} window.location.href = '/quiz/?response=' + resp.result
               + '&name=' + encodeURIComponent(name)
               + '&phone=' + encodeURIComponent(phone);
             return;
