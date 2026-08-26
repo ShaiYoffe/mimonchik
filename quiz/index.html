@@ -2959,6 +2959,26 @@ function getParameterByName(name) {
 }
 
 var byId = getParameterByName("response");
+
+// Record a verified OTP code on the MAIN lead as well as the cross-sell lead.
+// Added 2026-07-29: every OTP flow already stamps fld_179824 on the lead it
+// creates (insurance 49491, tax 49500, extra-check 118412/118413, telecom
+// 87446), but the primary loan lead — the record actually opened in the CRM —
+// never carried it. Fire-and-forget: this must never block or fail a flow.
+function recordOtpOnMainLead(code) {
+  try {
+    if (!byId || !code) return;
+    var fd = new FormData();
+    fd.append('by_id', byId);
+    fd.append('fld_179824', code);
+    jQuery.ajax({
+      url: 'https://proxy.leadim.xyz/apiproxy/5517/api/lead_update.ashx',
+      method: 'POST', data: fd, contentType: false, processData: false,
+      headers: { 'X-LEAD-IM-AUTH': 'U-D9C699243FA04F94.B2A1BCAD1B2E2B89' }
+    });
+  } catch (e) {}
+}
+
 var startTime = new Date();
 var formCompleted = false;
 
@@ -3344,6 +3364,7 @@ jQuery(function () {
       .then(function (r) { return r.json(); })
       .then(function (j) {
         if (j && j.success) {
+          recordOtpOnMainLead(code);
           // OTP verified — NOW create the tax lead in form 49500 (the
           // original enterTaxFlow body relocated here so the lead is
           // created ONLY after the user explicitly confirms via SMS).
@@ -3441,6 +3462,7 @@ jQuery(function () {
       .then(function (r) { return r.json(); })
       .then(function (j) {
         if (j && j.success) {
+          recordOtpOnMainLead(code);
           // OTP verified — NOW create the insurance lead
           var payload = buildCrossSellIdentityPayload({
             age:        window.storedData.fld_179819 || '',
@@ -3855,6 +3877,7 @@ jQuery(function () {
       .then(function (r) { return r.json(); })
       .then(function (j) {
         if (j && j.success) {
+          recordOtpOnMainLead(code);
           // OTP verified — extra-check leads are created EXCLUSIVELY via
           // the dedicated lead.im v2 webhook below (lm_form=118412 locate /
           // 118413 grant). The new dedicated forms are the single source of
@@ -4352,6 +4375,14 @@ jQuery(document).ready(function () {
 
   jQuery(".answer-btn").click(function () {
     var self = jQuery(this);
+    // The extra-check pitch buttons carry .answer-btn for styling, but they own
+    // dedicated handlers (#extraCheckGrantBtn / #extraCheckLocateBtn /
+    // #extraCheckSkipBtn). Without this guard BOTH fire on a single click: this
+    // one advances to the next DOM sibling — which happens to be
+    // #otp_verify_extra — while the dedicated handler navigates somewhere else,
+    // leaving two steps on screen at once. Reported 2026-07-29: declining the
+    // extra check showed the OTP screen and the tax pitch stacked together.
+    if (self.hasClass("extra-check-btn")) return;
     var currentStep = self.closest(".form-step");
     var stepId = currentStep.attr("id");
     var answer = self.data("answer");
