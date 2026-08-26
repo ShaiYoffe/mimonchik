@@ -358,3 +358,87 @@ body.ymcs-locked > *:not(.ymcs-overlay):not(script):not(style):not(noscript):not
   .ymcs-overlay .ymcs-answers { gap: 8px; }
   .ymcs-overlay .ymcs-answer-btn { padding: 13px 10px; font-size: 15px; }
 }
+
+/* ──────────────────────────────────────────────────────────────────────
+ * Telecom OTP gate (2026-07-29) — ported from the dormant-funds module so
+ * the telecom pitch can verify the phone before a lead is created.
+ * ────────────────────────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────────────
+ * Theme-aware callouts (success / warn / info) — added 2026-06-18.
+ * Replaces the older inline `style="color:#1F2937; background:rgba(...)"`
+ * pattern that broke on dark-themed host pages (e.g. lofraier.com).
+ * Background = host card colour blended with a tint, text = host text
+ * colour, so contrast stays correct on EVERY theme.
+ * ────────────────────────────────────────────────────────────────────── */
+.ymcs-overlay .ymcs-callout {
+  border-radius: 10px;
+  padding: 13px 16px;
+  margin: 14px 0;
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: right;
+  color: var(--ymcs-text);
+  background: var(--ymcs-card);
+  border: 1px solid var(--ymcs-border);
+}
+.ymcs-overlay .ymcs-callout strong { color: var(--ymcs-text); }
+.ymcs-overlay .ymcs-callout--success {
+  background: color-mix(in srgb, #22c55e 14%, var(--ymcs-card));
+  border-color: color-mix(in srgb, #22c55e 38%, var(--ymcs-border));
+}
+.ymcs-overlay .ymcs-callout--warn {
+  background: color-mix(in srgb, #f59e0b 14%, var(--ymcs-card));
+  border-color: color-mix(in srgb, #f59e0b 38%, var(--ymcs-border));
+  border-right: 3px solid #f59e0b;
+}
+.ymcs-overlay .ymcs-callout--info {
+  background: color-mix(in srgb, #3b82f6 14%, var(--ymcs-card));
+  border-color: color-mix(in srgb, #3b82f6 38%, var(--ymcs-border));
+}
+.ymcs-overlay .ymcs-callout-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+.ymcs-overlay .ymcs-callout-foot {
+  margin-top: 10px;
+  font-size: 13px;
+  opacity: .85;
+}
+.ymcs-overlay .ymcs-callout--info .ymcs-callout-phone {
+  font-size: 20px;
+  font-weight: 800;
+  direction: ltr;
+  letter-spacing: 0.5px;
+}
+/* Theme-aware phone input used inside pitch flows. */
+.ymcs-overlay .ymcs-phone-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ymcs-text);
+  background: var(--ymcs-card);
+  border: 1.5px solid var(--ymcs-border);
+  border-radius: 8px;
+  text-align: center;
+  direction: ltr;
+  font-variant-numeric: tabular-nums;
+}
+/* OTP verification step (loan cross-sell) */
+.ymcs-overlay .ymcs-otp-wrap { margin: 18px 0 10px; text-align: center; }
+.ymcs-overlay .ymcs-otp-input {
+  width: 180px; padding: 18px 12px;
+  font-size: 28px; font-weight: 800;
+  letter-spacing: 16px; text-align: center;
+  font-family: ui-monospace,Menlo,Consolas,monospace;
+  border: 2px solid var(--ymcs-border); border-radius: 14px;
+  background: var(--ymcs-surface); color: var(--ymcs-text);
+  caret-color: var(--ymcs-primary);
+  direction: ltr;
+}
+.ymcs-overlay .ymcs-otp-input:focus {
+  outline: none; border-color: var(--ymcs-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ymcs-primary) 20%, transparent);
+}
+.ymcs-overlay .ymcs-otp-input::placeholder { color: var(--ymcs-text-soft); opacity: .5; letter-spacing: 12px; }

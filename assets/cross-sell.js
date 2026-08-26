@@ -77,7 +77,8 @@
   // or require complex idempotency logic.
   const NO_BACK_STEPS = {
     'pitch_ins': 1, 'done': 1, 'telecom_done': 1,
-    'pitch_telecom': 1, 'fld_377286': 1, 'fld_377286_other': 1
+    'pitch_telecom': 1, 'fld_377286': 1, 'fld_377286_other': 1,
+    'otp_verify_telecom': 1, 'confirm_telecom': 1
   };
 
   // ============ Step plan ============
@@ -193,6 +194,12 @@
     // advertiser. fld_377286='אחר' branches to a text input so the advertiser
     // gets the actual provider name, not just "other".
     { id: 'pitch_telecom', type: 'pitch_telecom', fld: 'fld_377288' },
+    // TELECOM OTP GATE 2026-07-29 — the lead is NOT created on the pitch any
+    // more. The user verifies an SMS code first, then the lead is created and
+    // the confirmation below spells out that this is an ADDITIONAL call on top
+    // of whatever they originally asked for.
+    { id: 'otp_verify_telecom', type: 'otp_verify_telecom' },
+    { id: 'confirm_telecom', type: 'confirm_telecom' },
     { id: 'fld_377286', type: 'telecom_provider', fld: 'fld_377286' },
     { id: 'fld_377286_other', type: 'text', fld: 'fld_377286',
       q: 'איזה ספק תקשורת אתה לקוח שלו?',
@@ -510,6 +517,65 @@
         '<button class="ymcs-btn-ghost"   data-act="tel-no">לא תודה, סיום</button>' +
       '</div>';
   }
+  // ── Telecom OTP gate (2026-07-29) ─────────────────────────────────────
+  // The telecom lead used to be created the instant the user clicked "yes" on
+  // the pitch. It now waits for an SMS code, so we only hand the advertiser a
+  // phone number the user has actually proven they control.
+  function tplOtpTelecom() {
+    var phone = state.user.phone || '';
+    var masked = phone.length >= 7 ? phone.slice(0, 3) + '-' + phone.slice(3, 6) + '-' + phone.slice(6) : phone;
+    return '' +
+      '<div class="ymcs-eyebrow">🔐 אימות זהות</div>' +
+      '<h2 class="ymcs-title">שלחנו לך קוד אימות ב-SMS</h2>' +
+      '<p class="ymcs-hint">למספר <strong>' + escapeHtml(masked) + '</strong> נשלח קוד בן 4 ספרות. ' +
+        '<strong>מיד לאחר האימות — נציג תקשורת מורשה יחזור אליך טלפונית <u>בנוסף</u> לטיפול בבקשתך המקורית.</strong> ' +
+        'ללא אימות לא נוכל להעביר את הבקשה.</p>' +
+      '<div class="ymcs-callout ymcs-callout--info" style="margin:14px auto; max-width:340px; text-align:center;">' +
+        '<div style="opacity:.85; margin-bottom:6px;">נציג התקשורת יתקשר אליך למספר:</div>' +
+        '<div class="ymcs-callout-phone">' + escapeHtml(masked) + '</div>' +
+        '<div style="opacity:.85; margin-top:6px; font-size:13px;">תוך 1-3 ימי עסקים</div>' +
+        '<div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--ymcs-border); font-size:13px; color:#f59e0b;">⚠️ זה יהיה ממספר לא מוכר — חשוב שתענה!</div>' +
+      '</div>' +
+      '<div class="ymcs-otp-wrap">' +
+        '<input id="ymcsTelOtpInput" class="ymcs-otp-input" type="text" inputmode="numeric" maxlength="4" autocomplete="one-time-code" placeholder="••••" />' +
+      '</div>' +
+      '<div class="ymcs-error" id="ymcsTelOtpErr"></div>' +
+      '<button class="ymcs-btn-primary" id="ymcsTelOtpVerifyBtn" disabled>אימות קוד וקבלת הצעת הוזלה</button>' +
+      '<button class="ymcs-btn-ghost"   id="ymcsTelOtpResendBtn" disabled>שלח קוד שוב <span id="ymcsTelOtpResendTimer" style="font-weight:400;opacity:.7;"></span></button>' +
+      '<div style="text-align:center; margin-top:14px;">' +
+        '<a href="#" id="ymcsTelOtpChangeLink" style="font-size:13.5px; color:var(--ymcs-primary,#0066ff); text-decoration:underline; cursor:pointer;">לא קיבלת? שנה מספר טלפון</a>' +
+      '</div>' +
+      '<div id="ymcsTelOtpChangeBox" style="display:none; margin-top:14px; padding:14px; border:1.5px dashed var(--ymcs-border,#ddd); border-radius:10px;">' +
+        '<label for="ymcsTelOtpNewPhone" style="display:block; font-size:13px; font-weight:700; margin-bottom:8px;">הזן מספר נייד חדש (10 ספרות):</label>' +
+        '<input id="ymcsTelOtpNewPhone" class="ymcs-phone-input" type="tel" inputmode="tel" maxlength="10" placeholder="לדוגמה: 0501234567" />' +
+        '<div class="ymcs-error" id="ymcsTelOtpNewPhoneErr" style="margin-top:6px;"></div>' +
+        '<button class="ymcs-btn-primary" id="ymcsTelOtpNewPhoneSubmit" style="margin-top:10px;">שלח קוד למספר החדש</button>' +
+      '</div>';
+  }
+
+  // Shown straight after the code is verified and the lead exists. Its whole job
+  // is making the parallel call impossible to miss, so an unknown number a few
+  // days later doesn't read as a cold call the user never agreed to.
+  function tplConfirmTelecom() {
+    var phone = state.user.phone || '';
+    var masked = phone.length >= 7 ? phone.slice(0, 3) + '-' + phone.slice(3, 6) + '-' + phone.slice(6) : phone;
+    return '' +
+      '<div class="ymcs-eyebrow">✅ אומת בהצלחה</div>' +
+      '<h2 class="ymcs-title">תודה רבה — קיבלנו את אישורך!</h2>' +
+      '<p class="ymcs-hint">לפני שאתה ממשיך — קח שנייה לזכור מה עומד להגיע אליך:</p>' +
+      '<div class="ymcs-callout ymcs-callout--success" style="padding:18px 20px;">' +
+        '<div class="ymcs-callout-title" style="font-size:15.5px;">📨 שיחות בדרך אליך — כולן למספר ' + escapeHtml(masked) + ':</div>' +
+        '<div style="margin:10px 0; padding-right:10px;"><div><strong>1. 📞 צוות השירות שלנו</strong></div>' +
+          '<div style="opacity:.85; font-size:13.5px; margin-top:2px;">תוך 24 שעות — לטיפול בבקשה המקורית שלך</div></div>' +
+        '<div style="margin:10px 0; padding-right:10px;"><div><strong>2. 📺 נציג תקשורת מורשה</strong></div>' +
+          '<div style="opacity:.85; font-size:13.5px; margin-top:2px;">תוך 1-3 ימי עסקים — להצעת הוזלה על חבילת הטלוויזיה</div></div>' +
+      '</div>' +
+      '<div class="ymcs-callout ymcs-callout--warn">' +
+        '💡 <strong>השיחות יגיעו ממספרים לא מוכרים — זה אנחנו!</strong> חשוב שתענה כדי לקבל את ההצעות שלך.' +
+      '</div>' +
+      '<button class="ymcs-btn-primary" id="ymcsConfirmTelecomBtn" style="margin-top:8px;">הבנתי, שאלה אחרונה ←</button>';
+  }
+
   function tplTelecomProvider() {
     var providers = [
       'yes',
@@ -660,6 +726,8 @@
       case 'pitch_ins':         html = tplPitchIns();        break;
       case 'pitch_tax':         html = tplPitchTax();        break;
       case 'pitch_telecom':     html = tplPitchTelecom();    break;
+      case 'otp_verify_telecom': html = tplOtpTelecom();     break;
+      case 'confirm_telecom':   html = tplConfirmTelecom();  break;
       case 'insurer_picker':    html = tplInsurerPicker();   break;
       case 'telecom_provider':  html = tplTelecomProvider(); break;
       case 'yes_no':            html = tplYesNo(step);       break;
@@ -860,18 +928,11 @@
           render('_reentry');
           return;
         }
-        var payload = buildTelecomCreatePayload('כן');
-        createLead(TELECOM_FORM, payload).then(function (leadId) {
-          if (leadId) {
-            state.telecomLeadId = leadId;
-            state.activeFlow = 'telecom';
-            // Safety-net cron will fire route_adv if the user abandons before
-            // picking a provider. fld_377288='כן' means consent given, so
-            // routing on timeout is the right behavior.
-            scheduleRoute(leadId);
-          }
-          render('fld_377286');
-        });
+        // TELECOM OTP GATE 2026-07-29 — consent alone no longer creates the
+        // lead. Verify the phone first; the lead is created in the OTP handler
+        // once the code checks out, so the advertiser only ever receives a
+        // number the user proved they control.
+        render('otp_verify_telecom');
       });
       card.querySelector('[data-act="tel-no"]').addEventListener('click', function (e) {
         e.preventDefault();
@@ -882,6 +943,121 @@
         // practice it flooded the advertiser's Leadim with hundreds of irrelevant
         // opt-out entries. Now: end silently, no lead, no reporting noise.
         render('done');
+      });
+      return;
+    }
+    if (step.type === 'otp_verify_telecom') {
+      var tOtpInput  = card.querySelector('#ymcsTelOtpInput');
+      var tOtpErr    = card.querySelector('#ymcsTelOtpErr');
+      var tVerifyBtn = card.querySelector('#ymcsTelOtpVerifyBtn');
+      var tResendBtn = card.querySelector('#ymcsTelOtpResendBtn');
+      var tResendTmr = card.querySelector('#ymcsTelOtpResendTimer');
+      var tCountdown = 0, tInterval = null;
+
+      function tStartCountdown(seconds) {
+        tCountdown = seconds;
+        tResendBtn.disabled = true;
+        tResendTmr.textContent = '(' + tCountdown + ')';
+        if (tInterval) clearInterval(tInterval);
+        tInterval = setInterval(function () {
+          tCountdown--;
+          tResendTmr.textContent = tCountdown > 0 ? '(' + tCountdown + ')' : '';
+          if (tCountdown <= 0) { clearInterval(tInterval); tResendBtn.disabled = false; }
+        }, 1000);
+      }
+
+      function tSendOtp() {
+        tOtpErr.textContent = '';
+        return fetch('/api/otp-send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: state.user.phone, flow: 'telecom' })
+        }).then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (!j || !j.success) tOtpErr.textContent = (j && j.error) || 'שליחת ה-SMS נכשלה. נסה שוב.';
+            tStartCountdown(30);
+          })
+          .catch(function () {
+            tOtpErr.textContent = 'תקלת תקשורת. נסה שוב.';
+            tStartCountdown(30);
+          });
+      }
+      tSendOtp();
+
+      tOtpInput.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0, 4);
+        tVerifyBtn.disabled = this.value.length !== 4;
+      });
+
+      tVerifyBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        var code = (tOtpInput.value || '').trim();
+        if (code.length !== 4) return;
+        tVerifyBtn.disabled = true;
+        tVerifyBtn.textContent = 'מאמת…';
+        fetch('/api/otp-verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: state.user.phone, code: code })
+        }).then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (j && j.success) {
+              // Verified — NOW create the telecom lead. fld_179824 carries the
+              // code as an audit trail, same as the insurance/tax leads do.
+              var payload = buildTelecomCreatePayload('כן');
+              payload.fld_179824 = code;
+              createLead(TELECOM_FORM, payload).then(function (leadId) {
+                if (leadId) {
+                  state.telecomLeadId = leadId;
+                  state.activeFlow = 'telecom';
+                  // Safety-net cron fires route_adv if the user abandons before
+                  // picking a provider. Consent + verified phone by this point.
+                  scheduleRoute(leadId);
+                }
+                if (tInterval) clearInterval(tInterval);
+                render('confirm_telecom');
+              });
+            } else {
+              tOtpErr.textContent = (j && j.error) || 'הקוד שגוי. נסה שוב.';
+              tVerifyBtn.disabled = false;
+              tVerifyBtn.textContent = 'אימות קוד וקבלת הצעת הוזלה';
+              tOtpInput.focus(); tOtpInput.select();
+            }
+          })
+          .catch(function () {
+            tOtpErr.textContent = 'תקלת תקשורת. נסה שוב.';
+            tVerifyBtn.disabled = false;
+            tVerifyBtn.textContent = 'אימות קוד וקבלת הצעת הוזלה';
+          });
+      });
+
+      tResendBtn.addEventListener('click', function (e) { e.preventDefault(); tSendOtp(); });
+
+      var tChangeLink = card.querySelector('#ymcsTelOtpChangeLink');
+      var tChangeBox  = card.querySelector('#ymcsTelOtpChangeBox');
+      if (tChangeLink && tChangeBox) {
+        tChangeLink.addEventListener('click', function (e) {
+          e.preventDefault();
+          tChangeBox.style.display = tChangeBox.style.display === 'none' ? 'block' : 'none';
+        });
+        var tNewPhone = card.querySelector('#ymcsTelOtpNewPhone');
+        var tNewErr   = card.querySelector('#ymcsTelOtpNewPhoneErr');
+        card.querySelector('#ymcsTelOtpNewPhoneSubmit').addEventListener('click', function (e) {
+          e.preventDefault();
+          var v = (tNewPhone.value || '').replace(/\D/g, '');
+          if (!/^0\d{9}$/.test(v)) { tNewErr.textContent = 'מספר נייד לא תקין'; return; }
+          tNewErr.textContent = '';
+          state.user.phone = v;
+          tChangeBox.style.display = 'none';
+          render('otp_verify_telecom');
+        });
+      }
+      return;
+    }
+    if (step.type === 'confirm_telecom') {
+      card.querySelector('#ymcsConfirmTelecomBtn').addEventListener('click', function (e) {
+        e.preventDefault();
+        render('fld_377286');
       });
       return;
     }
