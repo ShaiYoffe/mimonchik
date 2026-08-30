@@ -41,15 +41,24 @@
      ------------------------------------------------------------------ */
   var FRESH_DAYS = 30;
 
+  var SESSION_KEY = "ymwa_lead_v1";
+
+  /**
+   * ⚠️ נבדק רק מה שיש לו חותמת זמן. `ymcs_ylead_id_v1` נכתב ע"י lead-backup
+   * בכל שמירה מתקדמת — כבר כשמקלידים שם ויוצאים מהשדה, גם בלי לשלוח —
+   * ואין לו תאריך. התייחסות לעצם קיומו כ"ליד" הסתירה את הכפתור לתמיד ממי
+   * שאי פעם נגע בטופס. אותו דבר ל-ymcs_user_v1 בלי ts.
+   *
+   * נכשל לכיוון הצגה: ספק אם הוא ליד → מראים. השכבה של אירוע ה-submit
+   * ממילא תופסת את מי שמוסר פרטים עכשיו.
+   */
   function leadCaptured() {
+    try { if (sessionStorage.getItem(SESSION_KEY)) return true; } catch (e) {}
     try {
-      if (localStorage.getItem("ymcs_ylead_id_v1")) return true;
       var raw = localStorage.getItem("ymcs_user_v1");
       if (raw) {
         var o = JSON.parse(raw);
-        // בלי חותמת זמן מניחים טרי; עם חותמת ישנה נותנים לו הזדמנות שנייה.
-        if (!o || !o.ts) return true;
-        if (Date.now() - o.ts < FRESH_DAYS * 864e5) return true;
+        if (o && o.ts && (Date.now() - o.ts) < FRESH_DAYS * 864e5) return true;
       }
     } catch (e) { /* מצב פרטי / אחסון חסום — לא מסתירים */ }
     try {
@@ -122,6 +131,9 @@
   });
 
   function hide() {
+    // נשמר לסשן כדי שחזרה לעמוד לא תחזיר את הכפתור למי שהרגע מסר פרטים —
+    // גם באתרים שלא כותבים סימון משלהם.
+    try { sessionStorage.setItem(SESSION_KEY, "1"); } catch (e) {}
     if (a && a.parentNode) a.parentNode.removeChild(a);
     document.removeEventListener("submit", hide, true);
     if (watch) { clearInterval(watch); watch = null; }
