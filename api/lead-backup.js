@@ -57,7 +57,9 @@ const ALLOWED_HOSTS = [
   // Dormant-funds category — site #11 (own host)
   'etoran.com', 'www.etoran.com',
   // Dormant-funds category — site #12
-  'zhoyot.org', 'www.zhoyot.org'
+  'zhoyot.org', 'www.zhoyot.org',
+  // אתר ההלוואות #22 — הבנקאיים (prosclick.com הוסב 08/09/2026)
+  'prosclick.com', 'www.prosclick.com'
 ];
 
 // Higher rate-limit to accommodate progressive saves (multiple per session)
