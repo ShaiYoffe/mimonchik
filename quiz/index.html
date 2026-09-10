@@ -2522,7 +2522,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
              Shown ONLY when:
                window.storedData.hasWithdrawnPension === false   (Q1 fld_376925 = "לא")
                AND Number(window.storedData.pensionAmount) > 20000  (Q2 fld_232629 > 20K)
-             Routes through maybeFadeToExtraCheckOrTax() which gates this and falls through to
+             Routes through maybeFadeToExtraCheck() which gates this and falls through to
              the tax pitch (#fld_283971) otherwise. Strict SMS-OTP — mirrors insurance flow. -->
         <div class="form-step post-submit-step" id="extra_check_pitch" data-section="בדיקה נוספת">
           <div class="success-card">
@@ -3649,8 +3649,8 @@ function runTelecomCrossSell(redirectTarget) {
 // ─── Self-employed gate (2026-05-26) ─────────────────────────────
 // עוסק פטור / עוסק מורשה / חברה בע״מ don't benefit from the tax
 // cross-sell — they file their own annual return through an accountant.
-// When the flow would navigate to the tax pitch, skip it and call
-// finalizeAndRedirect() directly.
+// When the flow would navigate to the tax pitch, skip it and continue to
+// the extra-check gate instead.
 function maybeFadeToTaxPitch(currentStep) {
   var emp = (window.storedData && window.storedData.fld_183161) || '';
   var selfEmployed = (emp === 'עוסק פטור' || emp === 'עוסק מורשה' || emp === 'חברה בע״מ');
@@ -3660,7 +3660,7 @@ function maybeFadeToTaxPitch(currentStep) {
   var __age = parseInt(String(__ageRaw).replace(/[^\d]/g, ''), 10);
   var ageIneligibleForTax = !isNaN(__age) && (__age <= 24 || __age >= 66);
   if (selfEmployed || ageIneligibleForTax) {
-    finalizeAndRedirect();
+    maybeFadeToExtraCheck(currentStep);
   } else {
     fadeToSpecificStep(currentStep, "#fld_283971");
   }
@@ -3668,14 +3668,15 @@ function maybeFadeToTaxPitch(currentStep) {
 
 // ─── Extra-check cross-sell gate (added 2026-06-06) ─────────────────────
 // Shown ONLY when user said they HAVEN'T withdrawn pension AND has >₪20K
-// in pension savings. Falls through to maybeFadeToTaxPitch() otherwise, so
-// the existing self-employed tax-pitch gate still applies for everyone.
+// in pension savings. Otherwise finishes the funnel (which hands off to the
+// telecom pitch). Order swapped 2026-09-10 — this used to run BEFORE the tax
+// pitch and fall through to it; tax now comes first and calls into here.
 // Sets storedData.extraCheckShown to prevent re-entry from back navigation.
-function maybeFadeToExtraCheckOrTax(currentStep) {
+function maybeFadeToExtraCheck(currentStep) {
   var hasPension = (window.storedData && window.storedData.hasPensionSavings === true);
   var amount = Number(window.storedData && window.storedData.pensionAmount) || 0;
   if (!(hasPension && amount > 20000 && !window.storedData.extraCheckShown)) {
-    maybeFadeToTaxPitch(currentStep);
+    finalizeAndRedirect();
     return;
   }
   window.storedData.extraCheckShown = true;
@@ -3718,7 +3719,7 @@ function maybeFadeToExtraCheckOrTax(currentStep) {
 
 // Applies the saturation result to the extra-check pitch: hides individual
 // buttons, or skips the pitch entirely when nothing's available. Called from
-// maybeFadeToExtraCheckOrTax above (both success and fail-open paths).
+// maybeFadeToExtraCheck above (both success and fail-open paths).
 function applyExtraCheckSaturation(result, currentStep) {
   var locOk = (result && result.locate_available !== false);   // default-true on missing
   var grnOk = (result && result.grant_available  !== false);
@@ -3732,8 +3733,8 @@ function applyExtraCheckSaturation(result, currentStep) {
 
   // BOTH hidden → skip the pitch entirely → continue to next cross-sell (tax).
   if (!locOk && !grnOk) {
-    console.log('[extra-check] both options saturated — skipping pitch, routing to tax');
-    maybeFadeToTaxPitch(currentStep);
+    console.log('[extra-check] both options saturated — skipping pitch, finishing');
+    finalizeAndRedirect();
     return;
   }
 
@@ -3847,7 +3848,7 @@ jQuery(function () {
   jQuery('#extraCheckSkipBtn').on('click', function () {
     window.storedData.extraCheckChoice = 'skip';
     var cur  = jQuery(this).closest('.form-step');
-    maybeFadeToTaxPitch(cur);
+    finalizeAndRedirect();
   });
 
   $extraInput.on('input', function () {
@@ -3994,7 +3995,7 @@ jQuery(function () {
 
   jQuery('#extraCheckDoneBtn').on('click', function () {
     var cur = jQuery(this).closest('.form-step');
-    maybeFadeToTaxPitch(cur);
+    finalizeAndRedirect();
   });
 
   // ── Change-phone UI for the extra-check OTP — mirrors the insurance one ──
@@ -4419,7 +4420,7 @@ jQuery(document).ready(function () {
     // "לא" on the tax pitch — record decline on the loan lead, no new lead created, redirect.
     if (stepId === "fld_283971" && self.data("tax-yes") === false) {
       sendSingleData(stepId, answer, currentStep, function () {
-        finalizeAndRedirect();
+        maybeFadeToExtraCheck(currentStep);
       });
       return;
     }
@@ -4432,10 +4433,12 @@ jQuery(document).ready(function () {
         sendCrossSellUpdate(taxLeadId, stepId, answer, function () {
           markFlowCompleted(taxLeadId);
           formCompleted = true;
-          runTelecomCrossSell('/thanks/');
+          maybeFadeToExtraCheck(currentStep);
         }, { routeAdv: true });
       } else {
-        sendSingleData(stepId, answer, currentStep, finalizeAndRedirect);
+        sendSingleData(stepId, answer, currentStep, function () {
+          maybeFadeToExtraCheck(currentStep);
+        });
       }
       return;
     }
@@ -4728,7 +4731,7 @@ jQuery(document).ready(function () {
           fadeToSpecificStep(currentStep, "#successStep");
           setTimeout(function () { jQuery("#insurancePitch").show(); }, 350);
         } else {
-          maybeFadeToExtraCheckOrTax(currentStep);
+          maybeFadeToTaxPitch(currentStep);
         }
       },
       error: function () {
@@ -4749,7 +4752,7 @@ jQuery(document).ready(function () {
   jQuery("#insurancePitchNo").click(function () {
     var currentStep = jQuery(this).closest(".form-step");
     sendSingleData("fld_223544", "לא", currentStep, function () {
-      maybeFadeToExtraCheckOrTax(currentStep);
+      maybeFadeToTaxPitch(currentStep);
     });
   });
   // Insurance pre-qualifier (#fld_351761) — first cross-sell question after pitch-yes.
@@ -4799,7 +4802,7 @@ jQuery(document).ready(function () {
       // Remembered so .insurer-btn knows to reopen the insurance lead if the
       // user presses back + picks a company.
       window.storedData.insuranceOptedOut = true;
-      maybeFadeToExtraCheckOrTax(currentStep);
+      maybeFadeToTaxPitch(currentStep);
     });
   });
 
