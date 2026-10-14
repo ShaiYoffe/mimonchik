@@ -686,6 +686,62 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 </section>
+<!-- YMEDIA LP video v1 — sits BELOW the form section. Poster only until needed: mobile = tap to play; desktop = muted autoplay once scrolled into view after page load. -->
+<section class="ym-lpv" aria-label="סרטון: איך זה עובד" style="--ym-accent:#2D8B7E;--ym-ink:#1A3A35">
+<style>
+.ym-lpv{direction:rtl;padding:28px 16px 12px;max-width:100%;overflow-x:clip}
+.ym-lpv-in{max-width:860px;margin:0 auto}
+.ym-lpv-h{margin:0 0 12px;text-align:center;font-weight:800;font-size:20px;line-height:1.3;color:var(--ym-ink)}
+.ym-lpv-box{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#0b1020;box-shadow:0 18px 44px -24px rgba(0,0,0,.45)}
+.ym-lpv-box img,.ym-lpv-box video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.ym-lpv-b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border:0;padding:0;margin:0;cursor:pointer;background:rgba(0,0,0,.18);font:inherit}
+.ym-lpv-b span{display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border-radius:999px;background:#fff;color:var(--ym-ink);font-weight:800;font-size:16px;box-shadow:0 10px 26px rgba(0,0,0,.28)}
+.ym-lpv-b span i{width:0;height:0;border-style:solid;border-width:8px 0 8px 13px;border-color:transparent transparent transparent var(--ym-accent)}
+.ym-lpv-b.ym-snd{inset:auto auto 12px 12px;background:none}
+.ym-lpv-b.ym-snd span{padding:8px 16px;font-size:14px}
+@media (min-width:768px){.ym-lpv{padding:40px 24px 16px}.ym-lpv-h{font-size:24px}}
+</style>
+<div class="ym-lpv-in">
+<h2 class="ym-lpv-h">איך זה עובד? 27 שניות</h2>
+<div class="ym-lpv-box" data-src="/assets/video/lp-video.mp4">
+<img src="/assets/video/lp-video-poster.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async">
+<button type="button" class="ym-lpv-b" aria-label="צפו בסרטון עם קול"><span><i></i>צפו בסרטון</span></button>
+</div>
+</div>
+<script>
+(function(){
+  var box=document.currentScript.parentNode.querySelector('.ym-lpv-box'); if(!box) return;
+  var btn=box.querySelector('.ym-lpv-b'), v=null, started=false;
+  function ev(a){(window.dataLayer=window.dataLayer||[]).push({event:'lp_video',video_action:a});}
+  function mk(muted){
+    if(!v){v=document.createElement('video');v.src=box.getAttribute('data-src');v.playsInline=true;v.setAttribute('playsinline','');v.preload='auto';
+      v.addEventListener('ended',function(){if(!v.muted){ev('complete');}});box.insertBefore(v,btn);}
+    v.muted=muted;v.loop=muted;v.controls=!muted;return v;
+  }
+  function withSound(){
+    mk(false);v.currentTime=0;var p=v.play();if(p&&p.catch)p.catch(function(){});
+    btn.style.display='none';ev(started?'play_sound':'play');started=true;
+  }
+  btn.addEventListener('click',withSound);
+  var wide=window.matchMedia('(min-width:1024px)').matches,
+      calm=window.matchMedia('(prefers-reduced-motion:reduce)').matches,
+      save=navigator.connection&&navigator.connection.saveData;
+  if(!wide||calm||save||!('IntersectionObserver' in window)) return;
+  function arm(){
+    var io=new IntersectionObserver(function(es){
+      if(!es[0].isIntersecting) return; io.disconnect();
+      if(v) return; mk(true);var p=v.play();
+      var ok=function(){btn.className='ym-lpv-b ym-snd';btn.innerHTML='<span>צפו עם קול</span>';started=true;ev('autoplay');};
+      if(p&&p.then)p.then(ok).catch(function(){v.remove();v=null;});else ok();
+    },{threshold:.5});
+    io.observe(box);
+  }
+  if(document.readyState==='complete') setTimeout(arm,1500); else window.addEventListener('load',function(){setTimeout(arm,1500);});
+})();
+</script>
+</section>
+<!-- /YMEDIA LP video -->
+
 
 <div class="badges-row">
   <div class="badges-inner">
