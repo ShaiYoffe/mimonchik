@@ -739,6 +739,59 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   if(document.readyState==='complete') setTimeout(arm,1500); else window.addEventListener('load',function(){setTimeout(arm,1500);});
 })();
 </script>
+<!-- YMEDIA LP video CTA v1 — "השאירו פרטים" under the video; opens the page's REAL lead form in a popup (the same DOM node is moved in and back, so every handler/integration is untouched). Tags the lead: utm_term += lp-video while the popup is open. -->
+<div class="ym-cta" data-form=".form-card" style="--ym-accent:#FFD93D;--ym-ink:#1A3A35;--ym-on:#1A3A35">
+<style>
+.ym-cta{direction:rtl;text-align:center;padding:14px 16px 6px}
+.ym-cta-b{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 30px;border:0;border-radius:999px;cursor:pointer;font:inherit;font-weight:800;font-size:18px;background:var(--ym-accent);color:var(--ym-on);box-shadow:0 10px 24px -10px rgba(0,0,0,.45)}
+.ym-cta-b:focus-visible{outline:3px solid var(--ym-ink);outline-offset:3px}
+.ym-lpv-end{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45)}
+.ym-pop{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;background:rgba(10,12,20,.62);padding:56px 12px 24px;direction:rtl;-webkit-overflow-scrolling:touch}
+.ym-pop-in{position:relative;width:100%;max-width:520px;margin:auto 0}
+.ym-pop-x{position:absolute;top:-44px;left:0;width:40px;height:40px;border:0;border-radius:50%;background:#fff;color:#111;font-size:24px;line-height:40px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+html.ym-pop-open,html.ym-pop-open body{overflow:hidden}
+</style>
+<button type="button" class="ym-cta-b">השאירו פרטים לבדיקת זכאות</button>
+<script>
+(function(){
+  var wrap=document.currentScript.parentNode, btn=wrap.querySelector('.ym-cta-b');
+  var sel=wrap.getAttribute('data-form'), pop=null, holder=null, form=null, origUrl=null;
+  function ev(a){(window.dataLayer=window.dataLayer||[]).push({event:'lp_video',video_action:a});}
+  function tagUrl(){
+    try{var u=new URL(location.href);origUrl=location.href;var t=u.searchParams.get('utm_term')||'';
+      if(t.indexOf('lp-video')<0){u.searchParams.set('utm_term',t?t+'|lp-video':'lp-video');history.replaceState(history.state,'',u.toString());}}catch(e){}
+  }
+  function untag(){try{if(origUrl&&location.href!==origUrl){history.replaceState(history.state,'',origUrl);}}catch(e){}origUrl=null;}
+  function close(){
+    if(!pop)return; if(form&&holder){holder.parentNode.insertBefore(form,holder);holder.remove();}
+    pop.remove();pop=null;form=null;holder=null;document.documentElement.classList.remove('ym-pop-open');untag();ev('cta_close');
+  }
+  function open(){
+    form=document.querySelector(sel);
+    if(!form){var f=document.querySelector('form, input[type=tel]');if(f)f.scrollIntoView({behavior:'smooth',block:'center'});return;}
+    tagUrl();
+    holder=document.createComment('ym-form-holder');form.parentNode.insertBefore(holder,form);
+    pop=document.createElement('div');pop.className='ym-pop';pop.setAttribute('role','dialog');pop.setAttribute('aria-modal','true');
+    pop.innerHTML='<div class="ym-pop-in"><button type="button" class="ym-pop-x" aria-label="סגירה">×</button></div>';
+    pop.firstChild.appendChild(form);
+    // attach outside <body> so a transformed body can't trap position:fixed
+    document.documentElement.appendChild(pop);document.documentElement.classList.add('ym-pop-open');
+    pop.querySelector('.ym-pop-x').addEventListener('click',close);
+    pop.addEventListener('click',function(e){if(e.target===pop)close();});
+    var first=form.querySelector('input:not([type=hidden]):not([type=checkbox]),textarea,select');if(first)try{first.focus({preventScroll:true});}catch(e){}
+    ev('cta_open');
+  }
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  btn.addEventListener('click',open);
+  // when the video ends, show the same CTA over it
+  var box=wrap.parentNode.querySelector('.ym-lpv-box');
+  if(box)box.addEventListener('ended',function(e){if(e.target.tagName!=='VIDEO'||e.target.muted)return;if(box.querySelector('.ym-lpv-end'))return;
+    var o=document.createElement('div');o.className='ym-lpv-end';var b=btn.cloneNode(true);b.addEventListener('click',function(){o.remove();open();});o.appendChild(b);box.appendChild(o);ev('end_cta');},true);
+  window.addEventListener('pagehide',untag);
+})();
+</script>
+</div>
+<!-- /YMEDIA LP video CTA -->
 </section>
 <!-- /YMEDIA LP video -->
 
