@@ -854,24 +854,30 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   if(document.readyState==='complete') setTimeout(arm,1500); else window.addEventListener('load',function(){setTimeout(arm,1500);});
 })();
 </script>
-<!-- YMEDIA LP video CTA v1 — "השאירו פרטים" under the video; opens the page's REAL lead form in a popup (the same DOM node is moved in and back, so every handler/integration is untouched). Tags the lead: utm_term += lp-video while the popup is open. -->
+<!-- YMEDIA LP video CTA v2 — "לחצו כאן לבדיקת זכאות" ON the video (top corner) + a big one when the video ends; opens the page's REAL lead form in a popup (the same DOM node is moved in and back, so every handler/integration is untouched). Tags the lead: utm_term += lp-video while the popup is open. -->
 <div class="ym-cta" data-form=".form-card" style="--ym-accent:#FFD93D;--ym-ink:#1A3A35;--ym-on:#1A3A35">
 <style>
-.ym-cta{direction:rtl;text-align:center;padding:14px 16px 6px}
-.ym-cta-b{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 30px;border:0;border-radius:999px;cursor:pointer;font:inherit;font-weight:800;font-size:18px;background:var(--ym-accent);color:var(--ym-on);box-shadow:0 10px 24px -10px rgba(0,0,0,.45)}
-.ym-cta-b:focus-visible{outline:3px solid var(--ym-ink);outline-offset:3px}
-.ym-lpv-end{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45)}
+.ym-cta{display:none}
+.ym-cta-b{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px;cursor:pointer;font:inherit;font-weight:800;line-height:1.1;white-space:nowrap;background:var(--ym-accent);color:var(--ym-on);box-shadow:0 8px 22px -8px rgba(0,0,0,.55);direction:rtl}
+.ym-cta-b:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.ym-cta-ov{position:absolute;top:10px;right:10px;z-index:3;min-height:38px;padding:0 16px;font-size:14px}
+.ym-lpv-end{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5)}
+.ym-cta-big{min-height:clamp(54px,9vw,84px);padding:0 clamp(26px,5vw,60px);font-size:clamp(19px,3.4vw,32px)}
+@media (min-width:768px){.ym-cta-ov{top:16px;right:16px;min-height:46px;padding:0 22px;font-size:17px}}
 .ym-pop{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;background:rgba(10,12,20,.62);padding:56px 12px 24px;direction:rtl;-webkit-overflow-scrolling:touch}
 .ym-pop-in{position:relative;width:100%;max-width:520px;margin:auto 0}
 .ym-pop-x{position:absolute;top:-44px;left:0;width:40px;height:40px;border:0;border-radius:50%;background:#fff;color:#111;font-size:24px;line-height:40px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3)}
 html.ym-pop-open,html.ym-pop-open body{overflow:hidden}
 </style>
-<button type="button" class="ym-cta-b">השאירו פרטים לבדיקת זכאות</button>
 <script>
 (function(){
-  var wrap=document.currentScript.parentNode, btn=wrap.querySelector('.ym-cta-b');
+  var wrap=document.currentScript.parentNode, TEXT='לחצו כאן לבדיקת זכאות';
   var sel=wrap.getAttribute('data-form'), pop=null, holder=null, form=null, origUrl=null;
+  var box=wrap.parentNode.querySelector('.ym-lpv-box'); if(!box) return;
   function ev(a){(window.dataLayer=window.dataLayer||[]).push({event:'lp_video',video_action:a});}
+  function mk(cls){var b=document.createElement('button');b.type='button';b.className='ym-cta-b '+cls;b.textContent=TEXT;
+    b.addEventListener('click',function(e){e.stopPropagation();var v=box.querySelector('video');if(v&&!v.muted)try{v.pause();}catch(_){}
+      var o=box.querySelector('.ym-lpv-end');if(o)o.remove();open();});return b;}
   function tagUrl(){
     try{var u=new URL(location.href);origUrl=location.href;var t=u.searchParams.get('utm_term')||'';
       if(t.indexOf('lp-video')<0){u.searchParams.set('utm_term',t?t+'|lp-video':'lp-video');history.replaceState(history.state,'',u.toString());}}catch(e){}
@@ -897,11 +903,13 @@ html.ym-pop-open,html.ym-pop-open body{overflow:hidden}
     ev('cta_open');
   }
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
-  btn.addEventListener('click',open);
-  // when the video ends, show the same CTA over it
-  var box=wrap.parentNode.querySelector('.ym-lpv-box');
-  if(box)box.addEventListener('ended',function(e){if(e.target.tagName!=='VIDEO'||e.target.muted)return;if(box.querySelector('.ym-lpv-end'))return;
-    var o=document.createElement('div');o.className='ym-lpv-end';var b=btn.cloneNode(true);b.addEventListener('click',function(){o.remove();open();});o.appendChild(b);box.appendChild(o);ev('end_cta');},true);
+  // CTA on top of the video, always visible
+  box.appendChild(mk('ym-cta-ov'));
+  // big CTA in the middle when the video ends (played with sound)
+  box.addEventListener('ended',function(e){if(e.target.tagName!=='VIDEO'||e.target.muted)return;if(box.querySelector('.ym-lpv-end'))return;
+    var v=e.target;v.controls=false;var small=box.querySelector('.ym-cta-ov');if(small)small.style.display='none';
+    var o=document.createElement('div');o.className='ym-lpv-end';o.appendChild(mk('ym-cta-big'));box.appendChild(o);ev('end_cta');
+    v.addEventListener('play',function(){o.remove();v.controls=true;if(small)small.style.display='';},{once:true});},true);
   window.addEventListener('pagehide',untag);
 })();
 </script>
